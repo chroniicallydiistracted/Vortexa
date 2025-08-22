@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install root deps
+        run: npm ci --no-audit --no-fund
+      - name: Build workspaces
+        run: npm run build
+      - name: Package alerts lambda
+        run: npm run package:alerts
+      - name: Show alerts artifact details
+        run: ls -l services/alerts/dist-zip && cat services/alerts/dist-zip/alerts.zip.sha256
+      - name: Verify alerts zip checksum file
+        run: |
+          set -euo pipefail
+          cd services/alerts/dist-zip
+          sha=$(sha256sum alerts.zip | awk '{print $1}')
+          recorded=$(awk '{print $1}' alerts.zip.sha256)
+          if [ "$sha" != "$recorded" ]; then
+            echo "Checksum mismatch: $sha != $recorded" >&2
+            exit 1
+          fi
+      - name: Terraform init & validate
+        run: |
+          cd infra/terraform
+          terraform init -input=false
+          terraform validate
+      - name: Terraform fmt check
+        run: |
+          cd infra/terraform
+          terraform fmt -check -diff
+
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: build-and-validate
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform cache
+        uses: actions/cache@v4
+        with:
+          path: infra/terraform/.terraform
+          key: terraform-${{ hashFiles('infra/terraform/.terraform.lock.hcl') }}
+      - name: Terraform init
+        run: |
+          cd infra/terraform
+          terraform init -input=false
+      - name: Terraform plan
+        id: plan
+        run: |
+          cd infra/terraform
+          terraform plan -no-color -input=false > plan.txt || true
+          cat plan.txt
+          echo "plan<<EOF" >> $GITHUB_OUTPUT
+          sed -e 's/`/\`/g' plan.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Comment plan
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: terraform-plan
+          message: |
+            ### Terraform Plan
+            ```
+            ${{ steps.plan.outputs.plan }}
+            ```

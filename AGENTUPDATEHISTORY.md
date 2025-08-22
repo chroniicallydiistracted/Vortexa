@@ -80,3 +80,38 @@ Note: Removed explicit dependency on an internal cert validation resource (not d
 
 ---
 Prepared by automated assistant per user request before PR creation.
+
+## Structured Change Log Entries (Appended)
+
+### 2025-08-22: Terraform Domain Validation & Deterministic Alerts Packaging
+Change IDs: (see JSONL for canonical IDs)
+
+Summary:
+- Added Terraform variable validation blocks ensuring `domain_name` and `acm_certificate_arn` are either BOTH set or BOTH empty; enforced us-east-1 ARN pattern for ACM.
+- Rewrote `scripts/package-alerts.sh` for deterministic Lambda artifact creation (uses `npm ci`, prunes dev deps, sorted file list, stable zip with checksum output).
+
+Motivation / Rationale:
+- Prevent partial custom domain configuration that would yield a misconfigured CloudFront distribution or unintended default cert usage.
+- Ensure reproducible, minimal Lambda deployment package (smaller size, integrity hash for promotion or attestation, supports future CI caching and SBOM).
+
+Scope of Impact:
+- Infra safety: earlier surfacing of configuration mistakes during `terraform validate`.
+- Deployment pipeline: packaging script now produces `alerts.zip` plus `alerts.zip.sha256` for integrity checks.
+
+Risk Assessment:
+- Low: Validation only rejects invalid combos that would not have behaved as intended; packaging script deterministic but preserves output location.
+
+Next Steps / Follow Ups:
+- Integrate GitHub Actions workflow to invoke packaging + record checksum artifact.
+- Add size and hash verification step in deploy script before upload.
+- Consider SBOM generation (e.g., `cyclonedx-npm`) post-prune for supply chain tracking.
+
+Verification (manual):
+- Terraform file syntactically valid (no apply executed yet pending human approval).
+- Packaging script run locally to confirm non-empty zip & checksum (CI automation to be added).
+
+Vision Alignment:
+- Reliability & Operational Safety (Goal 2): early detection of misconfiguration.
+- Scalable Infrastructure (Goal 6): reproducible artifacts for consistent promotion environments.
+
+---

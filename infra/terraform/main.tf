@@ -312,6 +312,10 @@ variable "domain_name" {
   description = "FQDN to serve via CloudFront (e.g., weather.westfam.media). Leave empty string to skip."
   type        = string
   default     = ""
+  validation {
+    condition     = (var.domain_name == "" && var.acm_certificate_arn == "") || (var.domain_name != "" && var.acm_certificate_arn != "")
+    error_message = "If domain_name is set you must also set acm_certificate_arn; leave both empty to use the default CloudFront domain/cert."
+  }
 }
 
 # Optional existing ACM certificate ARN (must be in us-east-1). If provided along with domain_name,
@@ -321,6 +325,10 @@ variable "acm_certificate_arn" {
   description = "Existing ACM certificate ARN in us-east-1 for the custom domain (leave blank to use default cert)."
   type        = string
   default     = ""
+  validation {
+    condition     = var.acm_certificate_arn == "" || can(regex("^arn:aws:acm:us-east-1:[0-9]{12}:certificate/", var.acm_certificate_arn))
+    error_message = "acm_certificate_arn must be an ACM certificate ARN in us-east-1."
+  }
 }
 
 output "cdn_domain" {
