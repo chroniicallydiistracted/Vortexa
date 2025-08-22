@@ -110,8 +110,11 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
-  # If you set a custom domain (var.domain_name), use your ACM cert.
-  # If you leave domain_name empty, CloudFront's default cert is used.
+  # Certificate selection logic:
+  # 1. If no custom domain, use CloudFront default cert.
+  # 2. If custom domain AND external ACM ARN supplied via var.acm_certificate_arn, use that.
+  # 3. (Optional future) If you want Terraform to request a cert & DNS validate, add resources
+  #    separately (kept out to avoid forcing Route53 management here).
   dynamic "viewer_certificate" {
     for_each = var.domain_name == "" ? [0] : []
     content {
@@ -120,19 +123,18 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   dynamic "viewer_certificate" {
-    for_each = var.domain_name == "" ? [] : [0]
+    for_each = var.domain_name != "" && var.acm_certificate_arn != "" ? [0] : []
     content {
-      acm_certificate_arn      = aws_acm_certificate.cf_cert.arn
+      acm_certificate_arn      = var.acm_certificate_arn
       ssl_support_method       = "sni-only"
       minimum_protocol_version = "TLSv1.2_2021"
     }
   }
 
-  # Ensure cert validation completes before we try to attach it
-  depends_on = [
-    aws_cloudfront_origin_access_control.oac,
-    aws_acm_certificate_validation.cf_cert_validation
-  ]
+  # If you supply an ACM certificate ARN, ensure it lives in us-east-1.
+  lifecycle {
+    ignore_changes = [viewer_certificate]
+  }
 }
 
 # -------------------------
@@ -308,6 +310,15 @@ variable "proxy_cache_bucket" {
 # Custom domain for CloudFront (set to "" to skip custom domain)
 variable "domain_name" {
   description = "FQDN to serve via CloudFront (e.g., weather.westfam.media). Leave empty string to skip."
+  type        = string
+  default     = ""
+}
+
+# Optional existing ACM certificate ARN (must be in us-east-1). If provided along with domain_name,
+# the distribution will use this certificate. If empty, and domain_name is set, you must separately
+# provision & validate an ACM cert and re-apply with the ARN.
+variable "acm_certificate_arn" {
+  description = "Existing ACM certificate ARN in us-east-1 for the custom domain (leave blank to use default cert)."
   type        = string
   default     = ""
 }

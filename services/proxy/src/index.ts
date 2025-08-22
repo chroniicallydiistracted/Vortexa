@@ -5,32 +5,62 @@ import { fetch } from 'undici';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import crypto from 'node:crypto';
 import morgan from 'morgan';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('tiny'));
 // Simple hard-coded cache headers for tiles
-app.use((_req, res, next)=>{ res.setHeader('Access-Control-Allow-Origin', '*'); next(); });
+app.use(( _req: express.Request, res: express.Response, next: express.NextFunction)=>{ res.setHeader('Access-Control-Allow-Origin', '*'); next(); });
 
 const PORT = process.env.PORT || 4000;
-const ALLOW = (process.env.ALLOW_HOSTS || 'gibs.earthdata.nasa.gov,opengeo.ncep.noaa.gov,nomads.ncep.noaa.gov').split(',').map(s=>s.trim());
+const ALLOW = (process.env.ALLOW_HOSTS || 'gibs.earthdata.nasa.gov,opengeo.ncep.noaa.gov,nomads.ncep.noaa.gov')
+  .split(',')
+  .map(s=>s.trim())
+  .filter(Boolean);
 const S3_BUCKET = process.env.S3_BUCKET || '';
 const s3 = S3_BUCKET ? new S3Client({}) : null;
+if(!S3_BUCKET){
+  logger.info({ msg: 'cache: disabled' });
+} else {
+  logger.info({ msg: `cache: s3://${S3_BUCKET}` });
+}
+
+let pkgVersion = '0.0.0';
+try {
+  const pkgPath = path.join(process.cwd(), 'package.json');
+  pkgVersion = JSON.parse(fs.readFileSync(pkgPath,'utf8')).version || pkgVersion;
+} catch {}
 
 function allowHost(url: string){
   try {
     const h = new URL(url).host;
-  return ALLOW.includes(h) || ALLOW.includes(h.replace(/^www\./,''));
-  } catch { return false; }
+    const ok = ALLOW.includes(h) || ALLOW.includes(h.replace(/^www\./,''));
+    if(!ok){
+      logger.warn({ msg: 'rejecting upstream host', host: h, allow: ALLOW });
+    }
+    return ok;
+  } catch (e){
+    logger.warn({ msg: 'invalid url', url });
+    return false;
+  }
 }
 
-app.get('/health', (_req,res)=> res.json({ ok:true }));
+app.get('/health', (_req: express.Request,res: express.Response)=> res.json({ ok:true }));
+app.get('/healthz', (_req: express.Request,res: express.Response)=> res.json({ status:'ok', upstreams: ALLOW, time: new Date().toISOString() }));
+app.get('/version', (_req: express.Request,res: express.Response)=> res.json({ version: pkgVersion }));
 
 // Simple WMS/WMTS passthrough with optional S3 cache
-app.get('/proxy', async (req,res)=>{
+app.get('/proxy', async (req: express.Request,res: express.Response)=>{
   const target = req.query.url as string;
-  if(!target || !allowHost(target)) return res.status(400).json({ error:'blocked or missing url' });
+  if(!target){
+    return res.status(400).json({ error:'missing url' });
+  }
+  if(!allowHost(target)){
+    return res.status(400).json({ error:'blocked host' });
+  }
   const cacheKey = crypto.createHash('sha1').update(target).digest('hex');
   try {
     if(s3){
@@ -56,7 +86,7 @@ app.get('/proxy', async (req,res)=>{
 });
 
 // WMTS shorthand: /tiles/wmts?base=...&layer=...&z={z}&x={x}&y={y}
-app.get('/tiles/wmts', async (req,res)=>{
+app.get('/tiles/wmts', async (req: express.Request,res: express.Response)=>{
   const { base, layer, x, y, z, format, time } = req.query as any;
   if(!base || !layer) return res.status(400).json({ error:'missing base/layer' });
   // Normalize common GIBS patterns:
