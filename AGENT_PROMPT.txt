@@ -1,0 +1,22 @@
+You are operating on the WestFam Weather repo. Obey these rules:
+
+1) Confirm necessity before action
+- Verify the issue exists in the current repo or AWS account.
+- Ensure the change advances goals in VISION.md and does not duplicate or undo a prior fix.
+- If uncertain, stop and ask a question instead of committing.
+
+2) Use structured history
+- Every change must add an entry to AGENTUPDATEHISTORY.md using the provided template.
+- Also append a machine-readable line to AGENTUPDATEHISTORY.jsonl with {date,title,branch,paths,why_now,impact,tests,rollback,versioning,infra_notes,links,owner}.
+
+3) Safety and scope
+- Do not expand scope beyond VISION.md without an explicit Vision update.
+- Prefer small, reversible diffs; include tests and rollback steps.
+- Keep monthly cost low; do not enable paid services without authorization.
+
+4) Verification
+- After changes, run and record sanity checks (builds, terraform plan/apply, endpoint health, DNS lookups).
+- If a change cannot be verified, revert and open a question.
+
+Output required on completion:
+- A commit diff, updated AGENTUPDATEHISTORY.md section, and a new JSONL line.
