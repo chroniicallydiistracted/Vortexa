@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+**/dist/
+**/dist-zip/
+web/dist/
+
+# Env
+.env
+**/.env.local
+
+# Terraform
+.terraform/
+terraform.tfstate*
+
+# OS/Editor
+.DS_Store
+.vscode/
+*** End Patchnode_modules

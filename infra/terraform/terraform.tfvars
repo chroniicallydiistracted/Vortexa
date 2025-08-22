@@ -1,0 +1,7 @@
+region         = "us-west-2"
+name           = "westfam"
+web_bucket     = "westfam-web-131471595508-us-west-2"
+data_bucket    = "westfam-data-131471595508-us-west-2"
+alerts_zip     = "../../services/alerts/dist-zip/alerts.zip"
+nws_user_agent = "WestFamWeather/1.0 (you@example.com)"
+# proxy_cache_bucket = "westfam-proxy-cache-131471595508-us-west-2"
