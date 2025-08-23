@@ -3,7 +3,7 @@ import maplibregl, { Map as MLMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // For now the palette is just an array of entries; only slug is used to find tile template (future integration)
-type CatalogEntry = { slug: string; suggested_label?: string; };
+type CatalogEntry = { slug: string; suggested_label?: string; tile_url_template?: string; time_format?: string; source_type?: string; };
 type Catalog = CatalogEntry[];
 
 interface MapProps { activeLayerSlug: string | null; catalog: Catalog | null; onMapReady?: (map: MLMap)=> void; currentTime?: number }
@@ -33,17 +33,31 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
     if(map.getSource('weather-source')){ map.removeSource('weather-source'); }
     // If selection cleared, do nothing further
     if(!activeLayerSlug || activeLayerSlug === '') return;
-    // Temporary: only one known working layer (satellite) mapped to existing template
-    let tileTemplate: string | null = null;
-    let tileSize = 256;
-    if(activeLayerSlug === 'satellite-imagery'){
-      // Use {time} placeholder date segment
-      tileTemplate = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_GeoColor_ENHANCED/default/{time}/{z}/{y}/{x}.jpg';
+
+    // Find catalog entry
+    const entry = catalog?.find(e=> e.slug === activeLayerSlug);
+    const template = entry?.tile_url_template;
+    const timeFormat = entry?.time_format; // 'unix_timestamp' | 'YYYY-MM-DD' etc.
+    if(!template){
+      return; // nothing to render yet
     }
-    if(!tileTemplate) return; // others not yet implemented (expected 404 avoidance)
-    const dateStr = currentTime ? new Date(currentTime).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
-    const tiles = [tileTemplate.replace('{time}', dateStr)];
-    map.addSource('weather-source', { type: 'raster', tiles, tileSize } as any);
+
+    // Format time placeholder
+    const nowMs = currentTime || Date.now();
+    let timeToken: string;
+    if(timeFormat === 'unix_timestamp'){
+      // Rainviewer expects UNIX seconds (not ms) – confirm by docs; using floor
+      timeToken = Math.floor(nowMs / 1000).toString();
+    } else if(timeFormat === 'YYYY-MM-DD') {
+      timeToken = new Date(nowMs).toISOString().slice(0,10);
+    } else {
+      // Default: ISO date
+      timeToken = new Date(nowMs).toISOString().slice(0,10);
+    }
+
+    const tileUrl = template.replace('{time}', timeToken);
+
+    map.addSource('weather-source', { type: 'raster', tiles:[tileUrl], tileSize: 256 } as any);
     map.addLayer({ id:'weather-layer', type:'raster', source:'weather-source' });
   },[activeLayerSlug, catalog, currentTime]);
   // alerts overlay once
