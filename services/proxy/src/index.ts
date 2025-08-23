@@ -99,6 +99,7 @@ export function createApp(opts: CreateAppOptions = {}) {
   const _ddb = new DynamoDBClient({
     region: process.env.AWS_REGION || 'us-west-2',
     endpoint: isLocal ? (process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000') : undefined,
+    credentials: isLocal ? { accessKeyId: 'dummyKeyId', secretAccessKey: 'dummySecretKey' } : undefined,
   });
   const ddbDoc = DynamoDBDocumentClient.from(_ddb);
   app.get('/api/alerts', async (_req, res) => {
