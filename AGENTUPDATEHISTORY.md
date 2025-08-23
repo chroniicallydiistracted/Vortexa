@@ -115,3 +115,66 @@ Vision Alignment:
 - Scalable Infrastructure (Goal 6): reproducible artifacts for consistent promotion environments.
 
 ---
+
+### 2025-08-22: Accessible HTML Shell & PWA Scaffolding (`web/index.html`)
+
+Summary:
+- Expanded `web/index.html` into a richer, accessible UI shell: added language + theme attributes, meta tags (`description`, `theme-color`, `color-scheme`), icon & manifest links, structural landmarks (banner header, toolbar as dock, timeline controls), skip link, screen reader live region, semantic roles, and baseline styling (glass panels, responsive adjustments). Included minimal JS for demo interactivity (aria-pressed toggle) without coupling to React app logic.
+
+Rationale:
+- Establish accessible, performance-minded foundation (landmarks, skip navigation, aria attributes) and prepare for future PWA (manifest, icons). Reduces future diff size by centralizing layout scaffolding early.
+
+Files Touched:
+- `web/index.html` (major modify)
+
+Testing / Validation:
+- Manual load via Vite dev: verified rendering, skip link focus behavior, aria-pressed toggling, no console errors.
+
+Risk:
+- Low (static HTML only). No runtime code paths altered; React mount point unchanged (app mounts into map container / root script tag still present).
+
+Rollback:
+- Revert file to prior minimal HTML; no state migrations required.
+
+Follow Ups:
+- Add Lighthouse baseline (perf/a11y) and track improvements.
+- Implement dynamic timestamps & playback logic inside React layer.
+
+Vision Alignment:
+- High-Performance Visualization (Goal 2): groundwork for responsive performant UI.
+- Personalization & Accessibility (Goal 5): initial a11y affordances.
+
+---
+
+### 2025-08-22: History Schema Migration v1.0 -> v2.0 & Governance Docs
+
+Summary:
+- Upgraded `AGENTUPDATEHISTORY.jsonl` schema to v2.0 adding: `category`, `change_type`, `cost_impact`, `reviewers[]`, `relates_to_vision[]`, `paths[]`, `validation[]`. Backfilled prior entries with new fields (defaulting `cost_impact: none`, empty reviewers). Added governance collateral: PR template, commit conventions, and operational runbook. Logged migration entry in JSONL.
+
+Rationale:
+- Improve traceability, enforce explicit vision alignment tagging, capture cost/risk context, and standardize contribution workflow to reduce ambiguity and future audit friction.
+
+Files Touched:
+- `AGENTUPDATEHISTORY.jsonl` (schema line + backfilled entries + new migration entry)
+- `.github/pull_request_template.md` (new)
+- `docs/COMMIT_CONVENTIONS.md` (new)
+- `docs/RUNBOOK.md` (new)
+
+Testing / Validation:
+- Manual inspection of JSONL for syntactic correctness; ensured each existing entry now surfaces required v2.0 fields.
+
+Risk:
+- Low: additive metadata; no runtime code depends on schema yet.
+
+Rollback:
+- Restore previous JSONL from git history and remove added docs (would lose enhanced metadata).
+
+Follow Ups:
+- Add CI step to validate JSONL entries against schema.
+- Populate `reviewers[]` when human approvals occur.
+
+Vision Alignment:
+- Scalable Infrastructure / Operational Excellence (Goal 6): better governance & auditability.
+- Personalization & Accessibility (Goal 5): indirectly via process rigor enabling safe a11y improvements.
+
+---

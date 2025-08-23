@@ -1,0 +1,16 @@
+name: History Enforcement
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+      - name: Verify history coverage
+        run: |
+          node scripts/verify-history-coverage.js

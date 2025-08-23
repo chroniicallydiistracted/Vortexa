@@ -1,12 +1,143 @@
 <!doctype html>
-<html>
+<html lang="en" data-theme="system">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="WestFam Weather — fast, family-focused storm and earth-science dashboard." />
+    <meta name="theme-color" content="#0d1117" />
     <title>WestFam Weather</title>
+
+    <!-- Icons / PWA (fill with real assets when ready) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Optional: preconnect once origins are final -->
+    <!-- <link rel="preconnect" href="https://weather.westfam.media" crossorigin> -->
+    <!-- <link rel="preconnect" href="https://tiles.example.com" crossorigin> -->
+
+    <style>
+      :root{
+        --bg:#0b0f14;--panel:#10161d;--muted:#8ea0b3;--accent:#69b2ff;--surface:#111821;--radius:14px;
+        --glass:rgba(16,22,29,.8);--glass-weak:rgba(16,22,29,.6);--border:rgba(255,255,255,.06);
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%;margin:0}
+      body{font:14px/1.4 system-ui,Segoe UI,Roboto,Arial;color:#e8eef6;background:var(--bg)}
+
+      /* Map canvas fills the viewport */
+      #map{position:fixed;inset:0;background:#0c1622}
+
+      /* Top bar */
+      #topbar{position:fixed;left:12px;right:12px;top:12px;display:flex;gap:8px;align-items:center;z-index:20}
+      .brand{display:flex;gap:.5rem;align-items:center;padding:.5rem .75rem;background:var(--glass);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:999px}
+      .brand b{font-weight:700}
+      .search{flex:1;display:flex;align-items:center;background:var(--glass);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:999px;padding:.5rem .75rem}
+      .search input{width:100%;background:transparent;border:0;outline:0;color:#e8eef6}
+      .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:999px;background:var(--glass);border:1px solid var(--border)}
+      .btn{cursor:pointer;user-select:none}
+
+      /* Floating dock (right) */
+      #dock{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20}
+      .dock-item{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--glass);backdrop-filter:blur(6px);border:1px solid var(--border)}
+      .dock-item[aria-pressed="true"]{outline:2px solid var(--accent)}
+      .dock-item:hover{background:var(--glass-weak)}
+
+      /* Bottom timeline */
+      #timeline{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:var(--radius);z-index:20}
+      .tl-btn{height:36px;min-width:36px;display:grid;place-items:center;border-radius:10px;background:var(--surface);border:1px solid var(--border);padding:0 .5rem}
+      .tl-btn[aria-pressed="true"]{outline:2px solid var(--accent)}
+      .seg{display:flex;gap:6px}
+      .timestamp{color:var(--muted)}
+
+      /* Footer attribution */
+      #legal-footer{position:fixed;left:8px;bottom:8px;z-index:20;background:var(--glass-weak);border:1px solid var(--border);backdrop-filter:blur(4px);border-radius:10px;padding:6px 8px}
+      #legal-footer small{font-size:12px;color:#c9d6e2}
+
+      /* Accessibility helpers */
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+      .skip-link{position:absolute;left:-9999px;top:auto}
+      .skip-link:focus{left:1rem;top:1rem;background:#fff;color:#111;padding:.5rem .75rem;border-radius:.5rem;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+      @media (max-width:900px){
+        #dock{right:8px}
+        #timeline{left:8px;right:8px;transform:none}
+        #topbar{left:8px;right:8px}
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <a class="skip-link" href="#app-root">Skip to content</a>
+
+    <!-- Full-screen map canvas (your app mounts/controls actual map) -->
+    <div id="map" aria-label="Map canvas" role="region"></div>
+
+    <!-- Top bar: brand + search + quick actions -->
+    <header id="topbar" role="banner">
+      <div class="brand" aria-label="Site">
+        <img src="/icon.svg" alt="" width="18" height="18" />
+        <b>WestFam Weather</b>
+      </div>
+      <label class="search" aria-label="Search location">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" fill="none"/><line x1="16.65" y1="16.65" x2="21" y2="21" stroke="currentColor"/></svg>
+        <input id="search-input" type="search" placeholder="Search location…" autocomplete="off" />
+      </label>
+      <div class="chip btn" id="share-btn" role="button" aria-label="Share view">Share</div>
+    </header>
+
+    <!-- Floating dock: compact vertical tool set -->
+    <aside id="dock" role="toolbar" aria-label="Layer controls">
+      <button class="dock-item" id="tool-radar" aria-pressed="true" title="Weather radar">🌧️</button>
+      <button class="dock-item" id="tool-satellite" aria-pressed="false" title="Satellite">🛰️</button>
+      <button class="dock-item" id="tool-wind" aria-pressed="false" title="Wind">🌀</button>
+      <button class="dock-item" id="tool-temp" aria-pressed="false" title="Temperature">🌡️</button>
+      <button class="dock-item" id="tool-clouds" aria-pressed="false" title="Clouds">☁️</button>
+      <button class="dock-item" id="tool-more" aria-pressed="false" title="More layers">⋯</button>
+    </aside>
+
+    <!-- Bottom timeline / playback -->
+    <section id="timeline" role="toolbar" aria-label="Time controls">
+      <button class="tl-btn" id="play-toggle" aria-pressed="false" title="Play/Pause">⏯</button>
+      <div class="seg" role="group" aria-label="Window">
+        <button class="tl-btn" aria-pressed="true">24h</button>
+        <button class="tl-btn" aria-pressed="false">6h</button>
+        <button class="tl-btn" aria-pressed="false">1h</button>
+      </div>
+      <div class="seg" role="group" aria-label="Layer subset">
+        <button class="tl-btn" aria-pressed="true">SAT</button>
+        <button class="tl-btn" aria-pressed="false">RAD</button>
+      </div>
+      <div class="seg" role="group" aria-label="Channel">
+        <button class="tl-btn" aria-pressed="true">Blue</button>
+        <button class="tl-btn" aria-pressed="false">Visible</button>
+        <button class="tl-btn" aria-pressed="false">Infra</button>
+      </div>
+      <div class="timestamp" aria-live="polite">7:21 PM · 21m ago</div>
+    </section>
+
+    <!-- Screen‑reader live region for status -->
+    <div id="sr-live" aria-live="polite" class="sr-only"></div>
+
+    <!-- Attribution / legal -->
+    <footer id="legal-footer">
+      <small>
+        Map data © OpenStreetMap contributors. NASA imagery via GIBS (EOSDIS) when enabled. NOAA/NWS products where indicated; official forecasts at weather.gov.
+      </small>
+    </footer>
+
+    <!-- Entry for Vite/React app (mount into #map and hydrate controls) -->
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Minimal interactivity for static preview; real behavior belongs in the app -->
+    <script>
+      document.querySelectorAll('#dock .dock-item').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const on = btn.getAttribute('aria-pressed')==='true';
+          btn.setAttribute('aria-pressed', String(!on));
+        });
+      });
+    </script>
   </body>
 </html>

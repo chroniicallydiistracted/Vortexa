@@ -11,14 +11,16 @@ cd infra/terraform
 terraform init
 terraform apply -var='region=us-west-2' \
   -var='name=westfam' \
-  -var='web_bucket=westfam-web-<your-suffix>' \
-  -var='data_bucket=westfam-data-<your-suffix>' \  -var='alerts_zip=../../services/alerts/dist-zip/alerts.zip'
+  -var='web_bucket=westfam-web-<unique-suffix>' \
+  -var='data_bucket=westfam-data-<unique-suffix>' \
+  -var='alerts_zip=../../services/alerts/dist-zip/alerts.zip'
 ```
 > Create `alerts.zip` via: `./scripts/package-alerts.sh`
 
 ## 2) Publish web
 ```bash
-export WEB_BUCKET=westfam-web-<your-suffix>
+export WEB_BUCKET=westfam-web-<unique-suffix>
+# Suffix guidance: choose a short globally-unique token (e.g., initials + date) to avoid S3 name collisions.
 ./scripts/deploy.sh
 ```
 CloudFront domain is printed as `cdn_domain` output.

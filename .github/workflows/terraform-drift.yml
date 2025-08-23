@@ -1,0 +1,49 @@
+name: Terraform Drift
+
+on:
+  schedule:
+    - cron: '17 3 * * *' # daily at 03:17 UTC
+  workflow_dispatch: {}
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform cache
+        uses: actions/cache@v4
+        with:
+          path: infra/terraform/.terraform
+          key: terraform-${{ hashFiles('infra/terraform/.terraform.lock.hcl') }}
+      - name: Terraform init
+        run: |
+          cd infra/terraform
+          terraform init -input=false
+      - name: Terraform plan
+        id: plan
+        run: |
+          cd infra/terraform
+          terraform plan -no-color -input=false > plan.txt || true
+          echo '--- Plan Start ---'
+          cat plan.txt
+          echo '--- Plan End ---'
+          if grep -q "No changes. Your infrastructure matches the configuration." plan.txt; then
+            echo "status=clean" >> $GITHUB_OUTPUT
+          else
+            echo "status=drift" >> $GITHUB_OUTPUT
+          fi
+      - name: Create/update drift issue
+        if: steps.plan.outputs.status == 'drift'
+        id: create_issue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Terraform Drift Detected"
+          content-filepath: infra/terraform/plan.txt
+          labels: drift,infra
+      - name: Drift issue reference
+        if: steps.plan.outputs.status == 'drift'
+        run: |
+          echo "Drift issue created: #${{ steps.create_issue.outputs.issue-number }}" || true

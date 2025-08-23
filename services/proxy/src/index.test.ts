@@ -4,15 +4,20 @@ import { createApp } from './index';
 
 describe('proxy basic endpoints', () => {
   const app = createApp({ allowHosts: ['example.com'] });
-  it('GET /health returns ok', async () => {
+  it('/health returns ok', async () => {
     const r = await request(app).get('/health');
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ ok: true });
   });
-  it('GET /healthz returns status ok', async () => {
+  it('/healthz returns status ok', async () => {
     const r = await request(app).get('/healthz');
     expect(r.status).toBe(200);
     expect(r.body.status).toBe('ok');
     expect(Array.isArray(r.body.upstreams)).toBe(true);
+  });
+  it('/version returns version', async () => {
+    const r = await request(app).get('/version');
+    expect(r.status).toBe(200);
+    expect(r.body.version).toBeDefined();
   });
 });

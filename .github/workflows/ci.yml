@@ -27,6 +27,8 @@ jobs:
         run: npm run build
       - name: Run tests
         run: npm run test
+      - name: Validate history schema
+        run: npm run validate:history
       - name: Package alerts lambda
         run: npm run package:alerts
       - name: Show alerts artifact details

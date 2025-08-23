@@ -1,0 +1,35 @@
+name: Lighthouse Audit
+
+on:
+  schedule:
+    - cron: '13 4 * * *' # daily at 04:13 UTC
+  workflow_dispatch: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps (web)
+        run: |
+          npm ci --workspaces=false
+          npm -w web install
+      - name: Build web
+        run: npm -w web run build
+      - name: Serve and run Lighthouse
+        run: |
+          npm -w web run preview &
+          PREVIEW_PID=$!
+          sleep 5
+          BASE_URL=http://localhost:4173 bash scripts/lighthouse-baseline.sh
+          kill $PREVIEW_PID || true
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse/
