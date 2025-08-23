@@ -42,6 +42,18 @@ npm i
 npm run dev
 ```
 
+## Testing
+Run all tests (proxy, alerts, shared types):
+```bash
+npm run test
+```
+Add tests when changing behavior. Proxy tests live in `services/proxy/src/*.test.ts`.
+
+## Environment Variables
+- Root `.env` (see `.env.example`) for shared deploy & packaging vars: `WEB_BUCKET`, `DATA_BUCKET`, `PROXY_CACHE_BUCKET`, `NWS_USER_AGENT`.
+- Web `web/.env.local` from `web/.env.example` sets `VITE_TILE_BASE` (defaults to local proxy if unset).
+- Terraform variables set in `infra/terraform/terraform.tfvars` (or via environment) for bucket names, region, domain.
+
 ## Deploy (AWS)
 1. Ensure Terraform and AWS credentials (or OIDC from GitHub Actions).
 2. `cd infra/terraform && terraform init && terraform apply`.
