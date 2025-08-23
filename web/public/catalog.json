@@ -41,7 +41,11 @@
     "suggested_label": "Wind",
     "slug": "wind",
     "specificity": "generic",
-    "notes": "10m winds"
+  "notes": "10m winds",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/wind10m/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -50,7 +54,11 @@
     "suggested_label": "Precipitation & lightning",
     "slug": "precipitation-lightning",
     "specificity": "generic",
-    "notes": "Rain rate + lightning strikes if available"
+  "notes": "Rain rate + lightning strikes if available",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/precipitation/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -86,7 +94,11 @@
     "suggested_label": "Wind gusts",
     "slug": "wind-gusts",
     "specificity": "generic",
-    "notes": "Gusts at 10m"
+  "notes": "Gusts at 10m",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/windgusts10m/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -104,7 +116,11 @@
     "suggested_label": "Temperature",
     "slug": "temperature",
     "specificity": "generic",
-    "notes": "2m temperature"
+  "notes": "2m temperature",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/temp2m/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -113,7 +129,11 @@
     "suggested_label": "Dew point",
     "slug": "dew-point",
     "specificity": "generic",
-    "notes": "2m dew point"
+  "notes": "2m dew point",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/dewpoint2m/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -122,7 +142,11 @@
     "suggested_label": "Humidity",
     "slug": "humidity",
     "specificity": "generic",
-    "notes": "Relative humidity"
+  "notes": "Relative humidity",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/rh2m/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -158,7 +182,11 @@
     "suggested_label": "Total cloud cover",
     "slug": "total-cloud-cover",
     "specificity": "generic",
-    "notes": "All-levels cloud fraction"
+  "notes": "All-levels cloud fraction",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/cloudcover/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -203,7 +231,11 @@
     "suggested_label": "Cloud-top temperature/height",
     "slug": "cloud-top-temperature-height",
     "specificity": "generic",
-    "notes": "Derived from IR"
+  "notes": "Derived from IR",
+  "source_type": "raster",
+  "attribution": "NASA GIBS",
+  "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Band13_CMI/default/{time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
+  "time_format": "YYYY-MM-DD"
   },
   {
     "type": "layer",
@@ -221,7 +253,11 @@
     "suggested_label": "Fresh snowfall",
     "slug": "fresh-snowfall",
     "specificity": "generic",
-    "notes": "New snowfall since last period"
+  "notes": "New snowfall since last period",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/snowfall/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -410,7 +446,11 @@
     "suggested_label": "CAPE (convective available potential energy)",
     "slug": "cape-convective-available-potential-energy",
     "specificity": "data-model-specific",
-    "notes": ""
+  "notes": "",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/cape/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
@@ -455,7 +495,11 @@
     "suggested_label": "Mean sea level pressure",
     "slug": "mean-sea-level-pressure",
     "specificity": "generic",
-    "notes": "MSLP contours/filled"
+  "notes": "MSLP contours/filled",
+  "source_type": "raster",
+  "attribution": "Open-Meteo.com",
+  "tile_url_template": "https://tile.open-meteo.com/map/pressure_msl/{z}/{x}/{y}.png?time={time}",
+  "time_format": "ISO8601_HOUR"
   },
   {
     "type": "layer",
