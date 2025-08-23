@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 
-// New palette is a flat array of objects (layers + overlays) without wrapper.
-type PaletteEntry = {
-  type: string; // 'layer' | 'overlay'
+// Adjusted to new catalog structure: { layers: CatalogEntry[] }
+interface CatalogEntry {
   category: string;
-  original_label: string;
   suggested_label: string;
   slug: string;
+  source_type?: string;
   notes?: string;
-  specificity?: string;
-};
+  attribution?: string;
+}
 
 interface PanelProps {
   onSelect: (slug: string)=> void;
@@ -17,18 +16,24 @@ interface PanelProps {
 }
 
 export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
-  const [palette, setPalette] = useState<PaletteEntry[]| null>(null);
+  const [palette, setPalette] = useState<CatalogEntry[]| null>(null);
   useEffect(()=>{
-    fetch('/catalog.json').then(r=> r.json()).then(setPalette).catch(()=>{});
+    fetch('/catalog.json').then(r=> r.json()).then(data=> {
+      if(Array.isArray(data)) {
+        setPalette(data as any); // backward compatibility if array
+      } else if(data && Array.isArray(data.layers)) {
+        setPalette(data.layers);
+      }
+    }).catch(()=>{});
   },[]);
   // Group entries by category
   const grouped = useMemo(()=>{
-    if(!palette) return {} as Record<string, PaletteEntry[]>;
+    if(!palette) return {} as Record<string, CatalogEntry[]>;
     return palette.reduce((acc, e)=>{
       const key = e.category || 'Other';
       (acc[key] = acc[key] || []).push(e);
       return acc;
-    }, {} as Record<string, PaletteEntry[]>);
+    }, {} as Record<string, CatalogEntry[]>);
   },[palette]);
   // Track which categories are collapsed
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -56,7 +61,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
         {!isCollapsed && <div style={{display:'flex', flexWrap:'wrap', gap:6, marginTop:4}}>
           {list.map(entry=>{
             const slug = entry.slug;
-            const label = entry.suggested_label || entry.original_label;
+            const label = entry.suggested_label;
             const active = slug === activeLayerSlug;
             return <button
               key={slug}
@@ -68,12 +73,12 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
                 background: active? '#132235':'#1a2633',
                 color:'#e8eef6', cursor:'pointer',
                 fontSize:12,
-                maxWidth: '140px',
+                maxWidth: '160px',
                 textOverflow:'ellipsis',
                 overflow:'hidden',
                 whiteSpace:'nowrap'
               }}
-              title={entry.original_label + (entry.notes? ` – ${entry.notes}`:'')}
+              title={(entry.notes||'') + (entry.attribution? ` | ${entry.attribution}`:'')}
             >{label}</button>;
           })}
         </div>}

@@ -1,684 +1,126 @@
-[
-  {
-    "type": "layer",
-    "category": "Radar",
-    "original_label": "Weather radar",
-    "suggested_label": "Radar reflectivity",
-    "slug": "radar-reflectivity",
-    "specificity": "generic",
-  "notes": "Base radar mosaic",
-  "source_type": "raster",
-  "attribution": "Rainviewer.com",
-  "tile_url_template": "https://tilecache.rainviewer.com/v2/radar/{time}/512/{z}/{x}/{y}/2/1_1.png",
-  "time_format": "unix_timestamp"
-  },
-  {
-    "type": "layer",
-    "category": "Radar",
-    "original_label": "Radar+ (beta)",
-    "suggested_label": "Radar composites (enhanced)",
-    "slug": "radar-composites-enhanced",
-    "specificity": "generic",
-    "notes": "Enhanced product; tune label later"
-  },
-  {
-    "type": "layer",
-    "category": "Satellite",
-    "original_label": "Satellite",
-    "suggested_label": "Satellite imagery",
-    "slug": "satellite-imagery",
-    "specificity": "generic",
-  "notes": "Geostationary imagery composite",
-  "source_type": "raster",
-  "attribution": "NASA GIBS",
-  "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/{time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
-  "time_format": "YYYY-MM-DD"
-  },
-  {
-    "type": "layer",
-    "category": "Wind",
-    "original_label": "Wind",
-    "suggested_label": "Wind",
-    "slug": "wind",
-    "specificity": "generic",
-  "notes": "10m winds",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/wind10m/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Precipitation",
-    "original_label": "Rain, thunder",
-    "suggested_label": "Precipitation & lightning",
-    "slug": "precipitation-lightning",
-    "specificity": "generic",
-  "notes": "Rain rate + lightning strikes if available",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/precipitation/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Precipitation",
-    "original_label": "Rain accumulation",
-    "suggested_label": "Accumulated precipitation",
-    "slug": "accumulated-precipitation",
-    "specificity": "generic",
-    "notes": "Storm-total / multi-hour sums"
-  },
-  {
-    "type": "layer",
-    "category": "Precipitation",
-    "original_label": "Thunderstorms",
-    "suggested_label": "Thunderstorms",
-    "slug": "thunderstorms",
-    "specificity": "generic",
-    "notes": "Convective intensity proxy"
-  },
-  {
-    "type": "layer",
-    "category": "Precipitation",
-    "original_label": "Precipitation type",
-    "suggested_label": "Precipitation type",
-    "slug": "precipitation-type",
-    "specificity": "generic",
-    "notes": "Rain/snow/sleet/freezing rain"
-  },
-  {
-    "type": "layer",
-    "category": "Wind",
-    "original_label": "Wind gusts",
-    "suggested_label": "Wind gusts",
-    "slug": "wind-gusts",
-    "specificity": "generic",
-  "notes": "Gusts at 10m",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/windgusts10m/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Wind",
-    "original_label": "Wind accumulation",
-    "suggested_label": "Accumulated wind",
-    "slug": "accumulated-wind",
-    "specificity": "generic",
-    "notes": "Experimental metric"
-  },
-  {
-    "type": "layer",
-    "category": "Temperature",
-    "original_label": "Temperature",
-    "suggested_label": "Temperature",
-    "slug": "temperature",
-    "specificity": "generic",
-  "notes": "2m temperature",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/temp2m/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Temperature",
-    "original_label": "Dew point",
-    "suggested_label": "Dew point",
-    "slug": "dew-point",
-    "specificity": "generic",
-  "notes": "2m dew point",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/dewpoint2m/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Temperature",
-    "original_label": "Humidity",
-    "suggested_label": "Humidity",
-    "slug": "humidity",
-    "specificity": "generic",
-  "notes": "Relative humidity",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/rh2m/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Temperature",
-    "original_label": "Wet-bulb temperature",
-    "suggested_label": "Wet-bulb temperature",
-    "slug": "wet-bulb-temperature",
-    "specificity": "generic",
-    "notes": "Psychrometric WB temperature"
-  },
-  {
-    "type": "layer",
-    "category": "Other",
-    "original_label": "UV Index",
-    "suggested_label": "UV Index",
-    "slug": "uv-index",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Other",
-    "original_label": "Solar power",
-    "suggested_label": "Solar irradiance potential",
-    "slug": "solar-irradiance-potential",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Clouds",
-    "original_label": "Clouds",
-    "suggested_label": "Total cloud cover",
-    "slug": "total-cloud-cover",
-    "specificity": "generic",
-  "notes": "All-levels cloud fraction",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/cloudcover/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Clouds",
-    "original_label": "High clouds",
-    "suggested_label": "High-level cloud cover",
-    "slug": "high-level-cloud-cover",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Clouds",
-    "original_label": "Medium clouds",
-    "suggested_label": "Mid-level cloud cover",
-    "slug": "mid-level-cloud-cover",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Clouds",
-    "original_label": "Low clouds",
-    "suggested_label": "Low-level cloud cover",
-    "slug": "low-level-cloud-cover",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Aviation",
-    "original_label": "Cloud base",
-    "suggested_label": "Cloud base height",
-    "slug": "cloud-base-height",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Satellite",
-    "original_label": "Cloud tops",
-    "suggested_label": "Cloud-top temperature/height",
-    "slug": "cloud-top-temperature-height",
-    "specificity": "generic",
-  "notes": "Derived from IR",
-  "source_type": "raster",
-  "attribution": "NASA GIBS",
-  "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Band13_CMI/default/{time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
-  "time_format": "YYYY-MM-DD"
-  },
-  {
-    "type": "layer",
-    "category": "Aviation",
-    "original_label": "Visibility",
-    "suggested_label": "Visibility",
-    "slug": "visibility",
-    "specificity": "generic",
-    "notes": "Surface visibility analysis/forecast"
-  },
-  {
-    "type": "layer",
-    "category": "Precipitation",
-    "original_label": "New snow",
-    "suggested_label": "Fresh snowfall",
-    "slug": "fresh-snowfall",
-    "specificity": "generic",
-  "notes": "New snowfall since last period",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/snowfall/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Aviation",
-    "original_label": "Icing",
-    "suggested_label": "Airframe icing",
-    "slug": "airframe-icing",
-    "specificity": "generic",
-    "notes": "Icing probability/severity"
-  },
-  {
-    "type": "layer",
-    "category": "Aviation",
-    "original_label": "Freezing altitude",
-    "suggested_label": "Freezing altitude",
-    "slug": "freezing-altitude",
-    "specificity": "generic",
-    "notes": "0°C isotherm height"
-  },
-  {
-    "type": "layer",
-    "category": "Aviation",
-    "original_label": "Clear air turbulence",
-    "suggested_label": "CAT (clear‑air turbulence)",
-    "slug": "cat-clear-air-turbulence",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Waves",
-    "suggested_label": "Waves",
-    "slug": "waves",
-    "specificity": "generic",
-    "notes": "Significant wave height"
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Swell",
-    "suggested_label": "Primary swell",
-    "slug": "primary-swell",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Swell 2",
-    "suggested_label": "Secondary swell",
-    "slug": "secondary-swell",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Swell 3",
-    "suggested_label": "Tertiary swell",
-    "slug": "tertiary-swell",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Wind waves",
-    "suggested_label": "Wind waves",
-    "slug": "wind-waves",
-    "specificity": "generic",
-    "notes": "Wind sea component"
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Currents",
-    "suggested_label": "Ocean currents",
-    "slug": "ocean-currents",
-    "specificity": "generic",
-    "notes": "Surface currents"
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Tidal currents",
-    "suggested_label": "Tidal currents",
-    "slug": "tidal-currents",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Ocean",
-    "original_label": "Sea temperature",
-    "suggested_label": "Sea surface temperature (SST)",
-    "slug": "sea-surface-temperature-sst",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "PM2.5",
-    "suggested_label": "PM2.5",
-    "slug": "pm2-5",
-    "specificity": "data-model-specific",
-    "notes": "Particulate matter ≤2.5µm"
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "NO₂",
-    "suggested_label": "NO₂",
-    "slug": "no",
-    "specificity": "data-model-specific",
-    "notes": "Nitrogen dioxide"
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "SO₂",
-    "suggested_label": "SO₂",
-    "slug": "so",
-    "specificity": "data-model-specific",
-    "notes": "Sulfur dioxide"
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "Surface Ozone",
-    "suggested_label": "Surface ozone (O₃)",
-    "slug": "surface-ozone-o",
-    "specificity": "data-model-specific",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "Ozone layer",
-    "suggested_label": "Ozone layer",
-    "slug": "ozone-layer",
-    "specificity": "data-model-specific",
-    "notes": "Total column ozone"
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "CO concentration",
-    "suggested_label": "Carbon monoxide (CO)",
-    "slug": "carbon-monoxide-co",
-    "specificity": "data-model-specific",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "Aerosol",
-    "suggested_label": "Aerosol",
-    "slug": "aerosol",
-    "specificity": "generic",
-    "notes": "Aerosol optical depth / loading"
-  },
-  {
-    "type": "layer",
-    "category": "Air Quality",
-    "original_label": "Dust mass",
-    "suggested_label": "Dust mass",
-    "slug": "dust-mass",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "Hurricane tracker",
-    "suggested_label": "Tropical cyclone tracker",
-    "slug": "tropical-cyclone-tracker",
-    "specificity": "generic",
-    "notes": "Storm tracks and cones"
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "CAPE Index",
-    "suggested_label": "CAPE (convective available potential energy)",
-    "slug": "cape-convective-available-potential-energy",
-    "specificity": "data-model-specific",
-  "notes": "",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/cape/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "Thermals",
-    "suggested_label": "Thermals (soaring)",
-    "slug": "thermals-soaring",
-    "specificity": "generic",
-    "notes": "Vertical motion proxy"
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "Extreme forecast",
-    "suggested_label": "Severe weather outlook",
-    "slug": "severe-weather-outlook",
-    "specificity": "generic",
-    "notes": "Model‑derived risk"
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "Weather warnings",
-    "suggested_label": "Official weather alerts",
-    "slug": "official-weather-alerts",
-    "specificity": "generic",
-    "notes": "Gov’t alert feeds"
-  },
-  {
-    "type": "layer",
-    "category": "Hazards",
-    "original_label": "Fire danger",
-    "suggested_label": "Fire danger",
-    "slug": "fire-danger",
-    "specificity": "generic",
-    "notes": "Index based on fuels/meteorology"
-  },
-  {
-    "type": "layer",
-    "category": "Pressure",
-    "original_label": "Pressure",
-    "suggested_label": "Mean sea level pressure",
-    "slug": "mean-sea-level-pressure",
-    "specificity": "generic",
-  "notes": "MSLP contours/filled",
-  "source_type": "raster",
-  "attribution": "Open-Meteo.com",
-  "tile_url_template": "https://tile.open-meteo.com/map/pressure_msl/{z}/{x}/{y}.png?time={time}",
-  "time_format": "ISO8601_HOUR"
-  },
-  {
-    "type": "layer",
-    "category": "Other",
-    "original_label": "City heatmaps",
-    "suggested_label": "Urban heatmaps",
-    "slug": "urban-heatmaps",
-    "specificity": "generic",
-    "notes": "Population or temperature anomaly"
-  },
-  {
-    "type": "layer",
-    "category": "Other",
-    "original_label": "Drought monitoring",
-    "suggested_label": "Drought monitor",
-    "slug": "drought-monitor",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Particles animation",
-    "suggested_label": "Particles animation",
-    "slug": "particles-animation",
-    "specificity": "generic",
-    "notes": "Flow/particles visualization"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Isolines of pressure",
-    "suggested_label": "Pressure isolines",
-    "slug": "pressure-isolines",
-    "specificity": "generic",
-    "notes": "MSLP/height contours"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Empty map",
-    "suggested_label": "No base layer",
-    "slug": "no-base-layer",
-    "specificity": "generic",
-    "notes": "Hide basemap"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "My favorites",
-    "suggested_label": "Favorites",
-    "slug": "favorites",
-    "specificity": "generic",
-    "notes": "Starred layers"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Forecasted weather",
-    "suggested_label": "Forecast overlay",
-    "slug": "forecast-overlay",
-    "specificity": "generic",
-    "notes": "Multi‑hour forecast"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Reported wind",
-    "suggested_label": "Observations: wind",
-    "slug": "observations-wind",
-    "specificity": "generic",
-    "notes": "Station obs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Reported temp.",
-    "suggested_label": "Observations: temperature",
-    "slug": "observations-temperature",
-    "specificity": "generic",
-    "notes": "Station obs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Recent precip.",
-    "suggested_label": "Recent precipitation",
-    "slug": "recent-precipitation",
-    "specificity": "generic",
-    "notes": "Last 24h/72h"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Airports",
-    "suggested_label": "Airports",
-    "slug": "airports",
-    "specificity": "generic",
-    "notes": "Aerodrome POIs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Webcams",
-    "suggested_label": "Webcams",
-    "slug": "webcams",
-    "specificity": "generic",
-    "notes": "Traffic/ski cams"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Paragliding spots",
-    "suggested_label": "Paragliding sites",
-    "slug": "paragliding-sites",
-    "specificity": "generic",
-    "notes": "POIs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Kite/WS spots",
-    "suggested_label": "Kite & windsurf spots",
-    "slug": "kite-windsurf-spots",
-    "specificity": "generic",
-    "notes": "POIs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Surfing spots",
-    "suggested_label": "Surfing spots",
-    "slug": "surfing-spots",
-    "specificity": "generic",
-    "notes": "POIs"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Tide forecast",
-    "suggested_label": "Tide forecast",
-    "slug": "tide-forecast",
-    "specificity": "generic",
-    "notes": "Stations/curves"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Radiation",
-    "suggested_label": "Radiation monitoring",
-    "slug": "radiation-monitoring",
-    "specificity": "generic",
-    "notes": ""
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Active fires",
-    "suggested_label": "Active fires",
-    "slug": "active-fires",
-    "specificity": "generic",
-    "notes": "Hotspot feeds"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Air quality stations",
-    "suggested_label": "Air quality stations",
-    "slug": "air-quality-stations",
-    "specificity": "generic",
-    "notes": "AQ observation sites"
-  },
-  {
-    "type": "overlay",
-    "category": "Overlay",
-    "original_label": "Radiosondes",
-    "suggested_label": "Radiosondes",
-    "slug": "radiosondes",
-    "specificity": "generic",
-    "notes": "Upper‑air soundings"
-  }
-]
+{
+  "layers": [
+    {
+      "category": "Radar",
+      "suggested_label": "Radar Reflectivity",
+      "slug": "radar-reflectivity",
+      "source_type": "raster",
+      "attribution": "Rainviewer.com",
+      "tile_url_template": "https://tilecache.rainviewer.com/v2/radar/{time}/512/{z}/{x}/{y}/2/1_1.png",
+      "time_format": "unix_timestamp",
+      "notes": "Global radar composite. Requires fetching available timestamps from Rainviewer API."
+    },
+    {
+      "category": "Satellite",
+      "suggested_label": "Satellite (True Color)",
+      "slug": "satellite-imagery",
+      "source_type": "raster",
+      "attribution": "NASA GIBS",
+      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/{time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
+      "time_format": "YYYY-MM-DD",
+      "notes": "Global daily true-color imagery from MODIS."
+    },
+    {
+      "category": "Satellite",
+      "suggested_label": "Cloud Tops (Infrared)",
+      "slug": "cloud-top-temperature-height",
+      "source_type": "raster",
+      "attribution": "NASA GIBS",
+      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_Band_13_ENHANCED/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png",
+      "time_format": "YYYY-MM-DDTHH:mm:ssZ",
+      "notes": "GOES-East infrared imagery. Requires fetching available timestamps from GIBS API."
+    },
+    {
+      "category": "Precipitation",
+      "suggested_label": "Precipitation",
+      "slug": "precipitation-type",
+      "source_type": "raster",
+      "attribution": "OpenWeatherMap",
+      "tile_url_template": "https://tile.openweathermap.org/map/precipitation_classic/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
+      "notes": "Requires a free OpenWeatherMap API key."
+    },
+    {
+      "category": "Temperature",
+      "suggested_label": "Temperature",
+      "slug": "temperature",
+      "source_type": "raster",
+      "attribution": "OpenWeatherMap",
+      "tile_url_template": "https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
+      "notes": "Requires a free OpenWeatherMap API key."
+    },
+    {
+      "category": "Wind",
+      "suggested_label": "Wind Speed",
+      "slug": "wind",
+      "source_type": "raster",
+      "attribution": "OpenWeatherMap",
+      "tile_url_template": "https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
+      "notes": "Requires a free OpenWeatherMap API key."
+    },
+    {
+      "category": "Clouds",
+      "suggested_label": "Cloud Cover",
+      "slug": "total-cloud-cover",
+      "source_type": "raster",
+      "attribution": "OpenWeatherMap",
+      "tile_url_template": "https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
+      "notes": "Requires a free OpenWeatherMap API key."
+    },
+    {
+      "category": "Pressure",
+      "suggested_label": "Sea Level Pressure",
+      "slug": "mean-sea-level-pressure",
+      "source_type": "raster",
+      "attribution": "OpenWeatherMap",
+      "tile_url_template": "https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
+      "notes": "Requires a free OpenWeatherMap API key."
+    },
+    {
+      "category": "Hazards",
+      "suggested_label": "Official Weather Alerts",
+      "slug": "official-weather-alerts",
+      "source_type": "vector",
+      "attribution": "NOAA/NWS",
+      "api_endpoint": "/api/alerts",
+      "notes": "Vector GeoJSON layer from our own backend."
+    },
+    {
+      "category": "Hazards",
+      "suggested_label": "Earthquakes (24h)",
+      "slug": "earthquakes",
+      "source_type": "vector",
+      "attribution": "USGS",
+      "api_endpoint": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
+      "notes": "Vector GeoJSON layer of all earthquakes in the last 24 hours."
+    },
+    {
+      "category": "Hazards",
+      "suggested_label": "Active Fires (24h)",
+      "slug": "active-fires",
+      "source_type": "vector",
+      "attribution": "NASA FIRMS",
+      "api_endpoint": "https://firms.modaps.eosdis.nasa.gov/api/v1/advisories/geojson/active",
+      "notes": "Vector GeoJSON layer of active fire detections. Check API for usage."
+    },
+    {
+      "category": "Models (Custom)",
+      "suggested_label": "GFS Temperature",
+      "slug": "gfs-temperature-2m",
+      "source_type": "raster",
+      "attribution": "NOAA GFS | Processed by Vortexa",
+      "tile_url_template": "/tiles/gfs/temperature-2m/{time}/{z}/{x}/{y}.png",
+      "time_format": "YYYY-MM-DDTHHmmZ",
+      "notes": "Placeholder for our custom GRIB tiling pipeline."
+    },
+    {
+      "category": "Models (Custom)",
+      "suggested_label": "HRRR Radar (Simulated)",
+      "slug": "hrrr-simulated-radar",
+      "source_type": "raster",
+      "attribution": "NOAA HRRR | Processed by Vortexa",
+      "tile_url_template": "/tiles/hrrr/simulated-radar/{time}/{z}/{x}/{y}.png",
+      "time_format": "YYYY-MM-DDTHHmmZ",
+      "notes": "Placeholder for our custom GRIB tiling pipeline."
+    }
+  ]
+}
