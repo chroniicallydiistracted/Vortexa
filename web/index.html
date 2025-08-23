@@ -71,8 +71,10 @@
   <body>
     <a class="skip-link" href="#app-root">Skip to content</a>
 
-    <!-- Full-screen map canvas (your app mounts/controls actual map) -->
-    <div id="map" aria-label="Map canvas" role="region"></div>
+    <!-- React root; app will manage map & UI inside -->
+    <div id="root">
+      <div id="map" aria-label="Map canvas" role="region"></div>
+    </div>
 
     <!-- Top bar: brand + search + quick actions -->
     <header id="topbar" role="banner">

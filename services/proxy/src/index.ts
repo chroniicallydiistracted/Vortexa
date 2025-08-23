@@ -13,6 +13,8 @@ import { Histogram, Counter, Registry, collectDefaultMetrics, Gauge } from 'prom
 import { firmsRouter } from './routes/firms.js';
 import { owmRouter } from './routes/owm.js';
 import { nwsRouter } from './routes/nws.js';
+import { cartoDbRouter } from './routes/cartodb.js';
+import { gibsRouter } from './routes/gibs.js';
 
 export interface CreateAppOptions {
   allowHosts?: string[];
@@ -23,11 +25,22 @@ export interface CreateAppOptions {
 export function createApp(opts: CreateAppOptions = {}) {
   const app = express();
   app.use(cors());
+  // Static asset serving (web public assets & Cesium) for dev / simple deployment
+  const webPublic = path.join(process.cwd(), 'web', 'public');
+  if (fs.existsSync(webPublic)) {
+    app.use(express.static(webPublic, { extensions: ['html'], index: false, setHeaders(res, filePath){
+      if (/\.svg$/i.test(filePath)) res.type('image/svg+xml');
+    }}));
+  }
+  const cesiumPath = path.join(process.cwd(), 'web', 'node_modules', 'cesium', 'Build', 'Cesium');
+  if (fs.existsSync(cesiumPath)) {
+    app.use('/cesium', express.static(cesiumPath));
+  }
   app.use(express.json());
   app.use(morgan('tiny'));
   app.use((_req: express.Request, res: express.Response, next: express.NextFunction) => { res.setHeader('Access-Control-Allow-Origin', '*'); next(); });
 
-  const ALLOW = (opts.allowHosts || (process.env.ALLOW_HOSTS || 'gibs.earthdata.nasa.gov,opengeo.ncep.noaa.gov,nomads.ncep.noaa.gov')
+  const ALLOW = (opts.allowHosts || (process.env.ALLOW_HOSTS || 'gibs.earthdata.nasa.gov,opengeo.ncep.noaa.gov,nomads.ncep.noaa.gov,basemaps.cartocdn.com')
     .split(',')
     .map(s => s.trim())
     .filter(Boolean));
@@ -62,10 +75,17 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.get('/health', (_req: express.Request, res: express.Response) => res.json({ ok: true }));
   app.get('/healthz', (_req: express.Request, res: express.Response) => res.json({ status: 'ok', upstreams: ALLOW, time: new Date().toISOString() }));
   app.get('/version', (_req: express.Request, res: express.Response) => res.json({ version: pkgVersion }));
+  // Feature flags (runtime kill-switch for experimental features like 3D globe)
+  app.get('/api/flags', (_req: express.Request, res: express.Response) => {
+    const enable3d = process.env.ENABLE_3D === '1';
+    res.json({ enable3d });
+  });
   // Vendor proxied APIs (credentials / headers enforced)
   app.use('/api/firms', firmsRouter);
   app.use('/api/owm', owmRouter);
   app.use('/api/nws', nwsRouter);
+  app.use('/api/cartodb', cartoDbRouter);
+  app.use('/api/gibs', gibsRouter);
   // Prometheus metrics registry & instruments
   const register = new Registry();
   collectDefaultMetrics({ register });

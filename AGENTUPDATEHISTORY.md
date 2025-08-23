@@ -31,6 +31,22 @@ Follow Ups (Not in 0.2.0):
 Tag Intent:
 - Marks completion of Globe V3 milestone; semantic MINOR bump due to additive features without breaking API surface.
 
+### 2025-08-23: React Mount Point & Proxy Static Asset Serving Fix
+
+Summary:
+- Added explicit `<div id="root">` container in `web/index.html` wrapping existing `#map` to resolve React createRoot mount error.
+- Updated proxy (`services/proxy/src/index.ts`) to serve static assets from `web/public` and Cesium build directory under `/cesium` to prevent incorrect `index.html` responses for asset requests (e.g., `/icon.svg`).
+
+Motivation:
+- Eliminate runtime error "Target container is not a DOM element" and ensure proper asset MIME delivery improving reliability of dev & simple deploy flows.
+
+Risk: Low (additive middleware + HTML container insert). All tests re-run (22/22 passing) post-change.
+
+Follow Ups:
+- Consider adding a small integration test that fetches `/icon.svg` verifying `image/svg+xml` Content-Type.
+- Evaluate moving static handling behind a dev flag if production is fronted by CDN / static host.
+
+
 
 ### 2025-08-23: GIBS Proxy Test Suite
 
