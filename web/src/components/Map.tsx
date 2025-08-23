@@ -6,9 +6,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 type CatalogEntry = { slug: string; suggested_label?: string; };
 type Catalog = CatalogEntry[];
 
-interface MapProps { activeLayerSlug: string | null; catalog: Catalog | null; }
+interface MapProps { activeLayerSlug: string | null; catalog: Catalog | null; onMapReady?: (map: MLMap)=> void; currentTime?: number }
 
-export default function Map({ activeLayerSlug, catalog }: MapProps){
+export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime }: MapProps){
   const mapRef = useRef<MLMap|null>(null);
   const containerRef = useRef<HTMLDivElement|null>(null);
   // init
@@ -20,7 +20,8 @@ export default function Map({ activeLayerSlug, catalog }: MapProps){
       zoom: 5
     });
     map.addControl(new maplibregl.NavigationControl());
-    mapRef.current = map;
+  mapRef.current = map;
+  onMapReady && onMapReady(map);
     return ()=> map.remove();
   },[]);
   // layer changes
@@ -36,13 +37,15 @@ export default function Map({ activeLayerSlug, catalog }: MapProps){
     let tileTemplate: string | null = null;
     let tileSize = 256;
     if(activeLayerSlug === 'satellite-imagery'){
-      tileTemplate = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_GeoColor_ENHANCED/default/2025-08-23/{z}/{y}/{x}.jpg';
+      // Use {time} placeholder date segment
+      tileTemplate = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_GeoColor_ENHANCED/default/{time}/{z}/{y}/{x}.jpg';
     }
     if(!tileTemplate) return; // others not yet implemented (expected 404 avoidance)
-    const tiles = [tileTemplate.replace('{time}', new Date().toISOString().slice(0,10))];
+    const dateStr = currentTime ? new Date(currentTime).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+    const tiles = [tileTemplate.replace('{time}', dateStr)];
     map.addSource('weather-source', { type: 'raster', tiles, tileSize } as any);
     map.addLayer({ id:'weather-layer', type:'raster', source:'weather-source' });
-  },[activeLayerSlug, catalog]);
+  },[activeLayerSlug, catalog, currentTime]);
   // alerts overlay once
   useEffect(()=>{
     const map = mapRef.current;

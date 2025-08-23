@@ -2,12 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { fetch } from 'undici';
 
-const isLocal = process.env.NODE_ENV === 'development' || process.env.AWS_SAM_LOCAL === 'true';
-const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({
-  region: process.env.AWS_REGION || 'us-west-2',
-  endpoint: isLocal ? (process.env.DYNAMODB_ENDPOINT || 'http://host.docker.internal:8000') : undefined,
-  credentials: isLocal ? { accessKeyId: 'dummyKeyId', secretAccessKey: 'dummySecretKey' } : undefined,
-}));
+const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE || '';
 
 type NWSAlertFeature = { id?: string; properties?: { id?: string } };

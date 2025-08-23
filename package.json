@@ -2,7 +2,9 @@
   "name": "westfam-weather-foundation",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20 <21" },
+  "engines": {
+    "node": ">=20 <21"
+  },
   "workspaces": [
     "web",
     "services/proxy",
@@ -13,7 +15,8 @@
     "dev:proxy": "npm -w services/proxy run dev",
     "dev:web": "npm -w web run dev",
     "dev:all": "concurrently -n proxy,web -c blue,green \"npm run dev:proxy\" \"npm run dev:web\"",
-    "dev": "concurrently \"npm:dev --workspace=web\" \"npm:dev --workspace=proxy\"",
+  "cloud:down": "bash scripts/cloud-dev-down.sh",
+  "cloud:dev": "bash scripts/cloud-dev.sh",
     "build": "npm -w services/shared run build && npm -w services/proxy run build && npm -w services/alerts run build && npm -w web run build",
     "package:alerts": "bash scripts/package-alerts.sh",
     "test": "npm -w services/proxy run test && npm -w services/alerts run test && npm -w services/shared run test",
@@ -22,7 +25,6 @@
     "verify:history": "node scripts/verify-history-coverage.js"
   },
   "devDependencies": {
-  "concurrently": "^9.0.1",
-  "vitest": "^2.0.5"
+    "vitest": "^2.0.5"
   }
 }
