@@ -99,8 +99,8 @@
       "slug": "active-fires",
       "source_type": "vector",
       "attribution": "NASA FIRMS",
-      "api_endpoint": "https://firms.modaps.eosdis.nasa.gov/api/v1/advisories/geojson/active",
-      "notes": "Vector GeoJSON layer of active fire detections. Check API for usage."
+      "api_endpoint": "/api/firms/VIIRS_NOAA20_NRT/1",
+      "notes": "CSV via /api/firms -> converted client-side to GeoJSON points."
     },
     {
       "category": "Models (Custom)",

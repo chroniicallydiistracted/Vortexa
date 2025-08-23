@@ -4,6 +4,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 // New catalog structure: { layers: [...] }
 interface CatalogEntry { slug: string; category: string; suggested_label: string; source_type: string; tile_url_template?: string; time_format?: string; api_endpoint?: string; attribution?: string; notes?: string }
+// Detect FIRMS layer by slug or attribution reference. CSV is exposed via our proxy: /api/firms/... returning text/csv
+import { firmsCsvToGeoJSON } from '../util/firms';
 type Catalog = CatalogEntry[];
 
 interface MapProps { activeLayerSlug: string | null; catalog: any; onMapReady?: (map: MLMap)=> void; currentTime?: number }
@@ -66,8 +68,17 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
       map.addSource('active-raster', { type:'raster', tiles:[url], tileSize: 256 } as any);
       map.addLayer({ id:'active-raster', type:'raster', source:'active-raster' });
     } else if(entry.source_type === 'vector' && entry.api_endpoint) {
-      // Fetch vector GeoJSON
-      fetch(entry.api_endpoint).then(r=> r.json()).then(data=> {
+      // Decide if endpoint returns CSV (FIRMS) or GeoJSON
+      const isFirmsCsv = /\/api\/firms\//.test(entry.api_endpoint) || /firms/i.test(entry.attribution || '');
+      const fetchPromise = fetch(entry.api_endpoint).then(async r => {
+        const ct = r.headers.get('content-type') || '';
+        if (isFirmsCsv || ct.includes('text/csv')) {
+          const text = await r.text();
+            return firmsCsvToGeoJSON(text);
+        }
+        return r.json();
+      });
+      fetchPromise.then(data=> {
         if(map.getSource('active-vector')) return; // guard if quick reselect
         map.addSource('active-vector', { type:'geojson', data } as any);
         // Heuristic styling depending on feature geometry type
