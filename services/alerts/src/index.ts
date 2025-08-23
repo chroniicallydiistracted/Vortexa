@@ -9,7 +9,7 @@ type NWSAlertFeature = { id?: string; properties?: { id?: string } };
 type NWSAlertResponse = { features?: NWSAlertFeature[] };
 
 export const handler = async () => {
-  const ua = process.env.NWS_USER_AGENT || 'WestFamWeather/0.0.1 (admin@example.com)';
+  const ua = process.env.NWS_USER_AGENT || 'WestFamWeather/0.2.0 (admin@example.com)';
   const r = await fetch('https://api.weather.gov/alerts/active?status=actual&message_type=alert', {
     headers: { 'User-Agent': ua }
   });
