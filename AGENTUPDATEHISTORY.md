@@ -46,6 +46,20 @@ Follow Ups:
 - Consider adding a small integration test that fetches `/icon.svg` verifying `image/svg+xml` Content-Type.
 - Evaluate moving static handling behind a dev flag if production is fronted by CDN / static host.
 
+### 2025-08-23: Proxy CartoDB Tile Binary Serving + Tests
+
+Summary:
+- Hardened CartoDB tile route to always send raw binary Buffer with explicit headers.
+- Added binary image test (`cartodbImage.test.ts`) asserting PNG signature, content-type, cache-control.
+- Improved static asset resolution (repo root heuristic) so tests/dev serve `web/public` even when cwd differs.
+- Added `web/public/icon.svg` to eliminate HTML fallback for missing icon.
+
+Motivation: Prevent inadvertent HTML fallback / parsing errors and guarantee correct MIME for map tiles & icons.
+
+Risk: Low (additive test + minor route/send refactor). All existing tests pass plus new test.
+
+Follow Ups: Add integration test for /icon.svg response code & type (optional), consider S3-backed static in production.
+
 
 
 ### 2025-08-23: GIBS Proxy Test Suite

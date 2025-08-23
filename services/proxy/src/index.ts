@@ -26,8 +26,14 @@ export function createApp(opts: CreateAppOptions = {}) {
   const app = express();
   app.use(cors());
   // Static asset serving (web public assets & Cesium) for dev / simple deployment
-  const webPublic = path.join(process.cwd(), 'web', 'public');
-  if (fs.existsSync(webPublic)) {
+  // Resolve repo root heuristically so tests (cwd=services/proxy) still find /web/public
+  const candidateRoots = [process.cwd(), path.join(process.cwd(),'..'), path.join(process.cwd(),'..','..')];
+  let webPublic: string | null = null;
+  for (const root of candidateRoots) {
+    const p = path.join(root, 'web', 'public');
+    if (fs.existsSync(p)) { webPublic = p; break; }
+  }
+  if (webPublic) {
     app.use(express.static(webPublic, { extensions: ['html'], index: false, setHeaders(res, filePath){
       if (/\.svg$/i.test(filePath)) res.type('image/svg+xml');
     }}));

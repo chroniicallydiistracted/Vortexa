@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="WestFam Weather Icon">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#69b2ff" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="22" fill="url(#g)" stroke="#0b0f14" stroke-width="2" />
+  <path d="M14 28c0-5 4-9 9-9 3 0 5 1 7 3a7 7 0 0 1 0 14H15a5 5 0 0 1-1-10 9 9 0 0 1 18 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <g stroke="#fff" stroke-linecap="round" stroke-width="3">
+    <line x1="20" y1="36" x2="20" y2="42" />
+    <line x1="28" y1="36" x2="28" y2="42" />
+  </g>
+</svg>
