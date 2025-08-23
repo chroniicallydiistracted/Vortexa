@@ -36,8 +36,8 @@
       "slug": "precipitation-type",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "https://tile.openweathermap.org/map/precipitation_classic/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
-      "notes": "Requires a free OpenWeatherMap API key."
+      "tile_url_template": "/api/owm/tiles/precipitation_classic/{z}/{x}/{y}.png",
+      "notes": "Proxied via /api/owm (no API key exposed)."
     },
     {
       "category": "Temperature",
@@ -45,8 +45,8 @@
       "slug": "temperature",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
-      "notes": "Requires a free OpenWeatherMap API key."
+      "tile_url_template": "/api/owm/tiles/temp_new/{z}/{x}/{y}.png",
+      "notes": "Proxied via /api/owm (no API key exposed)."
     },
     {
       "category": "Wind",
@@ -54,8 +54,8 @@
       "slug": "wind",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
-      "notes": "Requires a free OpenWeatherMap API key."
+      "tile_url_template": "/api/owm/tiles/wind_new/{z}/{x}/{y}.png",
+      "notes": "Proxied via /api/owm (no API key exposed)."
     },
     {
       "category": "Clouds",
@@ -63,8 +63,8 @@
       "slug": "total-cloud-cover",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
-      "notes": "Requires a free OpenWeatherMap API key."
+      "tile_url_template": "/api/owm/tiles/clouds_new/{z}/{x}/{y}.png",
+      "notes": "Proxied via /api/owm (no API key exposed)."
     },
     {
       "category": "Pressure",
@@ -72,8 +72,8 @@
       "slug": "mean-sea-level-pressure",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY",
-      "notes": "Requires a free OpenWeatherMap API key."
+      "tile_url_template": "/api/owm/tiles/pressure_new/{z}/{x}/{y}.png",
+      "notes": "Proxied via /api/owm (no API key exposed)."
     },
     {
       "category": "Hazards",

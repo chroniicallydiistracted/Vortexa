@@ -10,6 +10,9 @@ import morgan from 'morgan';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Histogram, Counter, Registry, collectDefaultMetrics, Gauge } from 'prom-client';
+import { firmsRouter } from './routes/firms.js';
+import { owmRouter } from './routes/owm.js';
+import { nwsRouter } from './routes/nws.js';
 
 export interface CreateAppOptions {
   allowHosts?: string[];
@@ -59,6 +62,10 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.get('/health', (_req: express.Request, res: express.Response) => res.json({ ok: true }));
   app.get('/healthz', (_req: express.Request, res: express.Response) => res.json({ status: 'ok', upstreams: ALLOW, time: new Date().toISOString() }));
   app.get('/version', (_req: express.Request, res: express.Response) => res.json({ version: pkgVersion }));
+  // Vendor proxied APIs (credentials / headers enforced)
+  app.use('/api/firms', firmsRouter);
+  app.use('/api/owm', owmRouter);
+  app.use('/api/nws', nwsRouter);
   // Prometheus metrics registry & instruments
   const register = new Registry();
   collectDefaultMetrics({ register });

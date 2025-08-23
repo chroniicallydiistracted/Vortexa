@@ -1,0 +1,4 @@
+- FIRMS MAP_KEY works for both Global and US/Canada. Limit: 5000 tx / 10 min.
+- OWM tiles use `appid=`; never expose from the browser.
+- NWS requires a descriptive User-Agent.
+- Front-end must call `/api/firms`, `/api/owm`, `/api/nws` — never the upstreams directly.
