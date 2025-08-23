@@ -1,5 +1,121 @@
 # AGENTUPDATEHISTORY
 
+### 2025-08-23: Version 0.2.0 Release – 3D Globe V3 (Playback, FIRMS & OWM Overlays) & GIBS Generalization
+
+Version: 0.2.0
+
+Scope:
+- Introduces temporal playback for GIBS GeoColor (timestamps endpoint, UI controls, store state, interval-driven animation).
+- Adds FIRMS fire detections (point primitives) and OWM temperature raster overlay toggles to 3D globe.
+- Generalizes GIBS capabilities parsing with extensible utility + tests (`fetchCapabilities`).
+- Expands test suite to 22 passing cases (including GeoColor tiles, timestamps, capabilities parsing, CartoDB basemap).
+
+Rationale:
+- Elevate 3D experimental globe toward multi-layer situational awareness while retaining opt-in nature; establish foundation for additional GIBS layers and environmental overlays.
+
+Quality & Validation:
+- All proxy/service tests green (22/22) prior to tag.
+- Full monorepo build successful (web bundle produced; Cesium chunk isolated). No type errors.
+
+Risks / Considerations:
+- Heuristic XML parsing may be brittle for future GIBS schema changes (follow-up to adopt robust parser).
+- Additional 3D overlays may impact performance on low-spec devices (monitor FPS; consider point thinning & imagery layer culling heuristics).
+
+Follow Ups (Not in 0.2.0):
+- Replace regex parsing with streaming or DOM XML parser.
+- Add legends (temperature color scale) & dynamic FIRMS symbology based on confidence/brightness.
+- Introduce periodic refresh cadence & caching for FIRMS/OWM to reduce toggle fetch spikes.
+- Multi-layer GIBS selection UI (beyond GeoColor) leveraging generalized capabilities.
+- E2E/UI tests for playback controls & overlay toggles.
+
+Tag Intent:
+- Marks completion of Globe V3 milestone; semantic MINOR bump due to additive features without breaking API surface.
+
+
+### 2025-08-23: GIBS Proxy Test Suite
+
+Summary:
+- Added dedicated Vitest suite for `/api/gibs/geocolor/:z/:x/:y.:ext` validating happy path (status, headers, cache-control), upstream URL composition (host, time encoding, coordinate ordering), invalid coordinate handling, and upstream error pass-through.
+
+Motivation: Increase regression protection for new dynamic earth observation imagery proxy ensuring correctness before adding more GIBS layers/time logic.
+
+Risk: Low (tests only). No runtime code changes.
+
+Follow Ups: Expand tests to cover additional GIBS layer variants & future time enumeration endpoint once implemented.
+
+Note: Minor refactor to `gibs.ts` adding injectable fetch (`global.__TEST_FETCH__`) for deterministic test mocking without impacting production code paths.
+
+### 2025-08-23: GIBS Dynamic Time Handling (3D Globe)
+### 2025-08-23: 3D Globe V3 – Time Playback, FIRMS & OWM Layers, Generalized GIBS
+
+Summary:
+- Added playback controls (play/pause, step, speed) for GIBS timestamps in Panel; auto-advances selected time.
+- Generalized GIBS capabilities parsing (`fetchCapabilities`) with layer param and utility tests.
+- Added FIRMS fire detections overlay (PointPrimitiveCollection) in 3D globe, toggle in Panel.
+- Added OWM temperature raster overlay via proxy tile template, toggle in Panel.
+- Store extended with playback state, speed, and new 3D layer toggles.
+
+Motivation: Incrementally evolve 3D globe toward parity with 2D for core situational layers while retaining gated experimental posture.
+
+Risk: Low–moderate; additive overlays may affect 3D performance on low-end devices (monitor for frame drops). Heuristic XML parsing still used.
+
+Follow Ups: Debounce FIRMS reload cadence, color scale legend for OWM temps, switch to streaming XML parser if capabilities size grows, add memory cleanup on rapid toggles.
+
+Summary:
+- Added `/api/gibs/timestamps` endpoint parsing WMTS capabilities to return sorted ISO timestamps.
+- Extended store with `gibsTimestamps` & `gibsSelectedTime` plus setters.
+- Panel now fetches timestamps when 3D + GeoColor active and provides a dropdown; initializes selection to latest.
+- Cesium globe updates GeoColor imagery layer on timestamp change (layer recreate with new time param templated).
+- Added Vitest suite `gibsTimestamps.test.ts` covering parsing, error handling, empty-layer case.
+- Roadmap updated marking dynamic time dimension done (for GeoColor baseline).
+
+Motivation: Enable temporal exploration of GOES-East GeoColor imagery in optional 3D mode while retaining 2D primacy and proxy-first policy.
+
+Risk: Low; additions isolated behind 3D + layer toggle. XML parsing heuristic may need hardening if schema shifts.
+
+Follow Ups: Generalize timestamp retrieval for additional GIBS layers, add UI playback for time stepping, refactor XML parsing to streaming or schema-driven approach.
+
+### 2025-08-23: CartoDB Positron Basemap via Proxy (2D + 3D)
+-
+### 2025-08-23: 3D Globe V2 – Attribution, CartoDB Test, GIBS GeoColor Toggle
+
+Summary:
+- Added attribution credit on 3D globe (Cesium) for CartoDB / OSM.
+- Added automated Vitest for `/api/cartodb` validating headers & status.
+- Introduced GIBS GeoColor imagery toggle (proxy-backed) in 3D mode with feature gating intact.
+- Extended store with `gibsGeocolor3d` flag and UI checkbox when 3D active.
+
+Motivation: Improve compliance (attribution), test coverage for new basemap route, and begin layering dynamic earth observation imagery in optional 3D context without impacting 2D primary UX.
+
+Risk: Low; additive toggle & route. Fallbacks retain previous behavior if env not set.
+
+Follow Ups: Add time parameter wiring for GIBS, add removal tests, performance measure of extra imagery provider.
+
+
+Summary:
+- Added `/api/cartodb/positron/:z/:x/:y.png` proxy route with subdomain rotation (a–d), custom User-Agent, and 24h immutable caching headers.
+- Integrated basemap into MapLibre (2D) by replacing external demo style with internal raster source using env `VITE_BASEMAP_TILE_URL`.
+- Integrated basemap into Cesium (3D) using `UrlTemplateImageryProvider` with same env template for consistency.
+- Updated allow-list to include `basemaps.cartocdn.com` and added `.env.example` variable.
+
+Motivation:
+- Provide neutral, performant, no-cost foundational basemap uniformly across 2D and 3D; eliminate dependency on demo style endpoint; unify visual context for future overlays.
+
+Risk / Impact:
+- Low (additive). New route and env variable; fallback defaults ensure existing behavior remains if unset.
+
+Validation:
+- Local manual verification: 2D map loads Positron tiles through proxy; 3D globe imagery layer replaced with Positron proxy tiles.
+- Build passes; existing tests unaffected (follow-up test for CartoDB route planned).
+
+Rollback:
+- Remove route file, delete env var lines, revert Map/Cesium components to prior sources.
+
+Follow Ups:
+- Add automated Vitest for `/api/cartodb` (mock axios) ensuring headers & cache-control.
+- Surface attribution panel (Carto, OpenStreetMap contributors).
+- Consider dark theme variant toggle.
+
 DX + Infra polish (web/proxy/lambda/terraform) – Summary of Applied Changes
 
 Date: 2025-08-22

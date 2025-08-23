@@ -1,17 +1,19 @@
 {
   "name": "weather-web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "private": true,
   "engines": { "node": ">=20 <21" },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+  "preview": "vite preview",
+  "test": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.0",
     "@westfam/shared": "file:../services/shared",
+    "cesium": "^1.118.0",
     "maplibre-gl": "^4.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
