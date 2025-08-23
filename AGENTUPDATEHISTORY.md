@@ -60,6 +60,19 @@ Risk: Low (additive test + minor route/send refactor). All existing tests pass p
 
 Follow Ups: Add integration test for /icon.svg response code & type (optional), consider S3-backed static in production.
 
+### 2025-08-23: cloud-dev-down DynamoDB Deletion Fix
+
+Summary:
+- Modified `cloud-dev-down.sh` to perform table deletion even when no dev processes are running (removed early exit) and added wait loop confirming deletion.
+
+Root Cause: Early `exit 0` prevented deletion when processes already manually terminated; table persisted causing resource accumulation.
+
+Validation: Ran `npm run cloud:dev -- --no-seed` to create table, followed by `npm run cloud:down -- --hard`; script confirmed deletion and `list-tables` shows absence.
+
+Risk: Low (script-only). No runtime service impact.
+
+Follow Ups: Add CI smoke script to assert create->down cycle cleans up; optionally add --no-delete flag for faster teardown cycles.
+
 
 
 ### 2025-08-23: GIBS Proxy Test Suite
