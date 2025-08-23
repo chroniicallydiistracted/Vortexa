@@ -25,6 +25,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build workspaces
         run: npm run build
+      - name: Run tests
+        run: npm run test
       - name: Package alerts lambda
         run: npm run package:alerts
       - name: Show alerts artifact details
@@ -39,6 +41,13 @@ jobs:
             echo "Checksum mismatch: $sha != $recorded" >&2
             exit 1
           fi
+      - name: Upload lambda artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: alerts-lambda
+          path: |
+            services/alerts/dist-zip/alerts.zip
+            services/alerts/dist-zip/alerts.zip.sha256
       - name: Terraform init & validate
         run: |
           cd infra/terraform

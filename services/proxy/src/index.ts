@@ -11,6 +11,7 @@ import path from 'node:path';
 export interface CreateAppOptions {
   allowHosts?: string[];
   s3Bucket?: string;
+  s3Client?: S3Client | null; // test injection
 }
 
 export function createApp(opts: CreateAppOptions = {}) {
@@ -25,7 +26,7 @@ export function createApp(opts: CreateAppOptions = {}) {
     .map(s => s.trim())
     .filter(Boolean));
   const S3_BUCKET = opts.s3Bucket ?? (process.env.S3_BUCKET || '');
-  const s3 = S3_BUCKET ? new S3Client({}) : null;
+  const s3 = S3_BUCKET ? (opts.s3Client ?? new S3Client({})) : null;
   if (!S3_BUCKET) {
     logger.info({ msg: 'cache: disabled' });
   } else {
