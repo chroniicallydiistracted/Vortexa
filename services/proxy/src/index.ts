@@ -3,6 +3,8 @@ import cors from 'cors';
 import { logger } from './logger.js';
 import { fetch } from 'undici';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import crypto from 'node:crypto';
 import morgan from 'morgan';
 import fs from 'node:fs';
@@ -88,6 +90,38 @@ export function createApp(opts: CreateAppOptions = {}) {
       res.end(await register.metrics());
     } catch (e: any) {
       res.status(500).send(e.message);
+    }
+  });
+
+  // Alerts endpoint (GeoJSON FeatureCollection)
+  const alertsTable = process.env.ALERTS_TABLE || 'westfam-alerts';
+  const _ddb = new DynamoDBClient({});
+  const ddbDoc = DynamoDBDocumentClient.from(_ddb);
+  app.get('/api/alerts', async (_req, res) => {
+    try {
+      const data = await ddbDoc.send(new ScanCommand({ TableName: alertsTable, Limit: 1000 }));
+      const items = (data.Items || []).map((it: any) => {
+        // Expect structure { pk:'alert#<id>', data: { ...CAP alert... } }
+        const raw = (it as any).data || (it as any).alert || it;
+        const geom = raw?.geometry || raw?.features?.[0]?.geometry || null; // fallback attempt
+        return {
+          type: 'Feature',
+            geometry: geom,
+            properties: {
+              id: raw?.id || (it as any).pk || undefined,
+              event: raw?.properties?.event || raw?.event,
+              headline: raw?.properties?.headline || raw?.headline,
+              severity: raw?.properties?.severity || raw?.severity,
+              certainty: raw?.properties?.certainty || raw?.certainty,
+              effective: raw?.properties?.effective || raw?.effective,
+              expires: raw?.properties?.expires || raw?.expires
+            }
+        };
+      }).filter((f: any)=> f.geometry);
+      res.json({ type: 'FeatureCollection', features: items });
+    } catch (e: any) {
+      logger.error({ msg: 'alerts scan failed', error: e.message });
+      res.status(500).json({ error: 'failed to load alerts' });
     }
   });
 

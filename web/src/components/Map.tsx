@@ -43,5 +43,30 @@ export default function Map({ activeLayerSlug, catalog }: MapProps){
     } as any);
     map.addLayer({ id:'weather-layer', type:'raster', source:'weather-source' });
   },[activeLayerSlug, catalog]);
+  // alerts overlay once
+  useEffect(()=>{
+    const map = mapRef.current;
+    if(!map) return;
+    let aborted = false;
+    fetch('/api/alerts').then(r=> r.json()).then(fc=>{
+      if(aborted) return;
+      if(!fc || !fc.features) return;
+      if(map.getSource('alerts-source')) return; // already added
+      map.addSource('alerts-source', { type:'geojson', data: fc } as any);
+      map.addLayer({ id:'alerts-layer-fill', type:'fill', source:'alerts-source', paint:{ 'fill-color':'rgba(255,0,0,0.3)', 'fill-outline-color':'rgba(255,0,0,0.7)' }});
+      map.addLayer({ id:'alerts-layer-outline', type:'line', source:'alerts-source', paint:{ 'line-color':'rgba(255,0,0,0.7)', 'line-width':1.5 }});
+      map.on('click','alerts-layer-fill', (e:any)=>{
+        const f = e.features?.[0];
+        if(!f) return;
+        new maplibregl.Popup({ closeButton:true })
+          .setLngLat(e.lngLat)
+          .setHTML(`<strong>${f.properties?.event || 'Alert'}</strong><br/>${f.properties?.headline || ''}`)
+          .addTo(map);
+      });
+      map.on('mouseenter','alerts-layer-fill', ()=> map.getCanvas().style.cursor='pointer');
+      map.on('mouseleave','alerts-layer-fill', ()=> map.getCanvas().style.cursor='');
+    }).catch(()=>{});
+    return ()=> { aborted = true; };
+  },[]);
   return <div ref={containerRef} style={{width:'100%',height:'100%'}} />;
 }
