@@ -5,7 +5,9 @@
   "main": "dist/index.js",
   "engines": { "node": ">=20 <21" },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+  "build": "tsc -p tsconfig.json",
+  "test": "vitest run",
+  "test:watch": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.648.0",
@@ -14,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "vitest": "^2.0.5",
     "typescript": "^5.5.4"
   }
 }

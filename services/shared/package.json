@@ -6,9 +6,12 @@
   "types": "dist/index.d.ts",
   "engines": { "node": ">=20 <21" },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+  "build": "tsc -p tsconfig.json",
+  "test": "vitest run",
+  "test:watch": "vitest"
   },
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }
