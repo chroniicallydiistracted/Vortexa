@@ -2,13 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import maplibregl, { Map as MLMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-type CatalogEntry = { slug?: string; layer: string; tile_url_template?: string; tile_size?: number; source_type?: string };
-type Catalog = { entries: CatalogEntry[] };
+// For now the palette is just an array of entries; only slug is used to find tile template (future integration)
+type CatalogEntry = { slug: string; suggested_label?: string; };
+type Catalog = CatalogEntry[];
 
-interface MapProps {
-  activeLayerSlug: string | null;
-  catalog: Catalog | null;
-}
+interface MapProps { activeLayerSlug: string | null; catalog: Catalog | null; }
 
 export default function Map({ activeLayerSlug, catalog }: MapProps){
   const mapRef = useRef<MLMap|null>(null);
@@ -32,15 +30,17 @@ export default function Map({ activeLayerSlug, catalog }: MapProps){
     // remove previous
     if(map.getLayer('weather-layer')){ map.removeLayer('weather-layer'); }
     if(map.getSource('weather-source')){ map.removeSource('weather-source'); }
-    if(!activeLayerSlug || !catalog) return;
-    const entry = catalog.entries.find(e => (e.slug || e.layer.toLowerCase().replace(/[^a-z0-9]+/g,'-')) === activeLayerSlug);
-    if(!entry || !entry.tile_url_template) return;
-    const tiles = [entry.tile_url_template.replace('{time}', new Date().toISOString().slice(0,10))];
-    map.addSource('weather-source', {
-      type: 'raster',
-      tiles,
-      tileSize: entry.tile_size || 256
-    } as any);
+    // If selection cleared, do nothing further
+    if(!activeLayerSlug || activeLayerSlug === '') return;
+    // Temporary: only one known working layer (satellite) mapped to existing template
+    let tileTemplate: string | null = null;
+    let tileSize = 256;
+    if(activeLayerSlug === 'satellite-imagery'){
+      tileTemplate = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_GeoColor_ENHANCED/default/2025-08-23/{z}/{y}/{x}.jpg';
+    }
+    if(!tileTemplate) return; // others not yet implemented (expected 404 avoidance)
+    const tiles = [tileTemplate.replace('{time}', new Date().toISOString().slice(0,10))];
+    map.addSource('weather-source', { type: 'raster', tiles, tileSize } as any);
     map.addLayer({ id:'weather-layer', type:'raster', source:'weather-source' });
   },[activeLayerSlug, catalog]);
   // alerts overlay once

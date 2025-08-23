@@ -28,7 +28,7 @@ export default function App(){
     }
   },[]);
   const [activeLayerSlug, setActiveLayerSlug] = useState<string|null>(null);
-  const [catalogData, setCatalogData] = useState<any>(null);
+  const [catalogData, setCatalogData] = useState<any>(null); // now array
   useEffect(()=>{ fetch('/catalog.json').then(r=> r.json()).then(setCatalogData).catch(()=>{}); },[]);
   return <div style={{display:'grid',gridTemplateRows: showBanner? '40px 1fr':'1fr', height:'100vh'}}>
     {showBanner && <div style={{background:'#ffecb3',padding:'6px 12px',display:'flex',alignItems:'center',gap:12,fontSize:14}}>
