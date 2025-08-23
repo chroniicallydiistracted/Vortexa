@@ -193,3 +193,25 @@ Deliver a **comprehensive, real-time, and predictive weather + earth-science pla
 
 * Will be appended here per release; granular entries live in `AGENTUPDATEHISTORY.md` + `.jsonl`.
 
+---
+
+## Implementation Snapshot (Aug 2025)
+
+Fully Implemented (Vision Alignment):
+* Core map UI (React/MapLibre) with raster + vector layers from unified catalog.
+* Credential shielding & policy compliance (NWS User-Agent, OWM key, FIRMS key) via proxy.
+* Basic alerts persistence (DynamoDB + GeoJSON endpoint) and display.
+* Timeline playback for time‑aware layers (foundation for satellite/radar loops).
+
+Partial:
+* Time-series intelligence (static current timestamp, dynamic enumeration pending).
+* Infrastructure scalability: Terraform covers storage + table; compute scaling (proxy ECS/Lambda) pending.
+* Observability: metrics endpoint present; alarm wiring pending.
+* Model visualization: placeholders exist; tiling & ingest pipeline not active.
+
+Not Yet Implemented (Future Vision Items):
+* Nowcasting, advanced forecasting overlays, personalized notifications, user preferences.
+* Multi-region failover & cost optimization strategies beyond baseline.
+* Auth & subscription management.
+
+
