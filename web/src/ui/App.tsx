@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import MapView from './MapView';
-import Panel from './Panel';
+// Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
+import CatalogPanel from '../components/Panel';
+import CatalogMap from '../components/Map';
 import { parseHash, decodeLayers } from '../util/permalink';
 import { useStore } from '../util/store';
 export default function App(){
@@ -26,14 +27,20 @@ export default function App(){
       }
     }
   },[]);
+  const [activeLayerSlug, setActiveLayerSlug] = useState<string|null>(null);
+  const [catalogData, setCatalogData] = useState<any>(null);
+  useEffect(()=>{ fetch('/catalog.json').then(r=> r.json()).then(setCatalogData).catch(()=>{}); },[]);
   return <div style={{display:'grid',gridTemplateRows: showBanner? '40px 1fr':'1fr', height:'100vh'}}>
     {showBanner && <div style={{background:'#ffecb3',padding:'6px 12px',display:'flex',alignItems:'center',gap:12,fontSize:14}}>
       <div style={{flex:1}}>Tile proxy base (VITE_TILE_BASE) is not configured; using http://localhost:4000/tiles</div>
       <button onClick={()=> setHideBanner(true)}>Dismiss</button>
     </div>}
     <div style={{display:'grid',gridTemplateColumns:'1fr 360px',height:'100%'}}>
-      <MapView />
-      <Panel />
+      <div style={{position:'relative'}}>
+        <CatalogMap activeLayerSlug={activeLayerSlug} catalog={catalogData} />
+        <div style={{position:'absolute',left:8,top:8,background:'rgba(0,0,0,.4)',padding:'4px 8px',borderRadius:4,fontSize:12}}>Catalog Demo</div>
+      </div>
+      <CatalogPanel onSelect={setActiveLayerSlug} activeLayerSlug={activeLayerSlug} />
     </div>
   </div>;
 }
