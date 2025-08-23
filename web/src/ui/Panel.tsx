@@ -1,10 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useStore } from '../util/store';
+import { useStore, LAYER_PRESETS } from '../util/store';
+import { buildHash } from '../util/permalink';
 import type { Catalog } from '@westfam/shared';
 
 export default function Panel(){
-  const { addLayer, removeLayer, setOpacity, layers, time, setTime } = useStore();
+  const { addLayer, removeLayer, setOpacity, layers, time, setTime, togglePlaying, playing, replaceLayers } = useStore();
   const { data } = useQuery<Catalog>({
     queryKey:['catalog'],
     queryFn: async ()=>{
@@ -14,13 +15,26 @@ export default function Panel(){
   });
   const tileBase = (import.meta as any).env?.VITE_TILE_BASE || 'http://localhost:4000/tiles';
   return <div style={{padding:12, overflow:'auto'}}>
-    <h3>Layers</h3>
+    <h3>Time & Playback</h3>
     <div style={{marginBottom:16}}>
       <label>
         <div style={{fontSize:12,opacity:.7}}>Time (YYYY-MM-DD)</div>
         <input type="date" value={time} onChange={e=> setTime(e.currentTarget.value)} />
       </label>
+      <div style={{marginTop:8}}>
+        <button onClick={()=> togglePlaying()}>{playing? 'Pause':'Play'} (daily)</button>
+        <button onClick={()=> setTime(new Date().toISOString().slice(0,10))} style={{marginLeft:8}}>Today</button>
+      </div>
     </div>
+    <h3>Presets</h3>
+    <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:12}}>
+      {LAYER_PRESETS.map(p=> <button key={p.key} onClick={()=>{
+        const tileBase = (import.meta as any).env?.VITE_TILE_BASE || 'http://localhost:4000/tiles';
+        const realized = p.layers.map(l=> ({ ...l, templateRaw: l.templateRaw.replace('{TILE_BASE}', tileBase) }));
+        realized.forEach(addLayer);
+      }}>{p.name}</button>)}
+    </div>
+    <h3>Layers</h3>
     <div style={{marginBottom:12}}>
       <button onClick={()=>{
         const id = 'gibs-geocolor';
@@ -49,5 +63,12 @@ export default function Panel(){
         <button onClick={()=> removeLayer(l.id)}>Remove</button>
       </div>
     )}
+    <div style={{marginTop:12}}>
+      <button onClick={()=> {
+        const link = location.origin + location.pathname + buildHash({ time, view: useStore.getState().view, layers });
+        navigator.clipboard.writeText(link).catch(()=>{});
+        alert('Permalink copied to clipboard');
+      }}>Copy Permalink</button>
+    </div>
   </div>;
 }

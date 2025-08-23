@@ -2,16 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import maplibregl, { Map } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useStore } from '../util/store';
+import { buildHash } from '../util/permalink';
 
 export default function MapView(){
   const mapRef = useRef<Map|null>(null);
   const containerRef = useRef<HTMLDivElement|null>(null);
-  const { layers, time } = useStore();
+  const { layers, time, view, setView, playing, stepTime } = useStore();
   useEffect(()=>{
     const map = new maplibregl.Map({
       container: containerRef.current!,
       style: 'https://demotiles.maplibre.org/style.json',
-      center: [-112.074, 33.448], zoom: 6
+      center: [view.lon, view.lat], zoom: view.zoom
     });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl());
@@ -19,8 +20,24 @@ export default function MapView(){
       // Example: add WMTS layer proxied through backend
       // Real layers are chosen from the Panel
     });
+    map.on('moveend', ()=>{
+      const c = map.getCenter();
+      setView({ lat: c.lat, lon: c.lng, zoom: map.getZoom() });
+    });
     return ()=> map.remove();
   },[]);
+  // Playback timer (advance one day for now every 1s while playing)
+  useEffect(()=>{
+    if(!playing) return;
+    const id = setInterval(()=> stepTime(1), 1000);
+    return ()=> clearInterval(id);
+  },[playing, stepTime]);
+  // Permalink hash update
+  const storeSnapshot = useStore();
+  useEffect(()=>{
+    const h = buildHash({ time: storeSnapshot.time, view: storeSnapshot.view, layers: storeSnapshot.layers });
+    if(location.hash !== h) history.replaceState(null,'',h);
+  },[storeSnapshot.time, storeSnapshot.view.lat, storeSnapshot.view.lon, storeSnapshot.view.zoom, storeSnapshot.layers]);
   useEffect(()=>{
     const map = mapRef.current;
     if(!map) return;
