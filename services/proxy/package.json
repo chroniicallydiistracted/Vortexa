@@ -3,25 +3,29 @@
   "version": "0.2.0",
   "type": "module",
   "main": "dist/index.js",
-  "engines": { "node": ">=20 <21" },
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
-  "build": "tsc -p tsconfig.json",
-  "dev": "tsx watch src/index.ts",
-  "test": "vitest run",
-  "test:watch": "vitest"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "health-check": "tsx health-check.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.648.0",
     "@aws-sdk/client-s3": "^3.648.0",
+    "@aws-sdk/lib-dynamodb": "^3.648.0",
     "@aws-sdk/lib-storage": "^3.648.0",
-  "@aws-sdk/client-dynamodb": "^3.648.0",
-  "@aws-sdk/lib-dynamodb": "^3.648.0",
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^4.19.2",
     "morgan": "^1.10.0",
     "pino": "^9.5.0",
     "prom-client": "^15.1.2",
-  "undici": "^6.19.8",
-  "axios": "^1.7.7",
+    "undici": "^6.19.8",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -33,7 +37,7 @@
     "pino-pretty": "^11.3.0",
     "supertest": "^6.3.4",
     "tsx": "^4.19.1",
-    "vitest": "^2.0.5",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }

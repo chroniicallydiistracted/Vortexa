@@ -15,16 +15,37 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
   const containerRef = useRef<HTMLDivElement|null>(null);
   // init
   useEffect(()=>{
+    const baseTemplate = ((import.meta as any).env?.VITE_BASEMAP_TILE_URL) || '/api/cartodb/positron/{z}/{x}/{y}.png';
+    const style = {
+      version: 8,
+      sources: {
+        basemap: {
+          type: 'raster',
+          tiles: [baseTemplate],
+          tileSize: 256
+        }
+      },
+      layers: [ { id: 'basemap', type: 'raster', source: 'basemap' } ]
+    } as any;
     const map = new maplibregl.Map({
       container: containerRef.current!,
-      style: 'https://demotiles.maplibre.org/style.json',
+      style,
       center: [-112.074, 33.448],
       zoom: 3
     });
     map.addControl(new maplibregl.NavigationControl());
+    // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
+    const canvas = map.getCanvas();
+    const onContextLost = (e: any) => { e.preventDefault(); console.warn('[Map] WebGL context lost'); };
+    canvas.addEventListener('webglcontextlost', onContextLost, { once: true });
     mapRef.current = map;
     onMapReady && onMapReady(map);
-    return ()=> map.remove();
+    return ()=> {
+      try { canvas.removeEventListener('webglcontextlost', onContextLost); } catch {}
+      try { map.remove(); } catch {}
+      // Null out ref so async effects know map is gone
+      mapRef.current = null;
+    };
   },[]);
 
   // helper: format time per format token
@@ -46,47 +67,57 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
   useEffect(()=>{
     const map = mapRef.current;
     if(!map) return;
-    // remove previous generic weather layers
-    if(map.getLayer('active-raster')) map.removeLayer('active-raster');
-    if(map.getSource('active-raster')) map.removeSource('active-raster');
-    if(map.getLayer('active-vector-fill')) map.removeLayer('active-vector-fill');
-    if(map.getLayer('active-vector-line')) map.removeLayer('active-vector-line');
-    if(map.getLayer('active-vector-circle')) map.removeLayer('active-vector-circle');
-    if(map.getSource('active-vector')) map.removeSource('active-vector');
+    let cancelled = false;
 
-    if(!activeLayerSlug) return;
+    // remove previous dynamic layers/sources (defensive try/catch to avoid DOMExceptions if already removed)
+    const safeRemoveLayer = (id: string) => { try { if(map.getLayer(id)) map.removeLayer(id); } catch {} };
+    const safeRemoveSource = (id: string) => { try { if(map.getSource(id)) map.removeSource(id); } catch {} };
+    ['active-raster','active-vector-fill','active-vector-line','active-vector-circle'].forEach(safeRemoveLayer);
+    ['active-raster','active-vector'].forEach(safeRemoveSource);
+
+    if(!activeLayerSlug) return () => { cancelled = true; };
 
     const entries: Catalog = Array.isArray(catalog)? catalog : (catalog?.layers || []);
     const entry = entries.find(e=> e.slug === activeLayerSlug);
-    if(!entry) return;
+    if(!entry) return () => { cancelled = true; };
 
     const nowMs = currentTime || Date.now();
+    const stillValid = () => !!mapRef.current && mapRef.current === map && !cancelled;
 
     if(entry.source_type === 'raster' && entry.tile_url_template) {
-      const timeToken = formatTime(entry.time_format, nowMs);
-      const url = entry.tile_url_template.includes('{time}') ? entry.tile_url_template.replace('{time}', timeToken) : entry.tile_url_template;
-      map.addSource('active-raster', { type:'raster', tiles:[url], tileSize: 256 } as any);
-      map.addLayer({ id:'active-raster', type:'raster', source:'active-raster' });
+      try {
+        const timeToken = formatTime(entry.time_format, nowMs);
+        const url = entry.tile_url_template.includes('{time}') ? entry.tile_url_template.replace('{time}', timeToken) : entry.tile_url_template;
+        if(stillValid()) {
+          map.addSource('active-raster', { type:'raster', tiles:[url], tileSize: 256 } as any);
+          map.addLayer({ id:'active-raster', type:'raster', source:'active-raster' });
+        }
+      } catch (e) {
+        console.warn('[Map] Failed to add raster layer', e);
+      }
     } else if(entry.source_type === 'vector' && entry.api_endpoint) {
-      // Decide if endpoint returns CSV (FIRMS) or GeoJSON
       const isFirmsCsv = /\/api\/firms\//.test(entry.api_endpoint) || /firms/i.test(entry.attribution || '');
-      const fetchPromise = fetch(entry.api_endpoint).then(async r => {
+      fetch(entry.api_endpoint).then(async r => {
+        if(!r.ok) throw new Error(`fetch ${entry.api_endpoint} ${r.status}`);
         const ct = r.headers.get('content-type') || '';
         if (isFirmsCsv || ct.includes('text/csv')) {
           const text = await r.text();
-            return firmsCsvToGeoJSON(text);
+          return firmsCsvToGeoJSON(text);
         }
+        // Safe JSON parse
         return r.json();
-      });
-      fetchPromise.then(data=> {
-        if(map.getSource('active-vector')) return; // guard if quick reselect
+      }).then(data => {
+        if(!stillValid()) return;
+        if(map.getSource('active-vector')) return;
         map.addSource('active-vector', { type:'geojson', data } as any);
-        // Heuristic styling depending on feature geometry type
-        map.addLayer({ id:'active-vector-line', type:'line', source:'active-vector', paint:{ 'line-color':'#ff9800', 'line-width':2 }, filter:['==','$type','LineString'] });
-        map.addLayer({ id:'active-vector-fill', type:'fill', source:'active-vector', paint:{ 'fill-color':'rgba(255,152,0,0.25)', 'fill-outline-color':'#ff9800' }, filter:['==','$type','Polygon'] });
-        map.addLayer({ id:'active-vector-circle', type:'circle', source:'active-vector', paint:{ 'circle-radius':4, 'circle-color':'#ff5722', 'circle-stroke-color':'#fff', 'circle-stroke-width':1 }, filter:['==','$type','Point'] });
-      }).catch(()=>{});
+        try { map.addLayer({ id:'active-vector-line', type:'line', source:'active-vector', paint:{ 'line-color':'#ff9800', 'line-width':2 }, filter:['==','$type','LineString'] }); } catch {}
+        try { map.addLayer({ id:'active-vector-fill', type:'fill', source:'active-vector', paint:{ 'fill-color':'rgba(255,152,0,0.25)', 'fill-outline-color':'#ff9800' }, filter:['==','$type','Polygon'] }); } catch {}
+        try { map.addLayer({ id:'active-vector-circle', type:'circle', source:'active-vector', paint:{ 'circle-radius':4, 'circle-color':'#ff5722', 'circle-stroke-color':'#fff', 'circle-stroke-width':1 }, filter:['==','$type','Point'] }); } catch {}
+      }).catch(err => {
+        if(!cancelled) console.warn('[Map] vector fetch failed', err.message || err);
+      });
     }
+    return ()=> { cancelled = true; };
   },[activeLayerSlug, catalog, currentTime]);
 
   // static alerts overlay preserved (optional redundancy with official-weather-alerts layer)

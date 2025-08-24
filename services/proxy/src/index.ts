@@ -92,6 +92,92 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.use('/api/nws', nwsRouter);
   app.use('/api/cartodb', cartoDbRouter);
   app.use('/api/gibs', gibsRouter);
+
+  // --- Dynamic timestamped layers (Rainviewer radar & GIBS GOES Band 13) ---
+  // In-memory caches to avoid excessive upstream metadata fetches
+  interface RainviewerEntry { time: number; path: string }
+  let rainviewerMeta: { ts: number; past: RainviewerEntry[]; nowcast: RainviewerEntry[] } = { ts: 0, past: [], nowcast: [] };
+  async function loadRainviewerMeta(): Promise<typeof rainviewerMeta> {
+    const now = Date.now();
+    if (rainviewerMeta.past.length && (now - rainviewerMeta.ts) < 60_000) return rainviewerMeta;
+    try {
+      const rv = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      if (!rv.ok) return rainviewerMeta;
+      const data: any = await rv.json();
+      rainviewerMeta = {
+        ts: now,
+        past: (data?.radar?.past || []).map((p: any)=> ({ time: p.time, path: p.path })),
+        nowcast: (data?.radar?.nowcast || []).map((p: any)=> ({ time: p.time, path: p.path }))
+      };
+    } catch {/* keep old cache */}
+    return rainviewerMeta;
+  }
+  function buildRainviewerTileUrl(entry: RainviewerEntry, z: string, x: string, y: string): string {
+    // Use 256 tiles for low zoom (<=2) to save bandwidth; otherwise 512 for smoother view
+    const size = Number(z) <= 2 ? 256 : 512;
+    // Entry path already contains /v2/radar/<timestamp or nowcast_id>
+    return `https://tilecache.rainviewer.com${entry.path}/${size}/${z}/${x}/${y}/2/1_1.png`;
+  }
+  app.get('/api/radar/tiles/:z/:x/:y.png', async (req, res) => {
+    try {
+      const meta = await loadRainviewerMeta();
+      const { z, x, y } = req.params;
+      // Prefer most recent nowcast frame; fallback to latest past if needed
+      const ordered = [...meta.nowcast.slice().sort((a,b)=> a.time - b.time), ...meta.past.slice().sort((a,b)=> a.time - b.time)];
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        const entry = ordered[i];
+        const tileUrl = buildRainviewerTileUrl(entry, z, x, y);
+        const upstream = await fetch(tileUrl);
+        if (upstream.ok) {
+          res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
+          res.set('Cache-Control', 'public, max-age=120'); // short cache, frames update frequently
+          return res.send(Buffer.from(await upstream.arrayBuffer()));
+        }
+      }
+      return res.status(503).json({ error: 'no_radar_frame_available' });
+    } catch (e: any) {
+      logger.error({ msg: 'radar proxy failed', error: e.message });
+      res.status(500).json({ error: 'radar_proxy_failed' });
+    }
+  });
+
+  let goesB13Meta: { ts: number; latest: string | null } = { ts: 0, latest: null };
+  async function getGoesB13Timestamp(): Promise<string | null> {
+    const now = Date.now();
+    if (goesB13Meta.latest && (now - goesB13Meta.ts) < 5 * 60_000) return goesB13Meta.latest; // 5 min cache
+    try {
+      const cap = await fetch('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml');
+      if (!cap.ok) return goesB13Meta.latest;
+      const xml = await cap.text();
+      // Extract layer block for GOES-East_Full_Disk_Band_13_ENHANCED
+      const layerIdx = xml.indexOf('GOES-East_Full_Disk_Band_13_ENHANCED');
+      if (layerIdx === -1) return goesB13Meta.latest;
+      const slice = xml.slice(Math.max(0, layerIdx - 2000), layerIdx + 4000); // window around layer name
+      // Grab nearest <Dimension>...</Dimension> containing <Default>
+      const dimMatch = slice.match(/<Dimension[^>]*>[^<]*<Identifier>time<\/Identifier>[\s\S]*?<Default>([^<]+)<\/Default>/i);
+      if (dimMatch && dimMatch[1]) {
+        goesB13Meta = { ts: now, latest: dimMatch[1].trim() };
+      }
+      return goesB13Meta.latest;
+    } catch {
+      return goesB13Meta.latest;
+    }
+  }
+  app.get('/api/gibs/goes-b13/:z/:y/:x.png', async (req, res) => {
+    try {
+      const ts = await getGoesB13Timestamp();
+      if (!ts) return res.status(503).json({ error: 'timestamp_unavailable' });
+      const { z, y, x } = req.params; // GIBS order /{z}/{y}/{x}
+      const tileUrl = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_Band_13_ENHANCED/default/${encodeURIComponent(ts)}/GoogleMapsCompatible_Level8/${z}/${y}/${x}.png`;
+      const upstream = await fetch(tileUrl);
+      if (!upstream.ok) return res.status(upstream.status).send();
+      res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
+      res.send(Buffer.from(await upstream.arrayBuffer()));
+    } catch (e: any) {
+      logger.error({ msg: 'goes-b13 proxy failed', error: e.message });
+      res.status(500).json({ error: 'goes_b13_proxy_failed' });
+    }
+  });
   // Prometheus metrics registry & instruments
   const register = new Registry();
   collectDefaultMetrics({ register });
@@ -128,8 +214,10 @@ export function createApp(opts: CreateAppOptions = {}) {
 
   // Alerts endpoint (GeoJSON FeatureCollection)
   const alertsTable = process.env.ALERTS_TABLE || 'westfam-alerts';
+  const dynamoEndpoint = process.env.DYNAMODB_ENDPOINT;
   const _ddb = new DynamoDBClient({
-    region: 'us-west-2'
+    region: 'us-west-2',
+    ...(dynamoEndpoint ? { endpoint: dynamoEndpoint } : {})
   });
   const ddbDoc = DynamoDBDocumentClient.from(_ddb);
   app.get('/api/alerts', async (_req, res) => {

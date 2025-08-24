@@ -76,6 +76,26 @@ Root / proxy relevant:
 
 Web:
 * Uses proxied endpoints; no weather vendor secrets should appear in built bundle.
+* `VITE_ENABLE_3D` – feature gate for experimental 3D globe (default `0`). Must be `1` AND runtime flag `/api/flags.enable3d` true to allow `?mode=3d` or UI toggle.
+
+### 3D Globe (Experimental / Off by Default)
+The Cesium 3D globe is an **opt‑in**, cost‑guarded feature. It will not load nor appear unless:
+1. Build‑time env: `VITE_ENABLE_3D=1`
+2. Runtime flags endpoint `/api/flags` returns `{ enable3d: true }` (proxy env `ENABLE_3D=1`).
+
+If either is false, any `?mode=3d` deep link is coerced back to 2D and the Cesium chunk is never requested.
+
+Local enable steps:
+```bash
+# web/.env (or export before dev)
+VITE_ENABLE_3D=1
+# proxy env (in same shell, before starting proxy)
+export ENABLE_3D=1
+npm run dev
+```
+Then visit: `http://localhost:5173/?mode=3d`.
+
+Rationale: prevents accidental egress / large bundle downloads; keeps default UX lightweight.
 
 Terraform variables: bucket/domain/region (see `infra/terraform/terraform.tfvars`).
 

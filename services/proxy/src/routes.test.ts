@@ -42,3 +42,21 @@ describe('vendor routes', () => {
     expect(r.headers['content-type']).toContain('application/json');
   });
 });
+
+describe('flags endpoint', () => {
+  it('returns enable3d false by default', async () => {
+    delete process.env.ENABLE_3D;
+    const { createApp } = await import('./index.js');
+    const app = createApp();
+    const r = await request(app).get('/api/flags');
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ enable3d: false });
+  });
+  it('returns enable3d true when env set', async () => {
+    process.env.ENABLE_3D = '1';
+    const { createApp } = await import('./index.js');
+    const app = createApp();
+    const r = await request(app).get('/api/flags');
+    expect(r.body).toEqual({ enable3d: true });
+  });
+});

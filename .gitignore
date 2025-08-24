@@ -19,5 +19,9 @@ terraform.tfstate*
 # OS/Editor
 .DS_Store
 .vscode/
-*** End Patchnode_modules
+
+# Misc archives / artifacts
 WestFam-Weather-AWS.zip
+
+# Local reference lists not for version control
+GIBS FAVORITE LAYER MASTERLIST.txt

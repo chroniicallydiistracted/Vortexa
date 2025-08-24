@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useStore } from '../util/store';
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
 interface CatalogEntry {
@@ -16,6 +17,21 @@ interface PanelProps {
 }
 
 export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
+  const mode = useStore(s=> s.mode);
+  const gibsOn = useStore(s=> s.gibsGeocolor3d);
+  const gibsTimestamps = useStore(s=> s.gibsTimestamps);
+  const setGibsTimestamps = useStore(s=> s.setGibsTimestamps);
+  const gibsSelectedTime = useStore(s=> s.gibsSelectedTime);
+  const setGibsSelectedTime = useStore(s=> s.setGibsSelectedTime);
+  const gibsPlaying = useStore(s=> s.gibsPlaying);
+  const toggleGibsPlaying = useStore(s=> s.toggleGibsPlaying);
+  const stepGibsTime = useStore(s=> s.stepGibsTime);
+  const gibsPlaybackSpeedMs = useStore(s=> s.gibsPlaybackSpeedMs);
+  const setGibsPlaybackSpeed = useStore(s=> s.setGibsPlaybackSpeed);
+  const showFirms3d = useStore(s=> s.showFirms3d);
+  const toggleFirms3d = useStore(s=> s.toggleFirms3d);
+  const showOwmTemp3d = useStore(s=> s.showOwmTemp3d);
+  const toggleOwmTemp3d = useStore(s=> s.toggleOwmTemp3d);
   const [palette, setPalette] = useState<CatalogEntry[]| null>(null);
   useEffect(()=>{
     fetch('/catalog.json').then(r=> r.json()).then(data=> {
@@ -41,6 +57,17 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
   const allCats = useMemo(()=> Object.keys(grouped).sort(), [grouped]);
   const collapseAll = ()=> setCollapsed(Object.fromEntries(allCats.map(c=> [c, true])));
   const expandAll = ()=> setCollapsed(Object.fromEntries(allCats.map(c=> [c, false])));
+  // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
+  useEffect(()=>{
+    if(mode!=='3d' || !gibsOn) return;
+    if(gibsTimestamps.length>0) return;
+    fetch('/api/gibs/timestamps').then(r=> r.json()).then(arr=> {
+      if(Array.isArray(arr)){
+        setGibsTimestamps(arr);
+        if(arr.length>0) setGibsSelectedTime(arr[arr.length-1]); // latest
+      }
+    }).catch(()=>{});
+  }, [mode, gibsOn, gibsTimestamps.length]);
   return <div style={{padding:12, overflow:'auto', fontSize:13, lineHeight:1.3}}>
     <div style={{display:'flex',alignItems:'center',gap:8, marginBottom:8}}>
       <h3 style={{margin:'0 8px 0 0'}}>Layers</h3>
@@ -84,7 +111,48 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps){
         </div>}
       </div>;
     })}
+    {mode==='3d' && gibsOn && <div style={{marginTop:16}}>
+      <div style={{fontWeight:600, marginBottom:4}}>GIBS Time</div>
+      {gibsTimestamps.length===0 && <div style={{fontSize:12, opacity:.7}}>Loading timestamps…</div>}
+      {gibsTimestamps.length>0 && <select value={gibsSelectedTime||''} onChange={e=> setGibsSelectedTime(e.target.value||null)} style={{width:'100%', padding:'4px 6px', background:'#1a2633', color:'#e8eef6', border:'1px solid #35506d', borderRadius:4, fontSize:12}}>
+        {gibsTimestamps.map(t=> <option key={t} value={t}>{t}</option>)}
+      </select>}
+      {gibsTimestamps.length>0 && <div style={{display:'flex', gap:6, marginTop:8, alignItems:'center'}}>
+        <button style={btnStyle} onClick={()=> stepGibsTime(-1)} disabled={!gibsTimestamps.length}>◀</button>
+        <button style={{...btnStyle, background: gibsPlaying? '#35506d':'#223244'}} onClick={toggleGibsPlaying}>{gibsPlaying? 'Pause':'Play'}</button>
+        <button style={btnStyle} onClick={()=> stepGibsTime(1)} disabled={!gibsTimestamps.length}>▶</button>
+        <select value={String(gibsPlaybackSpeedMs)} onChange={e=> setGibsPlaybackSpeed(Number(e.target.value))} style={{...btnStyle, padding:'3px 4px'}}>
+          <option value={2000}>0.5x</option>
+          <option value={1500}>1x</option>
+          <option value={800}>2x</option>
+          <option value={400}>4x</option>
+        </select>
+      </div>}
+      {gibsPlaying && <GibsPlaybackAdvance />}
+    </div>}
+    {mode==='3d' && <div style={{marginTop:20}}>
+      <div style={{fontWeight:600, marginBottom:6}}>3D Data Layers</div>
+      <label style={{display:'flex', alignItems:'center', gap:6, fontSize:12, marginBottom:4}}>
+        <input type='checkbox' checked={showFirms3d} onChange={toggleFirms3d} /> FIRMS Fire Detections
+      </label>
+      <label style={{display:'flex', alignItems:'center', gap:6, fontSize:12}}>
+        <input type='checkbox' checked={showOwmTemp3d} onChange={toggleOwmTemp3d} /> OWM Temperature Overlay
+      </label>
+    </div>}
   </div>;
+}
+
+// Component to advance playback using setInterval while mounted
+function GibsPlaybackAdvance(){
+  const gibsPlaying = useStore(s=> s.gibsPlaying);
+  const gibsPlaybackSpeedMs = useStore(s=> s.gibsPlaybackSpeedMs);
+  const step = useStore(s=> s.stepGibsTime);
+  useEffect(()=>{
+    if(!gibsPlaying) return;
+    const id = setInterval(()=> step(1), gibsPlaybackSpeedMs);
+    return ()=> clearInterval(id);
+  }, [gibsPlaying, gibsPlaybackSpeedMs]);
+  return null;
 }
 
 const btnStyle: React.CSSProperties = {

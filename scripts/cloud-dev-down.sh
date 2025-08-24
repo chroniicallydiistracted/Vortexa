@@ -1,18 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MODE="soft" # default signal TERM then KILL fallback
+# Standard environment exports (mirror cloud-dev defaults)
 REGION="${AWS_REGION:-us-west-2}"
-TABLE="${ALERTS_TABLE:-westfam-alerts}"
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$REGION}
+export OWM_API_KEY=${OWM_API_KEY:-c936b44e0480ef48e6b25612bd949125}
+export FIRMS_MAP_KEY=${FIRMS_MAP_KEY:-fa4e409ce1e5037b60bd85114fa6e7fd}
+export NWS_USER_AGENT=${NWS_USER_AGENT:-Vortexa/0.1 (contact: chroniicallydiistracted@gmail.com)}
+export ALERTS_TABLE=${ALERTS_TABLE:-westfam-alerts}
+export DYNAMODB_ENDPOINT=${DYNAMODB_ENDPOINT:-http://localhost:8000}
+LOCAL_DYNAMO=${LOCAL_DYNAMO:-1}
+
+MODE="soft" # default signal TERM then KILL fallback
+TABLE="$ALERTS_TABLE"
 DROP_TABLE=1
+REMOVE_LOCAL_CONTAINER=0
 for arg in "$@"; do
   case "$arg" in
     --hard) MODE="hard" ;;
     --keep-table) DROP_TABLE=0 ;;
+  --remote) LOCAL_DYNAMO=0 ;;
+  --remove-local) REMOVE_LOCAL_CONTAINER=1 ;;
   esac
 done
 if [[ "${1:-}" == "--hard" ]]; then MODE="hard"; fi
 
+echo "[cloud-dev-down] Region : $REGION"
+echo "[cloud-dev-down] Table  : $TABLE"
+if [[ $LOCAL_DYNAMO -eq 1 ]]; then
+  echo "[cloud-dev-down] Mode   : local DynamoDB ($DYNAMODB_ENDPOINT)"; else echo "[cloud-dev-down] Mode   : remote AWS"; fi
 echo "[cloud-dev-down] Scanning for dev processes (proxy: tsx watch, web: vite)"
 MAP_PIDS=()
 while IFS= read -r line; do
@@ -54,26 +72,34 @@ if [[ $DROP_TABLE -eq 1 ]]; then
   if ! command -v aws >/dev/null 2>&1; then
     echo "[cloud-dev-down] aws CLI not installed; skipping table deletion";
   else
-    # Surface any immediate error (no credential swallow) then wait for deletion
-    if aws dynamodb delete-table --table-name "$TABLE" --region "$REGION" >/dev/null 2>&1; then
-      echo "[cloud-dev-down] Delete requested; waiting for table removal..."
-      # Poll until describe fails (up to 60s)
-      deleted=0
-      for i in {1..60}; do
-        if aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" >/dev/null 2>&1; then
-          sleep 1
-        else
-          deleted=1; break;
-        fi
-      done
-      if [[ $deleted -eq 1 ]]; then
-        echo "[cloud-dev-down] Table deletion confirmed.";
+    if [[ $LOCAL_DYNAMO -eq 1 ]]; then
+      EP=(--endpoint-url "$DYNAMODB_ENDPOINT")
+      if aws dynamodb delete-table --table-name "$TABLE" "${EP[@]}" >/dev/null 2>&1; then
+        echo "[cloud-dev-down] Local delete requested; waiting..."
+        deleted=0
+        for i in {1..30}; do
+          if aws dynamodb describe-table --table-name "$TABLE" "${EP[@]}" >/dev/null 2>&1; then sleep 1; else deleted=1; break; fi
+        done
+        if [[ $deleted -eq 1 ]]; then echo "[cloud-dev-down] Table deletion confirmed (local)."; else echo "[cloud-dev-down] WARNING: Table still present (local)."; fi
       else
-        echo "[cloud-dev-down] WARNING: Table still present after timeout (may finish asynchronously).";
+        echo "[cloud-dev-down] Local delete failed (may not exist).";
+      fi
+      if [[ $REMOVE_LOCAL_CONTAINER -eq 1 ]]; then
+        if docker ps -a --format '{{.Names}}' | grep -q '^dynamodb-local$'; then
+          echo "[cloud-dev-down] Removing local dynamodb container"; docker rm -f dynamodb-local >/dev/null 2>&1 || true; fi
       fi
     else
-      echo "[cloud-dev-down] Delete failed (see below).";
-      aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" 2>&1 || true
+      if aws dynamodb delete-table --table-name "$TABLE" --region "$REGION" >/dev/null 2>&1; then
+        echo "[cloud-dev-down] Delete requested; waiting for table removal..."
+        deleted=0
+        for i in {1..60}; do
+          if aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" >/devnull 2>&1; then sleep 1; else deleted=1; break; fi
+        done
+        if [[ $deleted -eq 1 ]]; then echo "[cloud-dev-down] Table deletion confirmed."; else echo "[cloud-dev-down] WARNING: Table still present after timeout."; fi
+      else
+        echo "[cloud-dev-down] Delete failed (see below).";
+        aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" 2>&1 || true
+      fi
     fi
   fi
 fi

@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { ModeSwitch } from '../map/ModeSwitch';
+import { CesiumGlobe } from '../map/cesium/CesiumGlobe';
+import { getRuntimeFlags } from '../util/featureFlags';
 // Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
 import CatalogPanel from '../components/Panel';
 import CatalogMap from '../components/Map';
@@ -9,7 +12,29 @@ export default function App(){
   const tileEnv = (import.meta as any).env?.VITE_TILE_BASE;
   const [hideBanner, setHideBanner] = useState(false);
   const showBanner = !tileEnv && !hideBanner;
-  const { setTime, replaceLayers, setView } = useStore();
+  const { setTime, replaceLayers, setView, mode, setMode, gibsGeocolor3d, toggleGibsGeocolor3d } = useStore();
+  const [flags, setFlags] = useState<{enable3d:boolean}>({ enable3d:false });
+  useEffect(()=> { getRuntimeFlags().then(setFlags); },[]);
+  const envEnable = ((import.meta as any).env?.VITE_ENABLE_3D) === '1';
+  const params = new URLSearchParams(location.search);
+  const requested3d = params.get('mode') === '3d';
+  const canUse3D = envEnable && flags.enable3d;
+  // Coerce mode based on gating (do not allow 3D if flags off)
+  useEffect(()=> {
+    if(requested3d && !canUse3D && mode==='3d') {
+      setMode('2d');
+    } else if(requested3d && canUse3D && mode!=='3d') {
+      setMode('3d');
+    }
+    if(!requested3d && mode==='3d' && !canUse3D) setMode('2d');
+  }, [requested3d, canUse3D]);
+  // Persist (only if valid)
+  useEffect(()=> {
+    const p = new URLSearchParams(location.search);
+    if(mode==='3d' && canUse3D) p.set('mode','3d'); else p.delete('mode');
+    const newUrl = `${location.pathname}?${p.toString()}${location.hash}`.replace(/\?$/,'');
+    window.history.replaceState({},'',newUrl);
+  }, [mode, canUse3D]);
   // On initial mount, parse permalink hash
   useEffect(()=>{
     if(location.hash){
@@ -73,7 +98,14 @@ export default function App(){
     </div>}
     <div style={{display:'grid',gridTemplateColumns:'1fr 360px',height:'100%'}}>
       <div style={{position:'relative'}}>
-  <CatalogMap activeLayerSlug={activeLayerSlug} catalog={catalogData} onMapReady={setMapInstance} currentTime={currentTime} />
+  {mode==='2d' && <CatalogMap activeLayerSlug={activeLayerSlug} catalog={catalogData} onMapReady={setMapInstance} currentTime={currentTime} />}
+  {mode==='3d' && canUse3D && <CesiumGlobe />}
+        <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
+        {mode==='3d' && canUse3D && <div style={{position:'absolute', top:40, right:8, zIndex:20, background:'rgba(15,25,35,0.85)', color:'#e6f2fa', padding:'6px 8px', borderRadius:6, fontSize:12}}>
+          <label style={{display:'flex',alignItems:'center',gap:6}}>
+            <input type="checkbox" checked={gibsGeocolor3d} onChange={toggleGibsGeocolor3d} /> GIBS GeoColor
+          </label>
+        </div>}
         <div style={{position:'absolute',left:8,top:8,background:'rgba(0,0,0,.4)',padding:'4px 8px',borderRadius:4,fontSize:12}}>Catalog Demo</div>
         <div style={searchContainerStyle}>
           <input

@@ -6,9 +6,8 @@
       "slug": "radar-reflectivity",
       "source_type": "raster",
       "attribution": "Rainviewer.com",
-      "tile_url_template": "https://tilecache.rainviewer.com/v2/radar/{time}/512/{z}/{x}/{y}/2/1_1.png",
-      "time_format": "unix_timestamp",
-      "notes": "Global radar composite. Requires fetching available timestamps from Rainviewer API."
+  "tile_url_template": "/api/radar/tiles/{z}/{x}/{y}.png",
+  "notes": "Global radar composite via proxy with dynamic latest timestamp (Rainviewer)."
     },
     {
       "category": "Satellite",
@@ -26,9 +25,8 @@
       "slug": "cloud-top-temperature-height",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_Band_13_ENHANCED/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png",
-      "time_format": "YYYY-MM-DDTHH:mm:ssZ",
-      "notes": "GOES-East infrared imagery. Requires fetching available timestamps from GIBS API."
+  "tile_url_template": "/api/gibs/goes-b13/{z}/{y}/{x}.png",
+  "notes": "GOES-East infrared imagery (Band 13) via proxy with dynamic timestamp from WMTS capabilities."
     },
     {
       "category": "Precipitation",
@@ -36,8 +34,8 @@
       "slug": "precipitation-type",
       "source_type": "raster",
       "attribution": "OpenWeatherMap",
-      "tile_url_template": "/api/owm/tiles/precipitation_classic/{z}/{x}/{y}.png",
-      "notes": "Proxied via /api/owm (no API key exposed)."
+  "tile_url_template": "/api/owm/tiles/precipitation_new/{z}/{x}/{y}.png",
+  "notes": "Proxied via /api/owm (precipitation_new). Updated from deprecated precipitation_classic."
     },
     {
       "category": "Temperature",

@@ -13,6 +13,8 @@ Legend: ✅ Done | 🌓 Partial | ⏳ Not Started
 - ⏳ Alert subscriptions + Web Push via SNS + CloudFront worker.
 - ✅ Vendor credential shielding routes (FIRMS, OWM tiles, NWS UA) in proxy.
 - ✅ FIRMS CSV ingestion → GeoJSON client parsing.
-- 🌓 Dynamic time dimension for radar/satellite (client side substitution; upstream timestamp discovery pending).
+- ✅ Dynamic time dimension for radar/satellite (GIBS GeoColor timestamps discovery + selection & playback in 3D globe; further layers pending).
+- 🌓 3D Globe V3 Enhancements (playback, FIRMS points, OWM temp overlay) – baseline implemented, performance & styling polish pending.
 - 🌓 S3 tile cache mechanism (code path present, infra not provisioned).
+- ⏳ 3D Globe (Cesium) — experimental gated feature (env + runtime flag); scaffolding merged, imagery & advanced layers pending.
 

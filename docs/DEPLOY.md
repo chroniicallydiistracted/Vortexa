@@ -66,3 +66,6 @@ Secrets (set in runtime environment / Actions secrets): `FIRMS_MAP_KEY`, `OWM_AP
 3. Implement ingest job(s) for time‑indexed model tiles and dynamic timestamp enumeration for radar/satellite loops (reduce client guessing of current frame).
 4. Add minimal alarms (5xx rate, DynamoDB throttles) and retention policies.
 
+### Experimental Feature Flags
+Proxy provides `/api/flags` (currently `{ enable3d: false }`). Set `ENABLE_3D=1` in the proxy environment and `VITE_ENABLE_3D=1` at web build time to permit 3D (`?mode=3d`). Without both, 3D stays disabled and the Cesium bundle is never fetched.
+
