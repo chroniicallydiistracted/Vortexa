@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { immutable1h } from "../middleware/cache.js";
 import axios from "axios";
 
 export const cartoDbRouter = Router();
@@ -9,7 +10,7 @@ function pickSubdomain(z: number, x: number, y: number) {
   return subs[(x + y + z) % subs.length];
 }
 
-cartoDbRouter.get("/positron/:z/:x/:y.png", async (req, res) => {
+cartoDbRouter.get("/positron/:z/:x/:y.png", immutable1h, async (req, res) => {
   try {
     const z = Number(req.params.z),
       x = Number(req.params.x),
@@ -29,11 +30,7 @@ cartoDbRouter.get("/positron/:z/:x/:y.png", async (req, res) => {
     });
     const buf = Buffer.isBuffer(r.data) ? r.data : Buffer.from(r.data);
     // Upstream content-type should be image/png but set explicitly
-    res
-      .status(200)
-      .set("Content-Type", "image/png")
-      .set("Cache-Control", "public, max-age=86400, immutable")
-      .send(buf);
+  res.status(200).set("Content-Type", "image/png").send(buf);
   } catch (e: unknown) {
     const err = e as Error;
     res

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { validateCatalog } from "../lib/validateCatalog";
 import { useStore } from "../util/store";
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
@@ -35,13 +36,24 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
   const [palette, setPalette] = useState<CatalogEntry[] | null>(null);
   useEffect(() => {
     fetch("/catalog.json")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setPalette(data as any); // backward compatibility if array
-        } else if (data && Array.isArray(data.layers)) {
-          setPalette(data.layers);
+      .then(async (r) => {
+        try {
+          const raw = await r.json();
+          try {
+            const validated = validateCatalog(Array.isArray(raw) ? raw : raw.layers || raw);
+            return validated as any;
+          } catch (e) {
+            console.warn("Catalog validation failed (panel)", e);
+            return raw;
+          }
+        } catch {
+          return null;
         }
+      })
+      .then((data) => {
+        if (!data) return;
+        if (Array.isArray(data)) setPalette(data as any);
+        else if (data && Array.isArray((data as any).layers)) setPalette((data as any).layers);
       })
       .catch(() => {});
   }, []);

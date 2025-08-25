@@ -14,9 +14,7 @@ export function CesiumGlobe() {
     (async () => {
       try {
         const Cesium = await import("cesium");
-        // Minimal asset handling note: expecting static assets served at /cesium (to be wired later)
-        // @ts-ignore
-        (window as any).CESIUM_BASE_URL = "/cesium";
+  // CESIUM_BASE_URL removed: no external /cesium asset requests observed, assets bundled.
         const {
           Viewer,
           EllipsoidTerrainProvider,

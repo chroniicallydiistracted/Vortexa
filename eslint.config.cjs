@@ -19,6 +19,16 @@ module.exports = [
         { patterns: ["../../*", "../../../*"] },
       ],
       "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
+  },
+  {
+    files: ["**/*.test.ts", "**/__tests__/**/*.ts", "**/*.spec.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];

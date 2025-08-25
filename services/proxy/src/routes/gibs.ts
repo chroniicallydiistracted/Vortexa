@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { shortLived60, immutable1h } from "../middleware/cache.js";
 import { fetch } from "undici";
 import {
   getTimestamps,
@@ -10,7 +11,7 @@ import {
 export const gibsRouter = Router();
 
 // /api/gibs/timestamps?layer=Layer_Id
-gibsRouter.get("/timestamps", async (req, res) => {
+gibsRouter.get("/timestamps", shortLived60, async (req, res) => {
   try {
     const layer = (req.query.layer as string) || "";
     if (!layer)
@@ -29,7 +30,7 @@ gibsRouter.get("/timestamps", async (req, res) => {
 });
 
 // Latest tile resolver: /api/gibs/tile/:layer/:z/:y/:x.:ext?
-gibsRouter.get("/tile/:layer/:z/:y/:x.:ext?", async (req, res) => {
+gibsRouter.get("/tile/:layer/:z/:y/:x.:ext?", shortLived60, async (req, res) => {
   try {
     const { layer, z, y, x } = req.params;
     const ext = (req.params.ext || "png").toLowerCase();
@@ -75,7 +76,8 @@ gibsRouter.get("/tile/:layer/:z/:y/:x.:ext?", async (req, res) => {
       upstream.headers.get("content-type") ||
         (ext === "jpg" ? "image/jpeg" : "image/png"),
     );
-    res.set("Cache-Control", "public, max-age=60");
+  // shortLived60 already applied; explicit override kept for clarity
+  res.set("Cache-Control", "public, max-age=60");
     return res.send(buf);
   } catch (e: unknown) {
     const err = e as Error;

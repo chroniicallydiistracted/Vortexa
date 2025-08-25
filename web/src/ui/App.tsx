@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { validateCatalog } from "../lib/validateCatalog";
 import { Button } from "@mantine/core";
 import { ModeSwitch } from "../map/ModeSwitch";
 import Globe3DLoader from "../features/globe/Globe3DLoader";
@@ -83,7 +84,19 @@ export default function App() {
   const [catalogData, setCatalogData] = useState<any>(null); // now array
   useEffect(() => {
     fetch("/catalog.json")
-      .then((r) => r.json())
+      .then(async (r) => {
+        try {
+          const raw = await r.json();
+          try {
+            return validateCatalog(raw);
+          } catch (e) {
+            console.warn("Catalog validation failed", e);
+            return raw; // fallback to raw for non-breaking behavior
+          }
+        } catch {
+          return null;
+        }
+      })
       .then(setCatalogData)
       .catch(() => {});
   }, []);
