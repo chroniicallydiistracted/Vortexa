@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useMantineTheme } from '@mantine/core';
 import { useStore } from "../../util/store";
 import { zoomToHeight } from "../../util/zoomHeight";
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const theme = useMantineTheme();
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
   const setMode = useStore((s) => s.setMode);
@@ -217,7 +219,7 @@ export function CesiumGlobe() {
       style={{
         position: "absolute",
         inset: 0,
-        background: "#000",
+  background: theme.colors.dark?.[9] || theme.black,
         visibility: ready ? "visible" : "hidden",
       }}
     />

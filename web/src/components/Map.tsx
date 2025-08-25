@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useMantineTheme } from '@mantine/core';
 import maplibregl, { Map as MLMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -31,6 +32,7 @@ export default function Map({
   onMapReady,
   currentTime,
 }: MapProps) {
+  const theme = useMantineTheme();
   const mapRef = useRef<MLMap | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // init
@@ -181,7 +183,7 @@ export default function Map({
               id: "active-vector-line",
               type: "line",
               source: "active-vector",
-              paint: { "line-color": "#ff9800", "line-width": 2 },
+              paint: { "line-color": theme.colors.storm?.[6] || theme.primaryColor, "line-width": 2 },
               filter: ["==", "$type", "LineString"],
             });
           } catch {}
@@ -191,8 +193,8 @@ export default function Map({
               type: "fill",
               source: "active-vector",
               paint: {
-                "fill-color": "rgba(255,152,0,0.25)",
-                "fill-outline-color": "#ff9800",
+                "fill-color": `${theme.colors.storm?.[6] ?? theme.primaryColor}40`, // 25% alpha
+                "fill-outline-color": theme.colors.storm?.[6] ?? theme.primaryColor,
               },
               filter: ["==", "$type", "Polygon"],
             });
@@ -204,8 +206,8 @@ export default function Map({
               source: "active-vector",
               paint: {
                 "circle-radius": 4,
-                "circle-color": "#ff5722",
-                "circle-stroke-color": "#fff",
+                "circle-color": theme.colors.storm?.[7] || theme.colors.blue[6],
+                "circle-stroke-color": theme.white,
                 "circle-stroke-width": 1,
               },
               filter: ["==", "$type", "Point"],
@@ -239,8 +241,8 @@ export default function Map({
           type: "fill",
           source: "alerts-static",
           paint: {
-            "fill-color": "rgba(255,0,0,0.2)",
-            "fill-outline-color": "rgba(255,0,0,0.6)",
+            "fill-color": `${theme.colors.red?.[6] ?? theme.colors.pink?.[6] ?? theme.primaryColor}33`, // ~20% alpha
+            "fill-outline-color": `${theme.colors.red?.[6] ?? theme.colors.pink?.[6] ?? theme.primaryColor}99`, // ~60% alpha
           },
         });
       });
