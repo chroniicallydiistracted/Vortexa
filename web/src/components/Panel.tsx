@@ -1,6 +1,21 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { validateCatalog } from "../lib/validateCatalog";
 import { useStore } from "../util/store";
+import {
+  Accordion,
+  Group,
+  Stack,
+  Checkbox,
+  Button,
+  Text,
+  Badge,
+  Paper,
+  NativeSelect,
+  ActionIcon,
+  Tooltip,
+  Divider,
+} from "@mantine/core";
+import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
 interface CatalogEntry {
@@ -92,216 +107,142 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       .catch(() => {});
   }, [mode, gibsOn, gibsTimestamps.length]);
   return (
-    <div
-      style={{ padding: 12, overflow: "auto", fontSize: 13, lineHeight: 1.3 }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 8,
-        }}
-      >
-        <h3 style={{ margin: "0 8px 0 0" }}>Layers</h3>
-        <button onClick={collapseAll} style={btnStyle}>
-          Collapse All
-        </button>
-        <button onClick={expandAll} style={btnStyle}>
-          Expand All
-        </button>
-        <button onClick={() => onSelect("")} style={btnStyle}>
+    <Stack gap="sm" p={0} style={{ fontSize: 13 }}>
+      <Group gap="xs" wrap="nowrap">
+        <Text fw={600}>Layers</Text>
+        <Button size="xs" variant="light" onClick={collapseAll}>
+          Collapse
+        </Button>
+        <Button size="xs" variant="light" onClick={expandAll}>
+          Expand
+        </Button>
+        <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>
           Clear
-        </button>
-      </div>
-      {!palette && <div>Loading palette…</div>}
-      {palette &&
-        allCats.map((cat) => {
-          const list = grouped[cat];
-          const isCollapsed = collapsed[cat];
-          return (
-            <div key={cat} style={{ marginBottom: 12 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  userSelect: "none",
-                }}
-                onClick={() => toggleCat(cat)}
-              >
-                <div style={{ fontWeight: 600, flex: 1 }}>{cat}</div>
-                <div style={{ fontSize: 11, opacity: 0.7, marginRight: 6 }}>
-                  {list.length}
-                </div>
-                <div
-                  style={{
-                    transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
-                    transition: "transform .15s",
-                  }}
-                >
-                  &#9656;
-                </div>
-              </div>
-              {!isCollapsed && (
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 6,
-                    marginTop: 4,
-                  }}
-                >
-                  {list.map((entry) => {
-                    const slug = entry.slug;
-                    const label = entry.suggested_label;
-                    const active = slug === activeLayerSlug;
-                    return (
-                      <button
-                        key={slug}
-                        onClick={() => onSelect(active ? "" : slug)}
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: 6,
-                          border: active
-                            ? "2px solid #69b2ff"
-                            : "1px solid #333",
-                          background: active ? "#132235" : "#1a2633",
-                          color: "#e8eef6",
-                          cursor: "pointer",
-                          fontSize: 12,
-                          maxWidth: "160px",
-                          textOverflow: "ellipsis",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                        }}
-                        title={
-                          (entry.notes || "") +
-                          (entry.attribution ? ` | ${entry.attribution}` : "")
-                        }
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        </Button>
+      </Group>
+      {!palette && <Text size="xs" c="dimmed">Loading palette…</Text>}
+      {palette && (
+        <Accordion multiple chevronPosition="left" variant="contained" defaultValue={allCats.slice(0,3)}>
+          {allCats.map((cat) => {
+            const list = grouped[cat];
+            return (
+              <Accordion.Item key={cat} value={cat}>
+                <Accordion.Control>
+                  <Group justify="space-between" wrap="nowrap">
+                    <Text size="sm" fw={600}>{cat}</Text>
+                    <Badge size="xs" variant="light" color="storm">{list.length}</Badge>
+                  </Group>
+                </Accordion.Control>
+                <Accordion.Panel>
+                  <Stack gap={4}>
+                    {list.map((entry) => {
+                      const slug = entry.slug;
+                      const label = entry.suggested_label;
+                      const active = slug === activeLayerSlug;
+                      return (
+                        <Paper
+                          key={slug}
+                          withBorder
+                          p={6}
+                          radius="sm"
+                          shadow={active ? "sm" : undefined}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => onSelect(active ? "" : slug)}
+                        >
+                          <Group justify="space-between" gap={6} wrap="nowrap">
+                            <Group gap={6} wrap="nowrap">
+                              <Checkbox
+                                aria-label={`Toggle ${label}`}
+                                checked={active}
+                                onChange={() => onSelect(active ? "" : slug)}
+                              />
+                              <Text size="xs" style={{ maxWidth: 160 }} lineClamp={1}>
+                                {label}
+                              </Text>
+                            </Group>
+                            {(entry.notes || entry.attribution) && (
+                              <Tooltip label={(entry.notes || "") + (entry.attribution ? ` | ${entry.attribution}` : "")}>
+                                <ActionIcon variant="subtle" aria-label="Layer info">
+                                  <IconInfoCircle size={14} />
+                                </ActionIcon>
+                              </Tooltip>
+                            )}
+                          </Group>
+                        </Paper>
+                      );
+                    })}
+                  </Stack>
+                </Accordion.Panel>
+              </Accordion.Item>
+            );
+          })}
+        </Accordion>
+      )}
       {mode === "3d" && gibsOn && (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ fontWeight: 600, marginBottom: 4 }}>GIBS Time</div>
+        <Stack gap={6} mt="sm">
+          <Divider label={<Text size="xs" fw={600}>GIBS Time</Text>} labelPosition="left" />
           {gibsTimestamps.length === 0 && (
-            <div style={{ fontSize: 12, opacity: 0.7 }}>
-              Loading timestamps…
-            </div>
+            <Text size="xs" c="dimmed">Loading timestamps…</Text>
           )}
           {gibsTimestamps.length > 0 && (
-            <select
+            <NativeSelect
+              size="xs"
               value={gibsSelectedTime || ""}
-              onChange={(e) => setGibsSelectedTime(e.target.value || null)}
-              style={{
-                width: "100%",
-                padding: "4px 6px",
-                background: "#1a2633",
-                color: "#e8eef6",
-                border: "1px solid #35506d",
-                borderRadius: 4,
-                fontSize: 12,
-              }}
-            >
-              {gibsTimestamps.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+              onChange={(e) => setGibsSelectedTime(e.currentTarget.value || null)}
+              data={gibsTimestamps.map((t) => ({ value: t, label: t }))}
+            />
           )}
           {gibsTimestamps.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                gap: 6,
-                marginTop: 8,
-                alignItems: "center",
-              }}
-            >
-              <button
-                style={btnStyle}
-                onClick={() => stepGibsTime(-1)}
-                disabled={!gibsTimestamps.length}
-              >
-                ◀
-              </button>
-              <button
-                style={{
-                  ...btnStyle,
-                  background: gibsPlaying ? "#35506d" : "#223244",
-                }}
+            <Group gap={4}>
+              <ActionIcon variant="light" onClick={() => stepGibsTime(-1)} aria-label="Previous timestamp" disabled={!gibsTimestamps.length}>
+                <IconChevronLeft size={16} />
+              </ActionIcon>
+              <ActionIcon
+                variant="filled"
+                color="storm"
                 onClick={toggleGibsPlaying}
+                aria-label={gibsPlaying ? "Pause" : "Play"}
               >
-                {gibsPlaying ? "Pause" : "Play"}
-              </button>
-              <button
-                style={btnStyle}
-                onClick={() => stepGibsTime(1)}
-                disabled={!gibsTimestamps.length}
-              >
-                ▶
-              </button>
-              <select
+                {gibsPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+              </ActionIcon>
+              <ActionIcon variant="light" onClick={() => stepGibsTime(1)} aria-label="Next timestamp" disabled={!gibsTimestamps.length}>
+                <IconChevronRight size={16} />
+              </ActionIcon>
+              <NativeSelect
+                size="xs"
                 value={String(gibsPlaybackSpeedMs)}
-                onChange={(e) => setGibsPlaybackSpeed(Number(e.target.value))}
-                style={{ ...btnStyle, padding: "3px 4px" }}
-              >
-                <option value={2000}>0.5x</option>
-                <option value={1500}>1x</option>
-                <option value={800}>2x</option>
-                <option value={400}>4x</option>
-              </select>
-            </div>
+                onChange={(e) => setGibsPlaybackSpeed(Number(e.currentTarget.value))}
+                data={[
+                  { value: "2000", label: "0.5x" },
+                  { value: "1500", label: "1x" },
+                  { value: "800", label: "2x" },
+                  { value: "400", label: "4x" },
+                ]}
+                style={{ width: 90 }}
+              />
+            </Group>
           )}
           {gibsPlaying && <GibsPlaybackAdvance />}
-        </div>
+        </Stack>
       )}
       {mode === "3d" && (
-        <div style={{ marginTop: 20 }}>
-          <div style={{ fontWeight: 600, marginBottom: 6 }}>3D Data Layers</div>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 12,
-              marginBottom: 4,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={showFirms3d}
-              onChange={toggleFirms3d}
-            />{" "}
-            FIRMS Fire Detections
-          </label>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 12,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={showOwmTemp3d}
-              onChange={toggleOwmTemp3d}
-            />{" "}
-            OWM Temperature Overlay
-          </label>
-        </div>
+        <Stack gap={4} mt="sm">
+          <Divider label={<Text size="xs" fw={600}>3D Data Layers</Text>} labelPosition="left" />
+          <Checkbox
+            size="xs"
+            label="FIRMS Fire Detections"
+            checked={showFirms3d}
+            onChange={toggleFirms3d}
+          />
+          <Checkbox
+            size="xs"
+            label="OWM Temperature Overlay"
+            checked={showOwmTemp3d}
+            onChange={toggleOwmTemp3d}
+          />
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }
 
@@ -318,12 +259,4 @@ function GibsPlaybackAdvance() {
   return null;
 }
 
-const btnStyle: React.CSSProperties = {
-  background: "#223244",
-  border: "1px solid #35506d",
-  color: "#e0e8f0",
-  padding: "3px 6px",
-  fontSize: 11,
-  borderRadius: 4,
-  cursor: "pointer",
-};
+// Removed legacy button style constants (replaced by Mantine components)
