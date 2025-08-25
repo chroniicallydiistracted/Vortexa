@@ -95,16 +95,24 @@ export function createApp(opts: CreateAppOptions = {}) {
   }
   let deepHealthCache: { ts: number; payload: DeepHealthPayload } | null = null;
   async function runDeepHealth(): Promise<DeepHealthPayload> {
-    const started = Date.now();
     const upstream_hosts: Record<string, DeepHealthComponent<{ status: number }>> = {};
     const timeoutMs = Number(process.env.DEEP_HEALTH_TIMEOUT_MS || 4000);
+    const globalTimeoutMs = Number(process.env.DEEP_HEALTH_GLOBAL_TIMEOUT_MS || 8000);
+    // Limit parallelism to avoid DNS/socket saturation causing perceived hang
+    const maxConcurrent = Number(process.env.DEEP_HEALTH_CONCURRENCY || 3);
+    const hosts = [...ALLOW];
+    let idx = 0;
     async function checkHost(h: string) {
       const url = /^https?:/i.test(h) ? h : `https://${h}/`;
       const ac = new AbortController();
       const timer = setTimeout(()=> ac.abort(), timeoutMs);
       const t0 = Date.now();
       try {
-        const resp = await fetch(url, { method: 'HEAD', signal: ac.signal }).catch(async _=> fetch(url, { signal: ac.signal }));
+        let resp = await fetch(url, { method: 'HEAD', signal: ac.signal });
+        if(!resp.ok && resp.status >= 400 && resp.status < 500) {
+          // HEAD sometimes blocked; retry GET quickly
+          try { resp = await fetch(url, { signal: ac.signal }); } catch {/* ignore if fails */}
+        }
         clearTimeout(timer);
         upstream_hosts[h] = { ok: resp.ok, data: { status: resp.status }, latency_ms: Date.now() - t0 };
       } catch (e: any) {
@@ -112,7 +120,24 @@ export function createApp(opts: CreateAppOptions = {}) {
         upstream_hosts[h] = { ok: false, error: e.name === 'AbortError' ? 'timeout' : (e.message || 'error'), latency_ms: Date.now() - t0 };
       }
     }
-    await Promise.all(ALLOW.map(checkHost));
+    async function runQueue() {
+      const workers: Promise<void>[] = [];
+      for (let c = 0; c < maxConcurrent && idx < hosts.length; c++) {
+        const h = hosts[idx++];
+        workers.push(checkHost(h));
+      }
+      await Promise.all(workers);
+      if (idx < hosts.length) return runQueue();
+    }
+    const globalAbort = new Promise<never>((_, reject)=> setTimeout(()=> reject(new Error('deep_health_global_timeout')), globalTimeoutMs));
+    try {
+      await Promise.race([runQueue(), globalAbort]);
+    } catch (e:any) {
+      // Mark remaining hosts as timeout if global timeout hit
+      if(e.message === 'deep_health_global_timeout') {
+        for(let i=idx;i<hosts.length;i++) upstream_hosts[hosts[i]] = { ok:false, error:'global_timeout' };
+      }
+    }
     // Rainviewer meta
     let rainviewer: DeepHealthComponent<{ frames: number; past: number; nowcast: number; age_ms: number }>;
     try {
