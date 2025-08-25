@@ -13,6 +13,8 @@ type Store = {
   gibsSelectedTime: string | null;
   gibsPlaying: boolean;
   gibsPlaybackSpeedMs: number;
+  gibsFps: number; // derived fps (clamped 2-8)
+  gibsLoadError?: string|null;
   showFirms3d?: boolean;
   showOwmTemp3d?: boolean;
   addLayer: (l: Layer)=>void;
@@ -48,6 +50,8 @@ export const useStore = create<Store>((set,get)=> ({
   gibsSelectedTime: null,
   gibsPlaying: false,
   gibsPlaybackSpeedMs: 1500,
+  gibsFps: 4,
+  gibsLoadError: null,
   showFirms3d: false,
   showOwmTemp3d: false,
   addLayer: (l)=> set(s => ({ layers: s.layers.find(x=>x.id===l.id)? s.layers : [...s.layers, l]})),
@@ -74,6 +78,13 @@ export const useStore = create<Store>((set,get)=> ({
     return { gibsSelectedTime: gibsTimestamps[next] };
   }),
   setGibsPlaybackSpeed: (ms)=> set({ gibsPlaybackSpeedMs: ms }),
+  // FPS setter (clamp 2-8) and reflect in playback speed ms
+  setGibsFps: (fps: number)=> set(s=> {
+    const clamped = Math.min(8, Math.max(2, Math.round(fps)));
+    const ms = Math.round(1000 / clamped);
+    return { gibsFps: clamped, gibsPlaybackSpeedMs: ms };
+  }),
+  setGibsLoadError: (err: string|null)=> set({ gibsLoadError: err }),
   toggleFirms3d: ()=> set(s=> ({ showFirms3d: !s.showFirms3d })),
   toggleOwmTemp3d: ()=> set(s=> ({ showOwmTemp3d: !s.showOwmTemp3d })),
   replaceLayers: (layers)=> set({ layers }),

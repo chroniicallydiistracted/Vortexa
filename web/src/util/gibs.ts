@@ -27,3 +27,15 @@ export async function ensureGibsTimestamps(layerId: string) {
   setGibsTimestamps(ts);
   return ts;
 }
+
+// Prefetch next tile (best-effort, abort after 500ms to warm caches / connection)
+export async function prefetchNextTile(layerId: string, z: number, y: number, x: number, nextIso: string) {
+  const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.jpg?time=${encodeURIComponent(nextIso)}`;
+  const ctrl = new AbortController();
+  const t = setTimeout(()=> ctrl.abort(), 500);
+  try {
+    await fetch(url, { signal: ctrl.signal, method: 'GET' }).catch(()=>{});
+  } finally {
+    clearTimeout(t);
+  }
+}

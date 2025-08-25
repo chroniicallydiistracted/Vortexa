@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import maplibregl, { Map } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useStore } from '../util/store';
-import { buildTileUrl } from '../util/gibs';
+import { buildTileUrl, prefetchNextTile } from '../util/gibs';
 import { buildHash } from '../util/permalink';
 
 export default function MapView(){
@@ -16,6 +16,9 @@ export default function MapView(){
       center: [view.lon, view.lat], zoom: view.zoom
     });
     mapRef.current = map;
+    if((import.meta as any).env?.VITE_ENABLE_TILE_CACHE){
+      try { (map as any).setMaxTileCacheSize?.(2048); } catch {}
+    }
     map.addControl(new maplibregl.NavigationControl());
     map.on('load', ()=>{
       // Example: add WMTS layer proxied through backend
@@ -39,6 +42,28 @@ export default function MapView(){
     const id = setInterval(()=> stepGibsTime(1), gibsPlaybackSpeedMs);
     return ()=> clearInterval(id);
   },[gibsPlaying, stepGibsTime, gibsPlaybackSpeedMs]);
+  // Prefetch effect: when selected time changes during playback, prefetch next frame for visible GIBS layers
+  useEffect(()=>{
+    if(!gibsPlaying) return;
+    const { gibsTimestamps, gibsSelectedTime, layers } = useStore.getState();
+    if(!gibsTimestamps.length || !gibsSelectedTime) return;
+    const idx = gibsTimestamps.indexOf(gibsSelectedTime);
+    if(idx===-1) return;
+    const next = gibsTimestamps[(idx+1) % gibsTimestamps.length];
+    // Prefetch each time-aware gibs layer currently active (matching route pattern)
+    layers.filter(l=> l.templateRaw.startsWith('/api/gibs/tile/')).forEach(l=> {
+      // Use center tile of current view roughly
+      const map = mapRef.current; if(!map) return;
+      const zoom = Math.round(map.getZoom());
+      const center = map.getCenter();
+      // Simple WebMercator tile calc
+      const latRad = center.lat * Math.PI/180;
+      const n = Math.pow(2, zoom);
+      const xTile = Math.floor((center.lng + 180) / 360 * n);
+      const yTile = Math.floor((1 - Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI) / 2 * n);
+      prefetchNextTile(l.templateRaw.split('/').slice(4,5)[0] || 'GOES-East_ABI_GeoColor', zoom, yTile, xTile, next);
+    });
+  },[gibsSelectedTime, gibsPlaying]);
   // Permalink hash update
   const storeSnapshot = useStore();
   useEffect(()=>{
