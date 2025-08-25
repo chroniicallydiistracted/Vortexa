@@ -1,3 +1,4 @@
+// Test file: mock axios with relaxed types.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 

@@ -1,3 +1,4 @@
+// Test file: dynamic mock injection for fetch.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { __internals } from "../lib/gibs/capabilities.js";
 import request from "supertest";

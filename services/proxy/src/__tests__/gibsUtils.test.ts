@@ -1,4 +1,4 @@
-// Legacy test superseded by gibsCapabilities.spec.ts; kept minimal to ensure backward redirect works.
+// Legacy test superseded by gibsCapabilities.spec.ts; minimal redirect coverage.
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 import { createApp } from "../index.js";

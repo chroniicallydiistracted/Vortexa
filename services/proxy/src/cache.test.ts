@@ -43,7 +43,7 @@ class FakeS3 extends S3Client {
 
 // Mock fetch for upstream
 vi.mock("undici", () => ({
-  fetch: vi.fn(async (url: string) => ({
+  fetch: vi.fn(async (_url: string) => ({
     headers: { get: () => "image/png" },
     arrayBuffer: async () => Buffer.from("PNGDATA"),
   })),

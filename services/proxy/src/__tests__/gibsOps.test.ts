@@ -1,3 +1,4 @@
+// Test uses dynamic mock injection; any still acceptable via test override.
 import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 

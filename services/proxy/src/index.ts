@@ -119,7 +119,7 @@ export function createApp(opts: CreateAppOptions = {}) {
         logger.warn({ msg: "rejecting upstream host", host: h, allow: ALLOW });
       }
       return ok;
-    } catch (_e) {
+    } catch {
       logger.warn({ msg: "invalid url", url });
       return false;
     }
@@ -136,7 +136,7 @@ export function createApp(opts: CreateAppOptions = {}) {
     }),
   );
   // Deep health (cached) – verifies upstream data fetches & DynamoDB access
-  interface DeepHealthComponent<T = any> {
+  interface DeepHealthComponent<T = unknown> {
     ok: boolean;
     error?: string;
     data?: T;
@@ -196,11 +196,12 @@ export function createApp(opts: CreateAppOptions = {}) {
           data: { status: resp.status },
           latency_ms: Date.now() - t0,
         };
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const err = e instanceof Error ? e : new Error(String(e));
         clearTimeout(timer);
         upstream_hosts[h] = {
           ok: false,
-          error: e.name === "AbortError" ? "timeout" : e.message || "error",
+          error: (err as Error & { name?: string }).name === "AbortError" ? "timeout" : err.message || "error",
           latency_ms: Date.now() - t0,
         };
       }
@@ -222,9 +223,9 @@ export function createApp(opts: CreateAppOptions = {}) {
     );
     try {
       await Promise.race([runQueue(), globalAbort]);
-    } catch (e: any) {
-      // Mark remaining hosts as timeout if global timeout hit
-      if (e.message === "deep_health_global_timeout") {
+    } catch (e: unknown) {
+      const err = e as Error;
+      if (err?.message === "deep_health_global_timeout") {
         for (let i = idx; i < hosts.length; i++)
           upstream_hosts[hosts[i]] = { ok: false, error: "global_timeout" };
       }
@@ -249,8 +250,9 @@ export function createApp(opts: CreateAppOptions = {}) {
         },
       };
       if (frames === 0) rainviewer.error = "no frames";
-    } catch (e: any) {
-      rainviewer = { ok: false, error: e.message || "rainviewer_failed" };
+    } catch (e: unknown) {
+      const err = e as Error;
+      rainviewer = { ok: false, error: err?.message || "rainviewer_failed" };
     }
     // GIBS GOES Band 13 timestamp
     let gibs_goes_b13: DeepHealthComponent<{ latestTime: string | null }>;
@@ -258,8 +260,9 @@ export function createApp(opts: CreateAppOptions = {}) {
       const ts = await getGoesB13Timestamp();
       gibs_goes_b13 = { ok: !!ts, data: { latestTime: ts || null } };
       if (!ts) gibs_goes_b13.error = "timestamp_unavailable";
-    } catch (e: any) {
-      gibs_goes_b13 = { ok: false, error: e.message || "gibs_failed" };
+    } catch (e: unknown) {
+      const err = e as Error;
+      gibs_goes_b13 = { ok: false, error: err?.message || "gibs_failed" };
     }
     // DynamoDB alerts table (lightweight scan limit 1)
     let dynamodb_alerts: DeepHealthComponent<{
@@ -274,10 +277,11 @@ export function createApp(opts: CreateAppOptions = {}) {
         ok: true,
         data: { table: alertsTable, itemCount: data.ScannedCount || 0 },
       };
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const err = e as Error;
       dynamodb_alerts = {
         ok: false,
-        error: e.message || "ddb_failed",
+        error: err?.message || "ddb_failed",
         data: { table: alertsTable },
       };
     }
@@ -316,10 +320,11 @@ export function createApp(opts: CreateAppOptions = {}) {
       const payload = await runDeepHealth();
       deepHealthCache = { ts: Date.now(), payload };
       res.status(payload.ok ? 200 : 503).json({ cached: false, ...payload });
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const err = e as Error;
       res
         .status(500)
-        .json({ ok: false, error: e.message || "deep_health_failed" });
+        .json({ ok: false, error: err?.message || "deep_health_failed" });
     }
   });
   app.get("/version", (_req: express.Request, res: express.Response) =>
@@ -399,17 +404,17 @@ export function createApp(opts: CreateAppOptions = {}) {
         { signal: ac.signal },
       );
       if (!rv.ok) return rainviewerMeta;
-      const data: any = await rv.json();
+  const data: unknown = await rv.json();
       rainviewerMeta = {
         ts: now,
-        past: (data?.radar?.past || []).map((p: any) => ({
-          time: p.time,
-          path: p.path,
-        })),
-        nowcast: (data?.radar?.nowcast || []).map((p: any) => ({
-          time: p.time,
-          path: p.path,
-        })),
+  past: (Array.isArray((data as { radar?: { past?: RainviewerEntry[] } })?.radar?.past)
+          ? ((data as { radar?: { past?: RainviewerEntry[] } }).radar!.past || [])
+          : []
+        ).map((p: RainviewerEntry) => ({ time: p.time, path: p.path })),
+  nowcast: (Array.isArray((data as { radar?: { nowcast?: RainviewerEntry[] } })?.radar?.nowcast)
+          ? ((data as { radar?: { nowcast?: RainviewerEntry[] } }).radar!.nowcast || [])
+          : []
+        ).map((p: RainviewerEntry) => ({ time: p.time, path: p.path })),
       };
     } catch {
       /* timeout or network error: keep old cache */
@@ -451,8 +456,9 @@ export function createApp(opts: CreateAppOptions = {}) {
         }
       }
       return res.status(503).json({ error: "no_radar_frame_available" });
-    } catch (e: any) {
-      logger.error({ msg: "radar proxy failed", error: e.message });
+    } catch (e: unknown) {
+      const err = e as Error;
+      logger.error({ msg: "radar proxy failed", error: err?.message });
       res.status(500).json({ error: "radar_proxy_failed" });
     }
   });
@@ -507,8 +513,9 @@ export function createApp(opts: CreateAppOptions = {}) {
         upstream.headers.get("content-type") || "image/png",
       );
       res.send(Buffer.from(await upstream.arrayBuffer()));
-    } catch (e: any) {
-      logger.error({ msg: "goes-b13 proxy failed", error: e.message });
+    } catch (e: unknown) {
+      const err = e as Error;
+      logger.error({ msg: "goes-b13 proxy failed", error: err?.message });
       res.status(500).json({ error: "goes_b13_proxy_failed" });
     }
   });
@@ -578,11 +585,11 @@ export function createApp(opts: CreateAppOptions = {}) {
 
   async function updateHitRatio() {
     function sumCounter(c: Counter) {
-      const data = (c as any).hashMap || {};
-      return Object.values(data).reduce(
-        (a: number, v: any) => a + (typeof v.value === "number" ? v.value : 0),
-        0,
-      );
+      // prom-client does not expose typed values; inspect internal hashMap
+      const data: Record<string, { value: number }> = (c as unknown as {
+        hashMap?: Record<string, { value: number }>;
+      }).hashMap || {};
+      return Object.values(data).reduce((a, v) => a + (v?.value || 0), 0);
     }
     const hitsVal = sumCounter(proxyCacheHits);
     const missVal = sumCounter(proxyCacheMisses);
@@ -596,8 +603,9 @@ export function createApp(opts: CreateAppOptions = {}) {
       await updateHitRatio();
       res.set("Content-Type", register.contentType);
       res.end(await register.metrics());
-    } catch (e: any) {
-      res.status(500).send(e.message);
+    } catch (e: unknown) {
+      const err = e as Error;
+      res.status(500).send(err?.message);
     }
   });
 
@@ -614,16 +622,38 @@ export function createApp(opts: CreateAppOptions = {}) {
       const data = await ddbDoc.send(
         new ScanCommand({ TableName: alertsTable, Limit: 1000 }),
       );
-      const items = (data.Items || [])
-        .map((it: any) => {
+      interface RawAlert {
+        id?: string;
+        geometry?: unknown; // geometry shape not strictly typed here
+        features?: { geometry?: unknown }[];
+        properties?: Record<string, unknown> & {
+          event?: string;
+          headline?: string;
+          severity?: string;
+          certainty?: string;
+          effective?: string;
+          expires?: string;
+        };
+        event?: string;
+        headline?: string;
+        severity?: string;
+        certainty?: string;
+        effective?: string;
+        expires?: string;
+        alert?: RawAlert;
+        data?: RawAlert;
+        pk?: string;
+      }
+  const items = (data.Items as RawAlert[] | undefined || [])
+	.map((it: RawAlert) => {
           // Expect structure { pk:'alert#<id>', data: { ...CAP alert... } }
-          const raw = (it as any).data || (it as any).alert || it;
+      const raw: RawAlert = (it.data as RawAlert) || (it.alert as RawAlert) || it;
           const geom = raw?.geometry || raw?.features?.[0]?.geometry || null; // fallback attempt
           return {
             type: "Feature",
             geometry: geom,
             properties: {
-              id: raw?.id || (it as any).pk || undefined,
+      id: raw?.id || it.pk || undefined,
               event: raw?.properties?.event || raw?.event,
               headline: raw?.properties?.headline || raw?.headline,
               severity: raw?.properties?.severity || raw?.severity,
@@ -633,10 +663,11 @@ export function createApp(opts: CreateAppOptions = {}) {
             },
           };
         })
-        .filter((f: any) => f.geometry);
+        .filter((f: { geometry: unknown }) => f.geometry);
       res.json({ type: "FeatureCollection", features: items });
-    } catch (e: any) {
-      logger.error({ msg: "alerts scan failed", error: e.message });
+    } catch (e: unknown) {
+      const err = e as Error;
+      logger.error({ msg: "alerts scan failed", error: err?.message });
       res.status(500).json({ error: "failed to load alerts" });
     }
   });
@@ -671,7 +702,7 @@ export function createApp(opts: CreateAppOptions = {}) {
   } catch (e) {
     logger.warn({
       msg: "failed to load cache.config.json",
-      error: (e as any).message,
+  error: (e as Error).message,
     });
   }
 
@@ -711,7 +742,8 @@ export function createApp(opts: CreateAppOptions = {}) {
             "Content-Type",
             get.ContentType || "application/octet-stream",
           );
-          (get.Body as any).pipe(res);
+          // Body is a stream (Readable). Type cast to allow piping.
+          (get.Body as unknown as { pipe: (r: typeof res) => void }).pipe(res);
           proxyCacheHits.inc({ host });
           updateHitRatio();
           return;
@@ -780,17 +812,17 @@ export function createApp(opts: CreateAppOptions = {}) {
         )}`,
       );
       res.send(buf);
-    } catch (e: any) {
+    } catch (e) {
       upstreamErrors.inc({ host });
       logger.error(e);
-      res.status(500).json({ error: e.message });
+  res.status(500).json({ error: (e as Error)?.message });
     }
   });
 
   app.get(
     "/tiles/wmts",
     async (req: express.Request, res: express.Response) => {
-      const { base, layer, x, y, z, format, time } = req.query as any;
+  const { base, layer, x, y, z, format, time } = req.query as Record<string, string | undefined>;
       if (!base || !layer)
         return res.status(400).json({ error: "missing base/layer" });
       const b = String(base).replace(/\/$/, "");

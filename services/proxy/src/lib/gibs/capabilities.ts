@@ -17,7 +17,7 @@ export async function getCapabilitiesXML(): Promise<string> {
   const cached = capsCache.get(key);
   if (cached) return cached;
   // Allow test injection of fetch
-  const injected = (global as any).__TEST_FETCH__;
+  const injected = (global as { __TEST_FETCH__?: typeof fetch }).__TEST_FETCH__;
   const doFetch: typeof fetch = injected || fetch;
   const r = await doFetch(DEFAULT_CAPS_URL);
   if (!r.ok) throw new Error("gibs_capabilities_fetch_failed");

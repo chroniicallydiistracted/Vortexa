@@ -1,3 +1,4 @@
+// Test file exercising various routes with injected mocks.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 

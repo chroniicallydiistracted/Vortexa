@@ -5,6 +5,7 @@ import request from "supertest";
 // We'll inject a mock via global.__TEST_FETCH__ consumed by the route
 const getFetch = () =>
   (global as any).__TEST_FETCH__ as ReturnType<typeof vi.fn>;
+// Test file – allows any for injected mocks via global.__TEST_FETCH__
 
 describe("gibs geocolor proxy route", () => {
   beforeEach(() => {

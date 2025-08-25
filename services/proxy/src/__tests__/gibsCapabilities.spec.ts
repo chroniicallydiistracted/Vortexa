@@ -1,3 +1,4 @@
+// Test: capabilities helpers
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   getTimestamps,

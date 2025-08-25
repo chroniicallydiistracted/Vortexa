@@ -34,7 +34,10 @@ cartoDbRouter.get("/positron/:z/:x/:y.png", async (req, res) => {
       .set("Content-Type", "image/png")
       .set("Cache-Control", "public, max-age=86400, immutable")
       .send(buf);
-  } catch (e: any) {
-    res.status(502).json({ error: "cartodb fetch failed", detail: e.message });
+  } catch (e: unknown) {
+    const err = e as Error;
+    res
+      .status(502)
+      .json({ error: "cartodb fetch failed", detail: err.message });
   }
 });

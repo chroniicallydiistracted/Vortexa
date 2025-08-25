@@ -19,8 +19,9 @@ gibsRouter.get("/timestamps", async (req, res) => {
     const latest = times.length ? times[times.length - 1] : null;
     res.set("Cache-Control", "public, max-age=60");
     return res.json({ layer, latest, count: times.length, timestamps: times });
-  } catch (e: any) {
-    const msg = e?.message || "error";
+  } catch (e: unknown) {
+    const err = e as Error;
+    const msg = err?.message || "error";
     if (/gibs_capabilities_fetch_failed/.test(msg))
       return res.status(502).json({ error: "upstream_capabilities_failed" });
     res.status(500).json({ error: "timestamps_internal_error", detail: msg });
@@ -61,7 +62,7 @@ gibsRouter.get("/tile/:layer/:z/:y/:x.:ext?", async (req, res) => {
       time: chosenTime,
       ext,
     });
-    const injected = (global as any).__TEST_FETCH__;
+  const injected = (global as { __TEST_FETCH__?: typeof fetch }).__TEST_FETCH__;
     const doFetch: typeof fetch = injected || fetch;
     const upstream = await doFetch(tileUrl);
     if (!upstream.ok)
@@ -76,8 +77,11 @@ gibsRouter.get("/tile/:layer/:z/:y/:x.:ext?", async (req, res) => {
     );
     res.set("Cache-Control", "public, max-age=60");
     return res.send(buf);
-  } catch (e: any) {
-    res.status(500).json({ error: "tile_internal_error", detail: e.message });
+  } catch (e: unknown) {
+    const err = e as Error;
+    res
+      .status(500)
+      .json({ error: "tile_internal_error", detail: err.message });
   }
 });
 
