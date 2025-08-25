@@ -2,12 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import maplibregl, { Map } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useStore } from '../util/store';
+import { buildTileUrl } from '../util/gibs';
 import { buildHash } from '../util/permalink';
 
 export default function MapView(){
   const mapRef = useRef<Map|null>(null);
   const containerRef = useRef<HTMLDivElement|null>(null);
-  const { layers, time, view, setView, playing, stepTime } = useStore();
+  const { layers, time, view, setView, playing, stepTime, gibsSelectedTime, gibsPlaying, stepGibsTime, gibsPlaybackSpeedMs } = useStore();
   useEffect(()=>{
     const map = new maplibregl.Map({
       container: containerRef.current!,
@@ -32,6 +33,12 @@ export default function MapView(){
     const id = setInterval(()=> stepTime(1), 1000);
     return ()=> clearInterval(id);
   },[playing, stepTime]);
+  // GIBS playback timer (iterate timestamps)
+  useEffect(()=>{
+    if(!gibsPlaying) return;
+    const id = setInterval(()=> stepGibsTime(1), gibsPlaybackSpeedMs);
+    return ()=> clearInterval(id);
+  },[gibsPlaying, stepGibsTime, gibsPlaybackSpeedMs]);
   // Permalink hash update
   const storeSnapshot = useStore();
   useEffect(()=>{
@@ -53,11 +60,20 @@ export default function MapView(){
     // Add/update layers
     layers.forEach(layer=>{
       const id = `raster-${layer.id}`;
-      const template = layer.templateRaw
-        .replaceAll('{time}', encodeURIComponent(time))
-        .replaceAll('{z}','{z}')
-        .replaceAll('{x}','{x}')
-        .replaceAll('{y}','{y}');
+      let template: string;
+      if(layer.templateRaw.startsWith('/api/gibs/tile/')) {
+        // Use backend latest tile unless explicit selection
+        template = layer.templateRaw;
+        if(gibsSelectedTime) {
+          template = template + `?time=${encodeURIComponent(gibsSelectedTime)}`;
+        }
+      } else {
+        template = layer.templateRaw
+          .replaceAll('{time}', encodeURIComponent(time))
+          .replaceAll('{z}','{z}')
+          .replaceAll('{x}','{x}')
+          .replaceAll('{y}','{y}');
+      }
       if(!map.getSource(id)){
         map.addSource(id, { type: 'raster', tiles: [template], tileSize: 256 } as any);
         map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': layer.opacity ?? 1 } });

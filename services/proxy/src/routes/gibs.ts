@@ -27,9 +27,20 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', async (req, res) => {
     const ext = (req.params.ext || 'png').toLowerCase();
     const zN = Number(z), yN = Number(y), xN = Number(x);
     if (![zN, yN, xN].every(Number.isFinite)) return res.status(400).json({ error: 'invalid tile coordinates' });
-    const latest = await getLatestTimestamp(layer);
-    if (!latest) return res.status(404).json({ error: 'no timestamps available', layer });
-    const tileUrl = buildTileUrl({ layerId: layer, z: zN, y: yN, x: xN, time: latest, ext });
+    const explicitTime = (req.query.time as string | undefined)?.trim();
+    let chosenTime: string | null;
+    if (explicitTime) {
+      // Validate the provided time exists among timestamps for the layer
+      const ts = await getTimestamps(layer);
+      if (!ts.includes(explicitTime)) {
+        return res.status(400).json({ error: 'invalid time for layer', layer, time: explicitTime });
+      }
+      chosenTime = explicitTime;
+    } else {
+      chosenTime = await getLatestTimestamp(layer);
+    }
+    if (!chosenTime) return res.status(404).json({ error: 'no timestamps available', layer });
+    const tileUrl = buildTileUrl({ layerId: layer, z: zN, y: yN, x: xN, time: chosenTime, ext });
     const injected = (global as any).__TEST_FETCH__;
     const doFetch: typeof fetch = injected || fetch;
     const upstream = await doFetch(tileUrl);

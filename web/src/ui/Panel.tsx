@@ -1,11 +1,12 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useStore, LAYER_PRESETS } from '../util/store';
+import { ensureGibsTimestamps } from '../util/gibs';
 import { buildHash } from '../util/permalink';
 import type { Catalog } from '@westfam/shared';
 
 export default function Panel(){
-  const { addLayer, removeLayer, setOpacity, layers, time, setTime, togglePlaying, playing, replaceLayers } = useStore();
+  const { addLayer, removeLayer, setOpacity, layers, time, setTime, togglePlaying, playing, gibsTimestamps, gibsSelectedTime, setGibsSelectedTime, toggleGibsPlaying, gibsPlaying, stepGibsTime } = useStore();
   const { data } = useQuery<Catalog>({
     queryKey:['catalog'],
     queryFn: async ()=>{
@@ -25,6 +26,19 @@ export default function Panel(){
         <button onClick={()=> togglePlaying()}>{playing? 'Pause':'Play'} (daily)</button>
         <button onClick={()=> setTime(new Date().toISOString().slice(0,10))} style={{marginLeft:8}}>Today</button>
       </div>
+    </div>
+    <h3>GIBS Animation</h3>
+    <div style={{marginBottom:12}}>
+      <button onClick={async ()=> { await ensureGibsTimestamps('GOES-East_ABI_GeoColor'); }}>Load Timestamps</button>
+      <button disabled={!gibsTimestamps.length} style={{marginLeft:8}} onClick={()=> toggleGibsPlaying()}>{gibsPlaying? 'Pause':'Play'}</button>
+      <button disabled={!gibsTimestamps.length} style={{marginLeft:8}} onClick={()=> stepGibsTime(-1)}>Prev</button>
+      <button disabled={!gibsTimestamps.length} style={{marginLeft:4}} onClick={()=> stepGibsTime(1)}>Next</button>
+      <div style={{marginTop:6,fontSize:12}}>
+        {gibsSelectedTime? `Selected: ${gibsSelectedTime}`: gibsTimestamps.length? 'Loaded timestamps':''}
+      </div>
+      {gibsTimestamps.length>0 && <div style={{maxHeight:120,overflow:'auto',marginTop:6,border:'1px solid #ddd',padding:4}}>
+        {gibsTimestamps.slice(-50).map(t=> <div key={t} style={{cursor:'pointer',color: t===gibsSelectedTime? '#1976d2':'#333'}} onClick={()=> setGibsSelectedTime(t)}>{t}</div>)}
+      </div>}
     </div>
     <h3>Presets</h3>
     <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:12}}>

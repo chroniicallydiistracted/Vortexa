@@ -21,10 +21,10 @@ Errors
 * `400 { "error": "missing layer parameter" }`
 * `502 { "error": "upstream_capabilities_failed" }`
 
-### Latest tile
+### Latest or explicit-time tile
 GET `/api/gibs/tile/<LAYER>/<Z>/<Y>/<X>.<ext?>` (default ext=png)
 
-Returns the current latest image tile.
+Returns the current latest image tile by default. Provide `?time=<ISO_TIMESTAMP>` to request a specific available timestamp. If the supplied time is not available for that layer the route returns `400 { "error": "invalid time for layer" }`.
 
 Headers
 * `Cache-Control: public, max-age=60`

@@ -19,7 +19,7 @@
     "cloud:dev": "bash scripts/cloud-dev.sh",
     "build": "npm -w services/shared run build && npm -w services/proxy run build && npm -w services/alerts run build && npm -w web run build",
     "package:alerts": "bash scripts/package-alerts.sh",
-    "test": "npm -w services/proxy run test && npm -w services/alerts run test && npm -w services/shared run test",
+  "test": "npm -w services/proxy run test && npm -w services/alerts run test && npm -w services/shared run test && npm -w web run test",
     "validate:history": "node scripts/validate-history.js",
     "deploy": "bash scripts/deploy.sh",
     "verify:history": "node scripts/verify-history-coverage.js",
