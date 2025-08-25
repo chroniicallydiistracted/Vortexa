@@ -79,6 +79,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   # >>> Custom domain(s) for the distro (add more if needed)
   aliases = var.domain_name == "" ? [] : [var.domain_name]
 
+  # Validation logic: Either BOTH domain_name & acm_certificate_arn are empty (use default CF domain)
+  # or BOTH are set (custom domain + cert). Implemented as lifecycle.precondition (must live inside
+  # lifecycle block – prior top-level placement caused an "Unsupported block type" error).
+
   origin {
     domain_name              = aws_s3_bucket.web.bucket_regional_domain_name
     origin_id                = "s3-web"
@@ -134,6 +138,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   # If you supply an ACM certificate ARN, ensure it lives in us-east-1.
   lifecycle {
     ignore_changes = [viewer_certificate]
+    precondition {
+      condition     = (var.domain_name == "" && var.acm_certificate_arn == "") || (var.domain_name != "" && var.acm_certificate_arn != "")
+      error_message = "If domain_name is set you must also set acm_certificate_arn; leave both empty to use the default CloudFront domain/cert."
+    }
   }
 }
 
@@ -155,9 +163,9 @@ resource "aws_s3_bucket_policy" "web_allow_cf_oac" {
         Action    = ["s3:GetObject"],
         Resource  = "${aws_s3_bucket.web.arn}/*",
         Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.me.account_id}:distribution/${aws_cloudfront_distribution.cdn.id}"
-          }
+            StringEquals = {
+              "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.me.account_id}:distribution/${aws_cloudfront_distribution.cdn.id}"
+            }
         }
       }
     ]
@@ -312,10 +320,8 @@ variable "domain_name" {
   description = "FQDN to serve via CloudFront (e.g., weather.westfam.media). Leave empty string to skip."
   type        = string
   default     = ""
-  validation {
-    condition     = (var.domain_name == "" && var.acm_certificate_arn == "") || (var.domain_name != "" && var.acm_certificate_arn != "")
-    error_message = "If domain_name is set you must also set acm_certificate_arn; leave both empty to use the default CloudFront domain/cert."
-  }
+  # NOTE: Cross-variable validation moved to aws_cloudfront_distribution.cdn precondition
+  # because variable validation blocks cannot reference other variables.
 }
 
 # Optional existing ACM certificate ARN (must be in us-east-1). If provided along with domain_name,

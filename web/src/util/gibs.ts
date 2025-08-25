@@ -3,8 +3,14 @@ import { useStore } from './store';
 export async function fetchTimestamps(layerId: string): Promise<string[]> {
   const r = await fetch(`/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`);
   if(!r.ok) return [];
-  const json = await r.json();
-  return json.timestamps || [];
+  const ct = r.headers.get('content-type') || '';
+  if(!ct.includes('application/json')) return [];
+  try {
+    const json = await r.json();
+    return json.timestamps || [];
+  } catch {
+    return [];
+  }
 }
 
 export function buildTileUrl(baseTemplate: string, z: number, y: number, x: number, time?: string): string {
@@ -28,14 +34,19 @@ export async function ensureGibsTimestamps(layerId: string) {
   return ts;
 }
 
-// Prefetch next tile (best-effort, abort after 500ms to warm caches / connection)
-export async function prefetchNextTile(layerId: string, z: number, y: number, x: number, nextIso: string) {
-  const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.jpg?time=${encodeURIComponent(nextIso)}`;
-  const ctrl = new AbortController();
-  const t = setTimeout(()=> ctrl.abort(), 500);
+// Prefetch next tile using HEAD (best-effort). Derive extension at call site.
+export async function prefetchNextTile(
+  layerId: string,
+  z: number,
+  y: number,
+  x: number,
+  nextIso: string,
+  ext: string = 'png'
+) {
+  const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.${ext}?time=${encodeURIComponent(nextIso)}`;
   try {
-    await fetch(url, { signal: ctrl.signal, method: 'GET' }).catch(()=>{});
-  } finally {
-    clearTimeout(t);
+    await fetch(url, { method: 'HEAD' });
+  } catch {
+    // swallow; prefetch is opportunistic
   }
 }
