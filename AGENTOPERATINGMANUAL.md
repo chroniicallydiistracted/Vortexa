@@ -6,13 +6,13 @@ You are the engineering agent on the WestFam Weather project (All-in-One Weather
 
 • VISION.md (repo root): Product goals, scope, guardrails, success criteria, cost targets, and “Definition of Done.”
 • AGENTUPDATEHISTORY.md (repo root): Human-readable, running changelog grouped by category (Infrastructure, Frontend, Proxy, Alerts, Data Catalog, Testing, Docs, Housekeeping). Every change you make must be summarized here with: context, change, rationale, tests, and rollout/rollback notes.
-• AGENTUPDATEHISTORY.jsonl (repo root): Machine-readable log. Append one JSON object per change with the schema: timestamp (ISO), path(s), category, change\_type, rationale, validation (what/how you tested), cost\_impact (estimate or “none”), relates\_to\_vision (section IDs), pr\_number (if any), status, reviewers (if any).
+• AGENTUPDATEHISTORY.jsonl (repo root): Machine-readable log. Append one JSON object per change with the schema: timestamp (ISO), path(s), category, change_type, rationale, validation (what/how you tested), cost_impact (estimate or “none”), relates_to_vision (section IDs), pr_number (if any), status, reviewers (if any).
 • README.md and any per-package READMEs: Keep setup instructions accurate (local dev, build, deploy).
 • .env.example and any environment samples: Keep variables current and minimal; document sensitive entries and where they are set in AWS.
 
 ## 1) Repo landmarks (assume these exist unless told otherwise)
 
-• web/: Vite React SPA, TanStack Query wiring, map UI, panels, layer catalog integration, .env.local uses VITE\_TILE\_BASE for tiles.
+• web/: Vite React SPA, TanStack Query wiring, map UI, panels, layer catalog integration, .env.local uses VITE_TILE_BASE for tiles.
 • services/proxy/: TypeScript Express tile/edge proxy; normalizes NASA GIBS WMTS and similar. Dev server on port 4000.
 • services/alerts/: Node 20 Lambda; polls NWS alerts on EventBridge schedule; writes to DynamoDB table `westfam-alerts`. Build outputs to dist/, packaged as alerts.zip (dist-zip). Handler is `dist/index.handler`.
 • infra/terraform/: Terraform for S3 (private + Public Access Block), CloudFront (OAC), ACM (us-east-1), DynamoDB, Lambda, EventBridge, and Route 53 for the delegated subdomain. Variables are supplied via terraform.tfvars outside of source control.
@@ -22,7 +22,7 @@ You are the engineering agent on the WestFam Weather project (All-in-One Weather
 • Always confirm a change is necessary and aligned to VISION.md. Quote the specific section(s) you’re satisfying in your PR description and in both history files.
 • Minimize blast radius: make small, cohesive PRs. Avoid repo-wide refactors unless they’re explicitly requested.
 • Cost discipline: do not introduce resources that risk exceeding the target cost band (typical ≤ \$10/mo; burst ≤ \$20/mo) without explicit approval. Prefer CloudFront caching and S3 over long-running compute.
-• IAM: least privilege. No wildcard “*:*” on production paths. Don’t widen permissions without a clear reason and tests.
+• IAM: least privilege. No wildcard “_:_” on production paths. Don’t widen permissions without a clear reason and tests.
 • S3 is private: keep Public Access Block on; CloudFront OAC is the only reader for web assets.
 • NWS policy: requests sent by the alerts Lambda must include the custom User-Agent with contact email.
 • DNS and certs are sensitive: changes to Route 53, Cloudflare, ACM, and CloudFront viewer certificates require explicit confirmation and must be logged in both history files.
@@ -42,7 +42,7 @@ Frontend (web):
 
 Proxy (services/proxy):
 • Run `npm -w services/proxy run dev` and confirm port 4000 is free. If EADDRINUSE, identify and free the port before proceeding.
-• Test a WMTS request through the normalized route (use a known GIBS GOES layer id such as GOES-East\_ABI\_GeoColor).
+• Test a WMTS request through the normalized route (use a known GIBS GOES layer id such as GOES-East_ABI_GeoColor).
 
 Alerts Lambda (services/alerts):
 • Build: `npm -w services/alerts run build` (tsc).
@@ -83,7 +83,7 @@ AGENTUPDATEHISTORY.md entry (under the category section):
 • Date/time, short title, files touched, rationale, test steps, outcome, rollout/rollback notes.
 
 AGENTUPDATEHISTORY.jsonl entry schema (append one line per cohesive change):
-• timestamp, paths (array), category, change\_type, rationale, validation, cost\_impact, relates\_to\_vision (array of section IDs/titles), pr\_number (or “none”), status (“proposed|merged|reverted”), reviewers (array).
+• timestamp, paths (array), category, change_type, rationale, validation, cost_impact, relates_to_vision (array of section IDs/titles), pr_number (or “none”), status (“proposed|merged|reverted”), reviewers (array).
 
 ## 7) Data & layer onboarding rules
 
@@ -131,4 +131,3 @@ Infra tweak (e.g., bucket policy for OAC):
 • Be conservative. Confirm necessity, keep changes small, test thoroughly, document precisely, and never jeopardize uptime, cost, or security.
 
 ---
-

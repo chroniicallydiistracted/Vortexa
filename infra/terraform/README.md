@@ -1,5 +1,7 @@
 # Terraform (minimal)
+
 Creates:
+
 - S3 buckets (web, data)
 - CloudFront for the web bucket
 - DynamoDB table (alerts)

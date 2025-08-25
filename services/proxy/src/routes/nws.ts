@@ -9,16 +9,21 @@ nwsRouter.get("/*", async (req: Request, res: Response) => {
   requireEnv("NWS_USER_AGENT", NWS_USER_AGENT);
   const tail = req.params[0] || "";
   const qs = req.originalUrl.split("?")[1];
-  const full = qs ? `https://api.weather.gov/${tail}?${qs}` : `https://api.weather.gov/${tail}`;
+  const full = qs
+    ? `https://api.weather.gov/${tail}?${qs}`
+    : `https://api.weather.gov/${tail}`;
 
   const r = await fetch(full, {
     headers: {
       "User-Agent": NWS_USER_AGENT,
-      "Accept": "application/geo+json, application/json;q=0.9",
+      Accept: "application/geo+json, application/json;q=0.9",
     },
   });
   if (!r.ok) {
-    res.status(r.status).type("text/plain").send(await r.text());
+    res
+      .status(r.status)
+      .type("text/plain")
+      .send(await r.text());
     return;
   }
   const ct = r.headers.get("content-type") || "application/json";

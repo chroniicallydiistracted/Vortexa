@@ -10,9 +10,14 @@ firmsRouter.get("/:source/:days", async (req: Request, res: Response) => {
   const { source, days } = req.params;
   const daysNum = Math.max(1, Math.min(10, Number(days) || 1)); // guardrails
   const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_MAP_KEY}/${encodeURIComponent(source)}/world/${daysNum}`;
-  const r = await fetch(url, { headers: { "User-Agent": NWS_USER_AGENT || "Vortexa/1.0 (proxy)" } });
+  const r = await fetch(url, {
+    headers: { "User-Agent": NWS_USER_AGENT || "Vortexa/1.0 (proxy)" },
+  });
   if (!r.ok) {
-    res.status(r.status).type("text/plain").send(await r.text());
+    res
+      .status(r.status)
+      .type("text/plain")
+      .send(await r.text());
     return;
   }
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
