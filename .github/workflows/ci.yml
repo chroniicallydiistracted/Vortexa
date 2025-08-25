@@ -2,12 +2,25 @@ name: CI
 on:
   push:
     branches:
-      - "**" # run on all branches so feature/fix branches are validated
+      - '**' # run on all branches so feature/fix branches are validated
   pull_request:
     branches:
       - main
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+      - name: Verify history coverage
+        run: node scripts/verify-history-coverage.js
   build-test:
     runs-on: ubuntu-latest
     steps:

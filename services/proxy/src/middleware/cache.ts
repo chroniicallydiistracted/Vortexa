@@ -9,6 +9,14 @@ export function immutable1h(_req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// 24 hour immutable (very stable basemap tiles)
+export function immutable24h(_req: Request, res: Response, next: NextFunction) {
+  if (!res.getHeader("Cache-Control")) {
+    res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+  }
+  next();
+}
+
 // 1 minute short-lived (rapidly updating imagery)
 export function shortLived60(_req: Request, res: Response, next: NextFunction) {
   if (!res.getHeader("Cache-Control")) {

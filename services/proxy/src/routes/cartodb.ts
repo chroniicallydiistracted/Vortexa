@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { immutable1h } from "../middleware/cache.js";
+import { immutable24h } from "../middleware/cache.js";
 import axios from "axios";
 
 export const cartoDbRouter = Router();
@@ -10,7 +10,7 @@ function pickSubdomain(z: number, x: number, y: number) {
   return subs[(x + y + z) % subs.length];
 }
 
-cartoDbRouter.get("/positron/:z/:x/:y.png", immutable1h, async (req, res) => {
+cartoDbRouter.get("/positron/:z/:x/:y.png", immutable24h, async (req, res) => {
   try {
     const z = Number(req.params.z),
       x = Number(req.params.x),

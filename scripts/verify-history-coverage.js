@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 // Ensures that if certain directories changed, an AGENTUPDATEHISTORY entry exists in last commit range.
 // Usage: node scripts/verify-history-coverage.js [baseSHA] [headSHA]
@@ -54,5 +55,5 @@ if (!ok) {
 }
 
 function run(cmd) {
-  return require("child_process").execSync(cmd, { encoding: "utf8" });
+  return execSync(cmd, { encoding: "utf8" });
 }
