@@ -80,6 +80,88 @@ export function createApp(opts: CreateAppOptions = {}) {
 
   app.get('/health', (_req: express.Request, res: express.Response) => res.json({ ok: true }));
   app.get('/healthz', (_req: express.Request, res: express.Response) => res.json({ status: 'ok', upstreams: ALLOW, time: new Date().toISOString() }));
+  // Deep health (cached) – verifies upstream data fetches & DynamoDB access
+  interface DeepHealthComponent<T = any> { ok: boolean; error?: string; data?: T; latency_ms?: number }
+  interface DeepHealthPayload {
+    ok: boolean;
+    generated_at: string;
+    ttl_ms: number;
+    components: {
+      upstream_hosts: Record<string, DeepHealthComponent<{ status: number }>>;
+      rainviewer: DeepHealthComponent<{ frames: number; past: number; nowcast: number; age_ms: number }>;
+      gibs_goes_b13: DeepHealthComponent<{ latestTime: string | null }>;
+      dynamodb_alerts: DeepHealthComponent<{ table: string; itemCount?: number }>;
+    }
+  }
+  let deepHealthCache: { ts: number; payload: DeepHealthPayload } | null = null;
+  async function runDeepHealth(): Promise<DeepHealthPayload> {
+    const started = Date.now();
+    const upstream_hosts: Record<string, DeepHealthComponent<{ status: number }>> = {};
+    const timeoutMs = Number(process.env.DEEP_HEALTH_TIMEOUT_MS || 4000);
+    async function checkHost(h: string) {
+      const url = /^https?:/i.test(h) ? h : `https://${h}/`;
+      const ac = new AbortController();
+      const timer = setTimeout(()=> ac.abort(), timeoutMs);
+      const t0 = Date.now();
+      try {
+        const resp = await fetch(url, { method: 'HEAD', signal: ac.signal }).catch(async _=> fetch(url, { signal: ac.signal }));
+        clearTimeout(timer);
+        upstream_hosts[h] = { ok: resp.ok, data: { status: resp.status }, latency_ms: Date.now() - t0 };
+      } catch (e: any) {
+        clearTimeout(timer);
+        upstream_hosts[h] = { ok: false, error: e.name === 'AbortError' ? 'timeout' : (e.message || 'error'), latency_ms: Date.now() - t0 };
+      }
+    }
+    await Promise.all(ALLOW.map(checkHost));
+    // Rainviewer meta
+    let rainviewer: DeepHealthComponent<{ frames: number; past: number; nowcast: number; age_ms: number }>;
+    try {
+      const meta = await loadRainviewerMeta();
+      const frames = meta.past.length + meta.nowcast.length;
+      rainviewer = { ok: frames > 0, data: { frames, past: meta.past.length, nowcast: meta.nowcast.length, age_ms: Date.now() - meta.ts } };
+      if(frames === 0) rainviewer.error = 'no frames';
+    } catch (e: any) {
+      rainviewer = { ok: false, error: e.message || 'rainviewer_failed' };
+    }
+    // GIBS GOES Band 13 timestamp
+    let gibs_goes_b13: DeepHealthComponent<{ latestTime: string | null }>;
+    try {
+      const ts = await getGoesB13Timestamp();
+      gibs_goes_b13 = { ok: !!ts, data: { latestTime: ts || null } };
+      if(!ts) gibs_goes_b13.error = 'timestamp_unavailable';
+    } catch (e: any) {
+      gibs_goes_b13 = { ok: false, error: e.message || 'gibs_failed' };
+    }
+    // DynamoDB alerts table (lightweight scan limit 1)
+    let dynamodb_alerts: DeepHealthComponent<{ table: string; itemCount?: number }>;
+    try {
+      const data = await ddbDoc.send(new ScanCommand({ TableName: alertsTable, Limit: 1 }));
+      dynamodb_alerts = { ok: true, data: { table: alertsTable, itemCount: (data.ScannedCount || 0) } };
+    } catch (e: any) {
+      dynamodb_alerts = { ok: false, error: e.message || 'ddb_failed', data: { table: alertsTable } };
+    }
+    const ok = Object.values(upstream_hosts).every(c=> c.ok) && rainviewer.ok && gibs_goes_b13.ok && dynamodb_alerts.ok;
+    return {
+      ok,
+      generated_at: new Date().toISOString(),
+      ttl_ms: 30000,
+      components: { upstream_hosts, rainviewer, gibs_goes_b13, dynamodb_alerts }
+    };
+  }
+  app.get('/health/deep', async (req, res) => {
+    try {
+      const force = 'force' in req.query;
+      const now = Date.now();
+      if(!force && deepHealthCache && (now - deepHealthCache.ts) < deepHealthCache.payload.ttl_ms) {
+        return res.status(deepHealthCache.payload.ok ? 200 : 503).json({ cached: true, age_ms: now - deepHealthCache.ts, ...deepHealthCache.payload });
+      }
+      const payload = await runDeepHealth();
+      deepHealthCache = { ts: Date.now(), payload };
+      res.status(payload.ok ? 200 : 503).json({ cached: false, ...payload });
+    } catch (e: any) {
+      res.status(500).json({ ok:false, error: e.message || 'deep_health_failed' });
+    }
+  });
   app.get('/version', (_req: express.Request, res: express.Response) => res.json({ version: pkgVersion }));
   // Feature flags (runtime kill-switch for experimental features like 3D globe)
   app.get('/api/flags', (_req: express.Request, res: express.Response) => {
