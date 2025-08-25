@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@mantine/core";
 import { ModeSwitch } from "../map/ModeSwitch";
-import { CesiumGlobe } from "../map/cesium/CesiumGlobe";
+import Globe3DLoader from "../features/globe/Globe3DLoader";
 import { getRuntimeFlags } from "../util/featureFlags";
 // Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
 import CatalogPanel from "../components/Panel";
@@ -172,7 +172,7 @@ export default function App() {
               currentTime={currentTime}
             />
           )}
-          {mode === "3d" && canUse3D && <CesiumGlobe />}
+          {mode === "3d" && canUse3D && <Globe3DLoader />}
           <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
           {mode === "3d" && canUse3D && (
             <div

@@ -440,7 +440,8 @@
       "source_type": "raster",
       "attribution": "NOAA GFS | Processed by Vortexa",
       "tile_url_template": "/tiles/gfs/temperature-2m/{time}/{z}/{x}/{y}.png",
-      "time_format": "YYYY-MM-DDTHHmmZ"
+  "time_format": "YYYY-MM-DDTHHmmZ",
+  "disabled": true
     },
     {
       "category": "Models (Custom)",
@@ -449,7 +450,8 @@
       "source_type": "raster",
       "attribution": "NOAA HRRR | Processed by Vortexa",
       "tile_url_template": "/tiles/hrrr/simulated-radar/{time}/{z}/{x}/{y}.png",
-      "time_format": "YYYY-MM-DDTHHmmZ"
+  "time_format": "YYYY-MM-DDTHHmmZ",
+  "disabled": true
     }
   ]
 }
