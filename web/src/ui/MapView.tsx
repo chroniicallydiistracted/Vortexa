@@ -61,7 +61,12 @@ export default function MapView(){
       const n = Math.pow(2, zoom);
       const xTile = Math.floor((center.lng + 180) / 360 * n);
       const yTile = Math.floor((1 - Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI) / 2 * n);
-      prefetchNextTile(l.templateRaw.split('/').slice(4,5)[0] || 'GOES-East_ABI_GeoColor', zoom, yTile, xTile, next);
+      // templateRaw like /api/gibs/tile/Layer/{z}/{y}/{x}.ext
+      const parts = l.templateRaw.split('/');
+      const layerId = parts[4] || 'GOES-East_ABI_GeoColor';
+      const extMatch = l.templateRaw.match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
+      const ext = extMatch ? extMatch[1] : 'png';
+      prefetchNextTile(layerId, zoom, yTile, xTile, next, ext);
     });
   },[gibsSelectedTime, gibsPlaying]);
   // Permalink hash update

@@ -13,3 +13,5 @@
 ### Fixed
 
 * Correct Cache-Control on GIBS responses (60s), consistent with near-real-time cadence
+* Removed aborted GET prefetch causing DOMException; switched to HEAD prefetch
+* Guard against parsing non-JSON responses (content-type check before JSON.parse)

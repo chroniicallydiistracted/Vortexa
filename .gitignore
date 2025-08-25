@@ -20,8 +20,5 @@ terraform.tfstate*
 .DS_Store
 .vscode/
 
-# Misc archives / artifacts
-WestFam-Weather-AWS.zip
-
 # Local reference lists not for version control
 GIBS FAVORITE LAYER MASTERLIST.txt

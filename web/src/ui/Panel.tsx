@@ -11,7 +11,14 @@ export default function Panel(){
     queryKey:['catalog'],
     queryFn: async ()=>{
       const res = await fetch('/catalog.json');
-      return res.json() as Promise<Catalog>;
+      if(!res.ok) return { entries: [] } as any;
+      const ct = res.headers.get('content-type')||'';
+      if(!ct.includes('application/json')) return { entries: [] } as any;
+      try {
+        return await res.json() as Catalog;
+      } catch {
+        return { entries: [] } as any;
+      }
     }
   });
   const tileBase = (import.meta as any).env?.VITE_TILE_BASE || 'http://localhost:4000/tiles';
