@@ -1,9 +1,11 @@
 name: CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**' # run on all branches so feature/fix branches are validated
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-test:
@@ -23,7 +25,6 @@ jobs:
       - run: pnpm -w run test
   infra-validate:
     runs-on: ubuntu-latest
-    if: ${{ always() && hashFiles('infra/terraform/**') != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Terraform
