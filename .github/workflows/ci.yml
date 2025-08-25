@@ -8,6 +8,7 @@ on:
       - main
 
 jobs:
+  # No-op comment to retrigger CI after merge conflict resolution
   build-test:
     runs-on: ubuntu-latest
     steps:
