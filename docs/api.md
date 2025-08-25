@@ -42,3 +42,6 @@ Errors
 
 ### Legacy redirect
 `/api/gibs/geocolor/...` 302 redirects to the generic latest tile endpoint.
+
+### Playback Notes
+Client animation uses the timestamps from `/api/gibs/timestamps` and issues tile requests with an explicit `?time=<ISO>` for each frame. The **latest** view omits the `?time` parameter. During playback the client prefetches the next frame's center tile (abort after ~500ms) to warm connections and reduce perceived flicker. Playback FPS is clamped between 2 and 8 (default 4); user input outside this range is coerced. If fewer than 2 timestamps are available (or timestamp loading fails) the Play control is disabled. An optional `VITE_ENABLE_TILE_CACHE=1` flag enables a MapLibre tile cache size hint (2048) without affecting server behavior.

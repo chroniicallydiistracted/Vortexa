@@ -6,7 +6,7 @@ import { buildHash } from '../util/permalink';
 import type { Catalog } from '@westfam/shared';
 
 export default function Panel(){
-  const { addLayer, removeLayer, setOpacity, layers, time, setTime, togglePlaying, playing, gibsTimestamps, gibsSelectedTime, setGibsSelectedTime, toggleGibsPlaying, gibsPlaying, stepGibsTime } = useStore();
+  const { addLayer, removeLayer, setOpacity, layers, time, setTime, togglePlaying, playing, gibsTimestamps, gibsSelectedTime, setGibsSelectedTime, toggleGibsPlaying, gibsPlaying, stepGibsTime, gibsFps, setGibsFps, gibsLoadError } = useStore() as any;
   const { data } = useQuery<Catalog>({
     queryKey:['catalog'],
     queryFn: async ()=>{
@@ -29,15 +29,18 @@ export default function Panel(){
     </div>
     <h3>GIBS Animation</h3>
     <div style={{marginBottom:12}}>
-      <button onClick={async ()=> { await ensureGibsTimestamps('GOES-East_ABI_GeoColor'); }}>Load Timestamps</button>
-      <button disabled={!gibsTimestamps.length} style={{marginLeft:8}} onClick={()=> toggleGibsPlaying()}>{gibsPlaying? 'Pause':'Play'}</button>
+      <button onClick={async ()=> { try { await ensureGibsTimestamps('GOES-East_ABI_GeoColor'); } catch { /* noop */ } }}>Load Timestamps</button>
+      <button disabled={gibsTimestamps.length<2 || !!gibsLoadError} style={{marginLeft:8}} onClick={()=> toggleGibsPlaying()}>{gibsPlaying? 'Pause':'Play'}</button>
       <button disabled={!gibsTimestamps.length} style={{marginLeft:8}} onClick={()=> stepGibsTime(-1)}>Prev</button>
       <button disabled={!gibsTimestamps.length} style={{marginLeft:4}} onClick={()=> stepGibsTime(1)}>Next</button>
       <div style={{marginTop:6,fontSize:12}}>
-        {gibsSelectedTime? `Selected: ${gibsSelectedTime}`: gibsTimestamps.length? 'Loaded timestamps':''}
+        {gibsLoadError? <span style={{color:'crimson'}}>Load failed</span> : gibsSelectedTime? `Selected: ${gibsSelectedTime}`: gibsTimestamps.length? 'Loaded timestamps':''}
+      </div>
+      <div style={{marginTop:6}}>
+        <label style={{fontSize:12}}>FPS (2-8): <input type="number" min={2} max={8} value={gibsFps} onChange={e=> setGibsFps(Number(e.currentTarget.value||4))} style={{width:60}} /></label>
       </div>
       {gibsTimestamps.length>0 && <div style={{maxHeight:120,overflow:'auto',marginTop:6,border:'1px solid #ddd',padding:4}}>
-        {gibsTimestamps.slice(-50).map(t=> <div key={t} style={{cursor:'pointer',color: t===gibsSelectedTime? '#1976d2':'#333'}} onClick={()=> setGibsSelectedTime(t)}>{t}</div>)}
+        {gibsTimestamps.slice(-50).map((t: string)=> <div key={t} style={{cursor:'pointer',color: t===gibsSelectedTime? '#1976d2':'#333'}} onClick={()=> setGibsSelectedTime(t)}>{t}</div>)}
       </div>}
     </div>
     <h3>Presets</h3>
@@ -70,7 +73,7 @@ export default function Panel(){
       </div>;
     })}
     <h3 style={{marginTop:16}}>Active</h3>
-    {layers.length===0? <div style={{opacity:.6}}>No layers</div> : layers.map(l=>
+  {layers.length===0? <div style={{opacity:.6}}>No layers</div> : layers.map((l: any)=>
       <div key={l.id} style={{display:'flex',alignItems:'center',gap:8, margin:'6px 0'}}>
         <div style={{flex:1}}>{l.id}</div>
         <input title="opacity" type="range" min={0} max={1} step={0.05} value={l.opacity ?? 1} onChange={e=> setOpacity(l.id, Number(e.currentTarget.value))} />
