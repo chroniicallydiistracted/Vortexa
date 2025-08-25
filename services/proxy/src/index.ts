@@ -222,11 +222,13 @@ export function createApp(opts: CreateAppOptions = {}) {
   // In-memory caches to avoid excessive upstream metadata fetches
   interface RainviewerEntry { time: number; path: string }
   let rainviewerMeta: { ts: number; past: RainviewerEntry[]; nowcast: RainviewerEntry[] } = { ts: 0, past: [], nowcast: [] };
-  async function loadRainviewerMeta(): Promise<typeof rainviewerMeta> {
+  async function loadRainviewerMeta(timeoutMs = 4000): Promise<typeof rainviewerMeta> {
     const now = Date.now();
     if (rainviewerMeta.past.length && (now - rainviewerMeta.ts) < 60_000) return rainviewerMeta;
+    const ac = new AbortController();
+    const timer = setTimeout(()=> ac.abort(), timeoutMs).unref();
     try {
-      const rv = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      const rv = await fetch('https://api.rainviewer.com/public/weather-maps.json', { signal: ac.signal });
       if (!rv.ok) return rainviewerMeta;
       const data: any = await rv.json();
       rainviewerMeta = {
@@ -234,7 +236,8 @@ export function createApp(opts: CreateAppOptions = {}) {
         past: (data?.radar?.past || []).map((p: any)=> ({ time: p.time, path: p.path })),
         nowcast: (data?.radar?.nowcast || []).map((p: any)=> ({ time: p.time, path: p.path }))
       };
-    } catch {/* keep old cache */}
+    } catch {/* timeout or network error: keep old cache */}
+    clearTimeout(timer);
     return rainviewerMeta;
   }
   function buildRainviewerTileUrl(entry: RainviewerEntry, z: string, x: string, y: string): string {
@@ -267,18 +270,18 @@ export function createApp(opts: CreateAppOptions = {}) {
   });
 
   let goesB13Meta: { ts: number; latest: string | null } = { ts: 0, latest: null };
-  async function getGoesB13Timestamp(): Promise<string | null> {
+  async function getGoesB13Timestamp(timeoutMs = 5000): Promise<string | null> {
     const now = Date.now();
     if (goesB13Meta.latest && (now - goesB13Meta.ts) < 5 * 60_000) return goesB13Meta.latest; // 5 min cache
+    const ac = new AbortController();
+    const timer = setTimeout(()=> ac.abort(), timeoutMs).unref();
     try {
-      const cap = await fetch('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml');
+      const cap = await fetch('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml', { signal: ac.signal });
       if (!cap.ok) return goesB13Meta.latest;
       const xml = await cap.text();
-      // Extract layer block for GOES-East_Full_Disk_Band_13_ENHANCED
       const layerIdx = xml.indexOf('GOES-East_Full_Disk_Band_13_ENHANCED');
       if (layerIdx === -1) return goesB13Meta.latest;
-      const slice = xml.slice(Math.max(0, layerIdx - 2000), layerIdx + 4000); // window around layer name
-      // Grab nearest <Dimension>...</Dimension> containing <Default>
+      const slice = xml.slice(Math.max(0, layerIdx - 2000), layerIdx + 4000);
       const dimMatch = slice.match(/<Dimension[^>]*>[^<]*<Identifier>time<\/Identifier>[\s\S]*?<Default>([^<]+)<\/Default>/i);
       if (dimMatch && dimMatch[1]) {
         goesB13Meta = { ts: now, latest: dimMatch[1].trim() };
@@ -286,6 +289,8 @@ export function createApp(opts: CreateAppOptions = {}) {
       return goesB13Meta.latest;
     } catch {
       return goesB13Meta.latest;
+    } finally {
+      clearTimeout(timer);
     }
   }
   app.get('/api/gibs/goes-b13/:z/:y/:x.png', async (req, res) => {
