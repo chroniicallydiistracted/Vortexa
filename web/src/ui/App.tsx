@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@mantine/core';
 import { ModeSwitch } from '../map/ModeSwitch';
 import { CesiumGlobe } from '../map/cesium/CesiumGlobe';
 import { getRuntimeFlags } from '../util/featureFlags';
@@ -106,7 +107,7 @@ export default function App(){
             <input type="checkbox" checked={gibsGeocolor3d} onChange={toggleGibsGeocolor3d} /> GIBS GeoColor
           </label>
         </div>}
-        <div style={{position:'absolute',left:8,top:8,background:'rgba(0,0,0,.4)',padding:'4px 8px',borderRadius:4,fontSize:12}}>Catalog Demo</div>
+  <div style={{position:'absolute',left:8,top:8,background:'rgba(0,0,0,.4)',padding:'4px 8px',borderRadius:4,fontSize:12,display:'flex',alignItems:'center',gap:8}}>Catalog Demo <Button size="xs" variant="light">Mantine</Button></div>
         <div style={searchContainerStyle}>
           <input
             type="text"
