@@ -1,0 +1,4 @@
+# Ignore vendored / upstream SAM CLI source templates that contain Jinja-style templating
+sam-installer/
+# Optionally ignore lockfile to avoid large diffs purely from formatting
+pnpm-lock.yaml
