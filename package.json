@@ -15,16 +15,22 @@
     "dev:proxy": "npm -w services/proxy run dev",
     "dev:web": "npm -w web run dev",
     "dev:all": "concurrently -n proxy,web -c blue,green \"npm run dev:proxy\" \"npm run dev:web\"",
-  "cloud:down": "bash scripts/cloud-dev-down.sh",
-  "cloud:dev": "bash scripts/cloud-dev.sh",
+    "cloud:down": "bash scripts/cloud-dev-down.sh",
+    "cloud:dev": "bash scripts/cloud-dev.sh",
     "build": "npm -w services/shared run build && npm -w services/proxy run build && npm -w services/alerts run build && npm -w web run build",
     "package:alerts": "bash scripts/package-alerts.sh",
     "test": "npm -w services/proxy run test && npm -w services/alerts run test && npm -w services/shared run test",
     "validate:history": "node scripts/validate-history.js",
     "deploy": "bash scripts/deploy.sh",
-    "verify:history": "node scripts/verify-history-coverage.js"
+    "verify:history": "node scripts/verify-history-coverage.js",
+    "validate:catalog": "node scripts/validate-catalog.mjs",
+  "validate:inventory": "node scripts/validate-inventory.mjs",
+  "codemod:aliases": "node scripts/codemod-alias-imports.mjs",
+  "typecheck": "npm run build"
   },
   "devDependencies": {
+    "ajv": "^8.17.1",
+    "globby": "^14.1.0",
     "vitest": "^2.0.5"
   }
 }

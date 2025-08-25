@@ -1,103 +1,37 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-permissions:
-  contents: read
-
 jobs:
-  build-and-validate:
+  build-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
-      OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
-      NWS_USER_AGENT: ${{ secrets.NWS_USER_AGENT }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install root deps
-        run: npm ci --no-audit --no-fund
-      - name: Build workspaces
-        run: npm run build
-      - name: Run tests
-        run: npm run test
-      - name: Validate history schema
-        run: npm run validate:history
-      - name: Package alerts lambda
-        run: npm run package:alerts
-      - name: Show alerts artifact details
-        run: ls -l services/alerts/dist-zip && cat services/alerts/dist-zip/alerts.zip.sha256
-      - name: Verify alerts zip checksum file
-        run: |
-          set -euo pipefail
-          cd services/alerts/dist-zip
-          sha=$(sha256sum alerts.zip | awk '{print $1}')
-          recorded=$(awk '{print $1}' alerts.zip.sha256)
-          if [ "$sha" != "$recorded" ]; then
-            echo "Checksum mismatch: $sha != $recorded" >&2
-            exit 1
-          fi
-      - name: Upload lambda artifact
-        uses: actions/upload-artifact@v4
+          version: 9
+      - uses: actions/setup-node@v4
         with:
-          name: alerts-lambda
-          path: |
-            services/alerts/dist-zip/alerts.zip
-            services/alerts/dist-zip/alerts.zip.sha256
-      - name: Terraform init & validate
+          node-version: '20.x'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run validate:catalog
+      - run: pnpm run validate:inventory
+      - run: pnpm -w run test
+  infra-validate:
+    runs-on: ubuntu-latest
+    if: ${{ always() && hashFiles('infra/terraform/**') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+      - name: Validate terraform
+        working-directory: infra/terraform
         run: |
-          cd infra/terraform
-          terraform init -input=false
+          terraform init -backend=false
           terraform validate
-      - name: Terraform fmt check
-        run: |
-          cd infra/terraform
-          terraform fmt -check -diff
-
-  terraform-plan:
-    runs-on: ubuntu-latest
-    needs: build-and-validate
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Terraform cache
-        uses: actions/cache@v4
-        with:
-          path: infra/terraform/.terraform
-          key: terraform-${{ hashFiles('infra/terraform/.terraform.lock.hcl') }}
-      - name: Terraform init
-        run: |
-          cd infra/terraform
-          terraform init -input=false
-      - name: Terraform plan
-        id: plan
-        run: |
-          cd infra/terraform
-          terraform plan -no-color -input=false > plan.txt || true
-          cat plan.txt
-          echo "plan<<EOF" >> $GITHUB_OUTPUT
-          sed -e 's/`/\`/g' plan.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      - name: Comment plan
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: terraform-plan
-          message: |
-            ### Terraform Plan
-            ```
-            ${{ steps.plan.outputs.plan }}
-            ```

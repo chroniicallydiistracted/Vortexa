@@ -1,115 +1,102 @@
-## Mission & North Star
-- Build an **all‑in‑one weather & earth‑science dashboard** for family use that is fast, reliable, and low‑cost (AWS‑first). (See `VISION.md`.)
-- Clarity and speed of best‑in‑class map UIs, with disciplined data onboarding and budget control.
+## 1) Mission & North Star
+- Build an **all‑in‑one weather & earth‑science dashboard** for family use that is fast, reliable, and low‑cost (AWS‑first). Clarity and speed of best‑in‑class map UIs, with disciplined data onboarding and budget control.
 
-## Architecture (baseline)
-- **Frontend:** React + Vite SPA, featuring both 2D (**Mapbox GL JS**) and 3D (**CesiumJS**) map views.
-- **Delivery:** S3 (private) behind CloudFront with **OAC**; ACM certificate in **us‑east‑1** for the custom domain `weather.westfam.media`.
-- **Proxy:** TypeScript Express tile/edge proxy (dev on port 4000); normalizes NASA GIBS WMTS and similar; optional S3 tile cache; CORS; allow‑list; provides CesiumJS‑compatible data endpoints.
-- **Alerts:** Lambda (Node 20) + EventBridge schedule; DynamoDB for alerts with **TTL**.
-- **Infra:** Terraform manages S3, CloudFront, ACM, DynamoDB, Lambda, EventBridge, and Route 53 delegation.
-- **3D Globe:** CesiumJS for rich, interactive global visualization of weather and environmental data.
+## 2) Architecture (baseline)
+- **Frontend:** React + Vite SPA; **2D:** MapLibre GL (canonical) with Mapbox GL JS acceptable as a compatible alternative; **3D:** CesiumJS.
+- **Delivery:** S3 (private) behind CloudFront with OAC; ACM certificate in **us‑east‑1** for the custom domain; Route 53 delegation for `weather.westfam.media`.
+- **Proxy:** TypeScript Express tile/edge proxy (dev on port 4000); normalizes NASA GIBS WMTS and similar; optional S3 tile cache; strict allow‑list; adds cache/CORS headers; provides timestamp resolution endpoints for sub‑daily layers.
+- **Alerts:** Lambda (Node 20) + EventBridge schedule; DynamoDB with TTL.
+- **Infra:** Terraform for S3, CloudFront, ACM, DynamoDB, Lambda, EventBridge, and Route 53.
 
-## Domain & DNS
-- **Authoritative:** Cloudflare for `westfam.media` (unchanged).
-- **Delegation:** Route 53 hosted zone for `weather.westfam.media`; NS set in Cloudflare.
-- **Records (delegated zone):** `A/AAAA` **alias** to CloudFront distribution; ACM validation CNAMEs from us‑east‑1 cert.
+## 3) Non‑Functional Requirements & Cost Targets
+- Reliability ≥ 99.5% monthly; p95 HTML at edge < 150 ms; p95 tiles < 400 ms; p95 Cesium data < 500 ms.
+- Cost: typical ≤ $10/mo; burst ≤ $20/mo.
+- Security: S3 private + Public Access Block; CloudFront OAC is the only reader; least‑privilege IAM; no public write APIs.
+- Compliance: follow NWS policy (custom User‑Agent) and vendor terms.
 
-## Non‑Functional Requirements & Cost Targets
-- **Reliability:** aim ≥ 99.5% monthly.
-- **Latency:** p95 HTML at edge < 150 ms; p95 tile < 400 ms (normal upstream); p95 **3D globe data** < 500 ms.
-- **Cost:** typical ≤ $10/mo; burst ≤ $20/mo.
-- **Security:** S3 **private** + Public Access Block; **OAC** is the only web bucket reader; least‑privilege IAM; no public write APIs.
-- **Compliance:** NWS policy (custom User‑Agent with contact email) and vendor terms.
+## 4) Guardrails (Hard Constraints)
+- Never commit secrets; use `.env.example` placeholders; inject real values via CI or local environment.
+- Minimal churn: small, focused PRs; preserve public routes/contracts unless an RFC accompanies changes.
+- Add tests for any behavior change (failing‑then‑passing).
+- Pin Node to 20.x locally and in CI.
+- Avoid vendored heavy toolchains in the repo (prefer submodules or containers).
+- **Cost discipline:** stay within targets; prefer caching/CDN over long‑running compute; be mindful of Cesium Ion or premium data costs.
+- **IAM:** least privilege; avoid wildcards on prod paths.
+- **S3:** keep Public Access Block on; serve via CloudFront OAC.
+- **DNS/Certs:** treat Cloudflare/Route 53/ACM/CloudFront viewer cert changes as sensitive; require explicit approval and change logging.
+- **Cesium Ion Token:** never hardcode; manage securely (Secrets Manager in prod, `.env.local` in dev).
 
-## Repo Landmarks (assumed present)
-- `web/` — Vite React SPA; TanStack Query; map UI and panels; `.env.local` uses `VITE_TILE_BASE` for tiles and `VITE_CESIUM_ION_ACCESS_TOKEN` for CesiumJS. Includes both 2D (Mapbox GL JS) and 3D (CesiumJS) map views.
-- `services/proxy/` — TypeScript Express tile/edge proxy (dev on port 4000); WMTS normalization, and potentially CesiumJS‑compatible data endpoints; optional S3 tile cache; CORS; allow‑list.
-- `services/alerts/` — Node 20 Lambda; packaged as `dist-zip/alerts.zip`; handler `dist/index.handler`.
-- `infra/terraform/` — Terraform for S3, CloudFront (OAC), ACM (us‑east‑1), DynamoDB, Lambda, EventBridge, Route 53.
+## 5) Environment & Bootstrapping
+- Node 20.x (`.nvmrc`); workspace install with `pnpm install` at repo root.
+- Expect `.env.local` in `services/proxy/` with `OWM_API_KEY`, `FIRMS_MAP_KEY`, `NWS_USER_AGENT`.
+- Dev run: `docker compose -f docker-compose.dev.yml up --build` (web on 5173, proxy on 4000).
 
-## Non‑negotiable Guardrails
-- Confirm necessity against `VISION.md` before any change. Quote the section you satisfy in PRs and history files.
-- Prefer **small, reversible** diffs. Avoid repo‑wide refactors unless explicitly requested.
-- **Cost discipline:** stay within the target band; prefer S3/CloudFront caching over long‑running compute; be especially mindful of data usage and potential costs associated with **Cesium Ion** assets or premium data layers.
-- **IAM:** least privilege. Avoid wildcards on production paths.
-- **S3:** keep Public Access Block on; web bucket is private; CloudFront **OAC** is the reader.
-- **DNS/Certs:** treat Route 53, Cloudflare, ACM, and CloudFront viewer certificate changes as **sensitive** (approval required; log changes).
-- **NWS policy:** alerts Lambda uses a custom **User‑Agent** header with contact email.
-- **Cesium Ion Token:** ensure `VITE_CESIUM_ION_ACCESS_TOKEN` is securely managed (e.g., in AWS Secrets Manager for production, `.env.local` for development) and never hardcoded in source.
+## 6) Phased Work Plan (PR sequence)
+**PR‑1: Security hardening**  
+Add `helmet`, restrict CORS to approved origins, gate `/metrics` behind bearer token, remove any default keys from scripts; tests for metrics auth and CORS preflight.
 
-## Testing Expectations
-- Add/update tests where applicable: unit for helpers; e2e/smoke for integration.
-- Map features: verify pan/zoom/time slider performance for both 2D and 3D views.
-- 3D Globe features: verify CesiumJS initialization, data layer toggling, camera controls, and visual accuracy of data overlays (e.g., fire, temperature, wind).
-- Proxy: assert URL normalization, correct upstream format (png/jpg), and cache headers.
-- Alerts: assert NWS User‑Agent, dry‑run parse, DynamoDB write shape (`pk/sk/ttl`).
-- Infra: rely on Terraform plan diffs and staged applies; do not apply destructive changes without approval.
+**PR‑2: Compose & Node hygiene**  
+Consolidate compose files (remove empty root or make it extend dev compose); add `.nvmrc` (20.19.0) and document; CI uses Node 20; ensure `pnpm -w build` passes.
 
-## Commit / PR / History Conventions
-- **Commit prefix:** `[frontend]` / `[proxy]` / `[alerts]` / `[infra]` / `[catalog]` / `[docs]` / `[tests]` / `[housekeeping]`; imperative subject, then one‑sentence rationale.
-- **PRs include:** what changed & why (link to `VISION.md`), testing done (repro steps/screenshots), risk & rollback, cost impact, and checkboxes for README/ENV/`ROADMAP.md`/`DEPLOY.md`/history updates. When adding 3D globe features or new data layers, update `ROADMAP.md` and `DEPLOY.md` to reflect current and planned functionality and document any additional deployment steps.
-- **History files:** every change updates both `AGENTUPDATEHISTORY.md` (human summary) and `AGENTUPDATEHISTORY.jsonl` (machine log).
+**PR‑3: Catalog consolidation**  
+Use `web/public/catalog.json` as canonical; merge entries from `web/src/data/catalog.json` only after resolving `{TileMatrixSet}` and adding `time_format`; rename `data/catalog.json` to `data/source-inventory.json`; add JSON‑schema validation test for entries.
 
-### AGENTUPDATEHISTORY.md (human‑readable) — required fields
-- Date/time, short title, files touched, rationale, test steps, outcome, rollout/rollback notes.
+**PR‑4: Sub‑daily time model**  
+Add generic `GET /api/gibs/timestamps?layer=...`; refactor GOES B‑13 to common resolver; add support for GeoColor, Band 2/13, FireTemp, Air Mass; tests with mocked WMTS GetCapabilities.
 
-### AGENTUPDATEHISTORY.jsonl (machine) — required fields
-- `timestamp`, `paths[]`, `category`, `change_type`, `rationale`, `validation`, `cost_impact`, `relates_to_vision[]`, `pr_number|"none"`, `status`, `reviewers[]`.
+**PR‑5: Performance & protection**  
+Token‑bucket rate limiting per IP; strong cache headers (immutable for basemap; TTL for dynamic tiles); tests for 429 and cache headers.
 
-## Data & Layer Onboarding Rules
-- Each new source/layer documents: **provenance**, **license/policy**, **update cadence**, **format** (WMTS/XYZ/JSON/GeoJSON/CZML), and an example request.
-- Prefer routing via the **proxy** with a strict allow‑list. Do not bypass the proxy unless explicitly allowed.
-- **GOES strategy:** default to one lightweight basemap; offer GOES‑East/West as toggles. If auto‑switching by viewport, include a clear user override.
+**PR‑6: Observability polish**  
+Labelled histograms and upstream status counters; `/docs/observability.md` with example PromQL; basic alarms.
 
-## Explicit Approval Required (do not proceed without it)
-- DNS changes (Cloudflare/Route 53), ACM/CloudFront viewer certificate changes, CloudFront distribution settings, S3 bucket replacements, IAM scope expansion, introduction of paid vendors, premium **Cesium Ion** assets or services, or new regional footprints, or any change likely to increase cost materially.
+## 7) Data & Layer Onboarding Rules
+- Every new layer documents provenance, license/policy, update cadence, format (WMTS/XYZ/JSON/GeoJSON/CZML), and an example request.
+- Route external data via the proxy with a strict host allow‑list; don’t bypass the proxy without explicit approval.
+- GOES strategy: default to one lightweight basemap; expose GOES‑East/West toggles. If auto‑switching by viewport, provide a user override.
 
-## Default Posture
-- Be conservative. Confirm necessity, keep changes small, test thoroughly, document precisely, and never jeopardize uptime, cost, or security.
+## 8) Testing Expectations
+- Unit: URL/timestamp builders, FIRMS CSV → GeoJSON.
+- Integration: `/api/cartodb`, `/api/gibs/*`, `/api/owm/*` with mocked upstreams; schema validation for `catalog.json`.
+- Map UI: pan/zoom/time slider perf for 2D/3D; Cesium init and overlay toggles.
+- Alerts: NWS User‑Agent, parse dry‑run, DynamoDB write shape (`pk/sk/ttl`).
+- Infra: Terraform plan diffs; staged applies only; no destructive operations without approval.
 
-## Operational Expectations
-- CloudWatch logs with retention (≥ 14 days), minimal alarms (Lambda errors, 5xx bursts), health endpoints for the proxy.
-- DynamoDB TTL for alerts; static deploys are immutable artifacts; rollbacks use object versioning.
-- Runbooks for domain/cert/deploy and safe rollback (“panic button”).
+## 9) Commit / PR / History Conventions
+- **Commit prefix:** `[frontend]` / `[proxy]` / `[alerts]` / `[infra]` / `[catalog]` / `[docs]` / `[tests]` / `[housekeeping]`.
+- **PRs include:** what & why (link to VISION), tests/repro steps, risk & rollback, cost impact, and checkboxes for README/ENV/ROADMAP/DEPLOY/history updates.
+- **History files:** update **AGENTUPDATEHISTORY.md** (human log) and **AGENTUPDATEHISTORY.jsonl** (machine log) for every change; include required fields.
 
-## Source‑of‑Truth Pointers
-- `VISION.md` — goals, success criteria, scope & phasing, guardrails, cost targets, and Definition of Done.
-- `AGENTUPDATEHISTORY.md` — human changelog by category.
-- `AGENTUPDATEHISTORY.jsonl` — machine‑readable log schema (append one JSON object per change).
-- `README.md` (and per‑package READMEs) — setup and dev instructions; keep accurate.
-- `.env.example` — authoritative list of environment variables; keep minimal and current (note any sensitive entries and where they live in AWS).
-- `ROADMAP.md` — maintain this document to clearly outline current and future features, explicitly detailing plans for the 3D globe, its data layers, and any associated enhancements.
-- `DEPLOY.md` — keep this documentation up‑to‑date with precise instructions for deploying all services, including any new steps required for CesiumJS asset handling, proxy updates, or infrastructure changes.
+## 10) Explicit Approval Required
+- DNS, ACM/CloudFront viewer cert changes, CloudFront distribution settings, S3 bucket replacements, IAM scope expansion, introducing paid vendors/premium Cesium Ion, new regions, or any material cost increase.
 
-## Copilot Do / Don’t (enforcement cues for completions)
-**Do:**
-- Use least‑privilege IAM, private S3 with CloudFront OAC, and cost‑aware patterns.
-- Keep diffs small; add tests; propose rollbacks; update both history files.
-- Prefer proxy‑mediated data access with allow‑lists and cache headers.
-- Leverage CesiumJS's out‑of‑the‑box features to accelerate development while adhering to cost and customization goals.
+## 11) Operational Expectations
+- CloudWatch logs (≥ 14 days), minimal alarms (Lambda errors, proxy 5xx), `/health` endpoints.
+- DynamoDB TTL enabled for alerts; static deploys are immutable artifacts; rollbacks use object versioning.
+- Maintain runbooks for domain/cert/deploy/rollback (“panic button”).
 
-**Don’t:**
-- Suggest widening IAM to wildcards or exposing public write APIs.
-- Add paid vendors or new regions without explicit approval and cost impact noted.
-- Bypass the proxy for external tiles/data unless explicitly allowed.
-- Suggest using premium Cesium Ion assets or services without explicit approval and a noted cost impact.
+## 12) Source‑of‑Truth Pointers
+- `VISION.md`, `README.md`, per‑package READMEs, `.env.example`, `ROADMAP.md`, `DEPLOY.md`, `AGENTUPDATEHISTORY.md`, `AGENTUPDATEHISTORY.jsonl`.
 
----
+## 13) Definition of Done
+- Web/data S3 buckets private with Public Access Block; CloudFront OAC configured; HTTPS via ACM (us‑east‑1); delegated DNS resolves to CloudFront and cert CNAMEs present.
+- Tile proxy live; **GeoColor and/or GOES‑East/West Band‑13** render via WMTS through the proxy.
+- Cesium 3D globe renders with default imagery; key overlays (FIRMS, OWM) toggle via proxy.
+- Basic camera interaction (pan/zoom/rotate) works in 3D.
+- Alerts Lambda on schedule; writes to DynamoDB; TTL enabled; no error alarms.
+- Basic alarms and log retention configured; README and `.env` examples match reality; NWS User‑Agent documented and set.
+- Cost reviewed under real usage and within budget.
 
-### Definition of Done (production verification)
-- Web/data S3 buckets **private** with Public Access Block; OAC configured.
-- CloudFront serves `index.html`; ACM (us‑east‑1) validated; HTTPS on the custom domain.
-- Delegated DNS resolves `weather.westfam.media` → CloudFront; cert CNAMEs present.
-- Tile proxy live; **GOES‑East/West GeoColor** renders via WMTS through the proxy.
-- **CesiumJS 3D Globe** renders correctly with default imagery.
-- Key data layers (e.g., **FIRMS** fire data, **OWM** temperature) can be toggled on/off on the 3D globe, fetching data via the proxy.
-- Basic camera interaction (pan, zoom, rotate) functions as expected on the 3D globe.
-- Alerts Lambda scheduled; writes to DynamoDB; **TTL enabled**; no error alarms.
-- Basic alarms and log retention (≥ 14 days) configured.
-- README and `.env` examples match reality; NWS **User‑Agent** documented and set.
-- Cost reviewed under real use and within budget.
+## 14) Risk Register (watch items)
+- Truncated/missing files can hide build issues; ensure complete sources.
+- Promoting catalog entries without fixing `{TileMatrixSet}` causes 404s.
+- Over‑permissive CORS/metrics could leak data in prod if ungated.
+- Lack of rate limiting can overload upstreams during animation.
 
----
-
-> This document is intentionally factual and stable. Keep it synchronized with the source‑of‑truth files noted above. Update this file below this line when the architecture, guardrails, or conventions change.
+## 15) Useful Commands
+```bash
+pnpm -w run typecheck
+pnpm --filter services/proxy test
+pnpm -w lint && pnpm -w format
+cd infra/terraform && terraform init -backend=false && terraform validate
+```
