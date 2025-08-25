@@ -1,0 +1,5 @@
+packages:
+  - web
+  - services/proxy
+  - services/alerts
+  - services/shared
