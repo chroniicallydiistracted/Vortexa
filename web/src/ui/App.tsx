@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AppShell, ScrollArea, Paper, TextInput, Loader, Group, Text, Checkbox, Button as MantineButton } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { validateCatalog } from "../lib/validateCatalog";
@@ -9,9 +9,12 @@ import { getRuntimeFlags } from "../util/featureFlags";
 // Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
 import CatalogPanel from "../components/Panel";
 import CatalogMap from "../components/Map";
-import Timeline from "../components/Timeline";
+// TimeBar (Mantine) replaces legacy Timeline component
+import { TimeBar } from "../components/TimeBar";
 import { parseHash, decodeLayers } from "../util/permalink";
 import { useStore } from "../util/store";
+import { notifications } from '@mantine/notifications';
+import { useDebouncedCallback } from 'use-debounce';
 export default function App() {
   const tileEnv = (import.meta as any).env?.VITE_TILE_BASE;
   const [hideBanner, setHideBanner] = useState(false);
@@ -24,6 +27,7 @@ export default function App() {
     setMode,
     gibsGeocolor3d,
     toggleGibsGeocolor3d,
+  playbackCurrentTimeMs,
   } = useStore();
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
@@ -102,21 +106,33 @@ export default function App() {
       .then(setCatalogData)
       .catch(() => {});
   }, []);
-  // Time & playback state
-  const hourMs = 3600_000;
-  const [baseStart] = useState(() => {
-    const d = new Date();
-    d.setMinutes(0, 0, 0); // truncate to hour
-    return d.getTime() - 24 * hourMs; // start 24h ago
-  });
-  const [currentTime, setCurrentTime] = useState(() => baseStart + 24 * hourMs); // now (end of window)
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isUserScrubbing, setIsUserScrubbing] = useState(false);
-  const hoursSpan = 48; // show 48h window
+  // Centralized playback state from store
+  const {
+    playbackBaseStartMs: baseStart,
+    playbackHoursSpan: hoursSpan,
+    playbackCurrentTimeMs: currentTime,
+    playbackSpeed: speed,
+    setPlaybackCurrentTimeMs,
+    setPlaybackSpeed,
+  } = useStore();
+  const [isPlaying, setIsPlaying] = useState(false); // keep play/pause locally for now
   // Search state
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  // One-time tile proxy fallback notification
+  const warnedRef = useRef(false);
+  const tileBase = (import.meta as any).env?.VITE_TILE_BASE || 'http://localhost:4000/tiles';
+  useEffect(() => {
+    if (!warnedRef.current && (!(import.meta as any).env?.VITE_TILE_BASE || tileBase.includes('localhost'))) {
+      warnedRef.current = true;
+      notifications.show({
+        color: 'yellow',
+        title: 'Using default tile proxy',
+        message: `Falling back to ${tileBase}. Set VITE_TILE_BASE in web/.env.local to remove this message.`,
+      });
+    }
+  }, [tileBase]);
   const [mapInstance, setMapInstance] = useState<any>(null);
   useEffect(() => {
     if (!search) {
@@ -145,6 +161,26 @@ export default function App() {
       mapInstance.flyTo({ center: [lon, lat], zoom: 8 });
     }
   };
+  // Debounced permalink update for time changes (hash only for now)
+  const debouncedHashUpdate = useDebouncedCallback(() => {
+    const dt = new Date(playbackCurrentTimeMs);
+    // encode date hour in ISO minute precision
+    const iso = dt.toISOString().slice(0,16).replace(/[-:T]/g,'').toLowerCase();
+    const existing = parseHash(location.hash);
+    existing.t = iso; // reuse t key (already used for date-only earlier)
+    const params: string[] = [];
+    if (existing.t) params.push(`t=${existing.t}`);
+    if (existing.lat != null && existing.lon != null) params.push(`lat=${existing.lat}&lon=${existing.lon}`);
+    if (existing.z != null) params.push(`z=${existing.z}`);
+    if (existing.l) params.push(`l=${existing.l}`);
+    const newHash = params.length ? `#${params.join('&')}` : '';
+    if (newHash !== location.hash) {
+      history.replaceState({}, '', `${location.pathname}${location.search}${newHash}`);
+    }
+  }, 400);
+  useEffect(() => {
+    debouncedHashUpdate();
+  }, [playbackCurrentTimeMs]);
   return (
     <AppShell
       header={{ height: 0 }}
@@ -227,17 +263,30 @@ export default function App() {
             </Paper>
           )}
         </Paper>
-        <Timeline
+        <TimeBar
           playing={isPlaying}
-          onToggle={() => setIsPlaying((p) => !p)}
-          currentTime={currentTime}
-          setCurrentTime={(t) =>
-            setCurrentTime(typeof t === "function" ? (t as any)(currentTime) : t)
-          }
+          togglePlay={() => setIsPlaying((p) => !p)}
           baseStart={baseStart}
           hoursSpan={hoursSpan}
-          isUserScrubbing={isUserScrubbing}
-          setIsUserScrubbing={setIsUserScrubbing}
+          currentTime={currentTime}
+          setCurrentTime={(t) =>
+            setPlaybackCurrentTimeMs(
+              typeof t === "function" ? (t as any)(currentTime) : t,
+            )}
+          currentDate={new Date(currentTime)}
+          setCurrentDate={(d) => {
+            // keep hour index
+            const hourMs = 3600_000;
+            const base = new Date(d.getTime());
+            base.setUTCHours(0, 0, 0, 0);
+            const hourOffset = Math.round((currentTime - baseStart) / hourMs) % hoursSpan;
+            const newTime = base.getTime() + hourOffset * hourMs;
+            setPlaybackCurrentTimeMs(newTime);
+          }}
+          hourValue={Math.round((currentTime - baseStart) / 3600_000)}
+          setHourValue={(n) => setPlaybackCurrentTimeMs(baseStart + n * 3600_000)}
+          speed={speed}
+          setSpeed={(label) => setPlaybackSpeed(label as any)}
         />
       </AppShell.Main>
     </AppShell>

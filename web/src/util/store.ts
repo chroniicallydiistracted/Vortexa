@@ -6,6 +6,11 @@ type Store = {
   layers: Layer[];
   time: string; // ISO date (YYYY-MM-DD) for now
   playing: boolean;
+  // Centralized playback state (TimeBar)
+  playbackBaseStartMs: number; // window start (ms UTC)
+  playbackHoursSpan: number; // total hours represented by slider
+  playbackCurrentTimeMs: number; // current time within window (ms UTC)
+  playbackSpeed: '0.5x' | '1x' | '2x' | '4x';
   view: ViewState;
   mode: "2d" | "3d";
   gibsGeocolor3d: boolean;
@@ -23,6 +28,10 @@ type Store = {
   stepTime: (deltaDays: number) => void;
   setOpacity: (id: string, opacity: number) => void;
   togglePlaying: () => void;
+  setPlaybackCurrentTimeMs: (ms: number) => void;
+  setPlaybackSpeed: (s: '0.5x' | '1x' | '2x' | '4x') => void;
+  setPlaybackBaseStart: (ms: number) => void;
+  setPlaybackHoursSpan: (h: number) => void;
   setView: (v: Partial<ViewState>) => void;
   setMode: (m: "2d" | "3d") => void;
   toggleGibsGeocolor3d: () => void;
@@ -43,6 +52,10 @@ export const useStore = create<Store>((set, get) => ({
   layers: [],
   time: today,
   playing: false,
+  playbackBaseStartMs: (() => { const d = new Date(); d.setMinutes(0,0,0); return d.getTime() - 24*3600_000; })(),
+  playbackHoursSpan: 48,
+  playbackCurrentTimeMs: (() => { const d = new Date(); d.setMinutes(0,0,0); return d.getTime(); })(),
+  playbackSpeed: '1x',
   view: { lat: 33.448, lon: -112.074, zoom: 6 },
   mode: "2d",
   gibsGeocolor3d: false,
@@ -71,6 +84,10 @@ export const useStore = create<Store>((set, get) => ({
       layers: s.layers.map((x) => (x.id === id ? { ...x, opacity } : x)),
     })),
   togglePlaying: () => set((s) => ({ playing: !s.playing })),
+  setPlaybackCurrentTimeMs: (ms) => set({ playbackCurrentTimeMs: ms }),
+  setPlaybackSpeed: (s) => set({ playbackSpeed: s }),
+  setPlaybackBaseStart: (ms) => set({ playbackBaseStartMs: ms }),
+  setPlaybackHoursSpan: (h) => set({ playbackHoursSpan: h }),
   setView: (v) => set((s) => ({ view: { ...s.view, ...v } })),
   setMode: (m) => set({ mode: m }),
   toggleGibsGeocolor3d: () =>
