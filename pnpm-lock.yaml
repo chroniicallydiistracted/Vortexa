@@ -17,6 +17,9 @@ importers:
       globby:
         specifier: ^14.1.0
         version: 14.1.0
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       vitest:
         specifier: ^2.0.5
         version: 2.1.9(@types/node@24.3.0)(sugarss@5.0.1(postcss@8.5.6))
@@ -2324,6 +2327,11 @@ packages:
 
   potpack@2.1.0:
     resolution: {integrity: sha512-pcaShQc1Shq0y+E7GqJqvZj8DTthWV1KeHGdi0Z6IAin2Oi3JnLCOfwnCo84qc+HAp52wT9nK9H7FAJp5a44GQ==}
+
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   process-warning@5.0.0:
     resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
@@ -5494,6 +5502,8 @@ snapshots:
       source-map-js: 1.2.1
 
   potpack@2.1.0: {}
+
+  prettier@3.6.2: {}
 
   process-warning@5.0.0: {}
 
