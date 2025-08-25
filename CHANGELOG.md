@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- proxy(cartodb): increase Positron tile cache policy from 1h (max-age=3600) to 24h (max-age=86400, immutable) via new `immutable24h` middleware to align with test expectations and upstream tile stability.
+
 ### Added
 
 - Generic GIBS timestamps endpoint and “latest tile” route with small in-memory caches
