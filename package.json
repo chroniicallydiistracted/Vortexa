@@ -17,6 +17,7 @@
     "dev:web": "pnpm --filter weather-web dev",
     "dev:alerts": "pnpm --filter alerts-lambda build --watch",
     "dev:all": "concurrently -n proxy,web -c blue,green \"pnpm dev:proxy\" \"pnpm dev:web\"",
+  "start": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter alerts-lambda build && pnpm --filter weather-web build && concurrently -n proxy,web -c blue,green \"pnpm --filter tile-proxy start\" \"pnpm --filter weather-web start\"",
     "cloud:down": "bash scripts/cloud-dev-down.sh",
     "cloud:dev": "bash scripts/cloud-dev.sh",
     "build": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter alerts-lambda build && pnpm --filter weather-web build",
