@@ -8,6 +8,7 @@
 * Robust WMTS Time parsing (ows:Title + Dimension)
 * Proxy tests for caps→tile flow and failure handling
 * Explicit `?time=` support on generic GIBS tile route with validation
+* GIBS ops polish: rate limiting and tile metrics (status counter & duration histogram)
 
 ### Fixed
 

@@ -91,7 +91,25 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.use('/api/owm', owmRouter);
   app.use('/api/nws', nwsRouter);
   app.use('/api/cartodb', cartoDbRouter);
-  app.use('/api/gibs', gibsRouter);
+  // --- Rate limiting for /api/gibs/* (token bucket per-IP) ---
+  interface Bucket { tokens: number; last: number }
+  const gibsBurst = Number(process.env.GIBS_RATE_BURST || 20);
+  const gibsRefill = Number(process.env.GIBS_RATE_REFILL_PER_SEC || 10);
+  const gibsBuckets = new Map<string, Bucket>();
+  function gibsTake(ip: string): boolean {
+    const now = Date.now();
+    let b = gibsBuckets.get(ip);
+    if(!b){ b = { tokens: gibsBurst, last: now }; gibsBuckets.set(ip, b); }
+    const dt = (now - b.last)/1000;
+    if(dt > 0){ b.tokens = Math.min(gibsBurst, b.tokens + dt * gibsRefill); b.last = now; }
+    if(b.tokens >= 1){ b.tokens -= 1; return true; }
+    return false;
+  }
+  app.use('/api/gibs', (req, res, next) => {
+    const ip = (req.ip || req.socket.remoteAddress || 'unknown').replace(/^::ffff:/,'');
+    if(!gibsTake(ip)) return res.status(429).json({ error: 'rate_limited' });
+    next();
+  }, gibsRouter);
 
   // --- Dynamic timestamped layers (Rainviewer radar & GIBS GOES Band 13) ---
   // In-memory caches to avoid excessive upstream metadata fetches
@@ -169,7 +187,11 @@ export function createApp(opts: CreateAppOptions = {}) {
       if (!ts) return res.status(503).json({ error: 'timestamp_unavailable' });
       const { z, y, x } = req.params; // GIBS order /{z}/{y}/{x}
       const tileUrl = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_Band_13_ENHANCED/default/${encodeURIComponent(ts)}/GoogleMapsCompatible_Level8/${z}/${y}/${x}.png`;
+      const gibsStart = Date.now();
       const upstream = await fetch(tileUrl);
+      const gibsDur = Date.now() - gibsStart;
+      gibsTileDuration.observe(gibsDur);
+      gibsTileStatus.inc({ code: String(upstream.status) });
       if (!upstream.ok) return res.status(upstream.status).send();
       res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
       res.send(Buffer.from(await upstream.arrayBuffer()));
@@ -187,6 +209,9 @@ export function createApp(opts: CreateAppOptions = {}) {
   const wmtsRedirects = new Counter({ name: 'wmts_redirects_total', help: 'Total WMTS redirect rewrites', registers: [register] });
   const upstreamErrors = new Counter({ name: 'proxy_upstream_errors_total', help: 'Upstream request errors', registers: [register], labelNames: ['host'] });
   const upstreamStatus = new Counter({ name: 'proxy_upstream_status_total', help: 'Upstream status codes grouped', registers: [register], labelNames: ['code'] });
+  // GIBS specific metrics (status + duration)
+  const gibsTileStatus = new Counter({ name: 'gibs_tile_upstream_status', help: 'Upstream status for GIBS tile fetch', registers: [register], labelNames: ['code'] });
+  const gibsTileDuration = new Histogram({ name: 'gibs_tile_duration_ms', help: 'Duration of GIBS tile upstream fetch (ms)', registers: [register], buckets: [50,100,200,400,800,1600] });
   const requestDuration = new Histogram({ name: 'proxy_request_duration_seconds', help: 'Upstream fetch duration seconds', registers: [register], labelNames: ['host'], buckets: [0.05,0.1,0.25,0.5,1,2,5,10] });
   const cacheHitRatio = new Gauge({ name: 'proxy_cache_hit_ratio', help: 'Cache hit ratio (hits / (hits+misses))', registers: [register] });
 
@@ -211,6 +236,7 @@ export function createApp(opts: CreateAppOptions = {}) {
       res.status(500).send(e.message);
     }
   });
+
 
   // Alerts endpoint (GeoJSON FeatureCollection)
   const alertsTable = process.env.ALERTS_TABLE || 'westfam-alerts';
