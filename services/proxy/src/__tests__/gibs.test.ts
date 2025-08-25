@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { __internals } from '../lib/gibs/capabilities.js';
 import request from 'supertest';
 
 // We'll inject a mock via global.__TEST_FETCH__ consumed by the route
@@ -7,61 +8,102 @@ const getFetch = () => (global as any).__TEST_FETCH__ as ReturnType<typeof vi.fn
 describe('gibs geocolor proxy route', () => {
   beforeEach(() => {
     (global as any).__TEST_FETCH__ = vi.fn();
+    // Clear caches between tests to ensure fetch call counts deterministic
+    __internals.capsCache.clear();
+    __internals.tsCache.clear();
   });
   afterEach(() => {
     delete (global as any).__TEST_FETCH__;
   });
 
-  it('serves a GeoColor tile (valid request) with correct headers + upstream URL', async () => {
-    const mockBuf = Uint8Array.from([137, 80, 78, 71]); // PNG signature start
+  it('serves a GeoColor tile (valid request) with correct headers + upstream URL (via redirect)', async () => {
+    const mockBuf = Uint8Array.from([137, 80, 78, 71]);
     const time = '2023-01-01T00:00:00Z';
-  getFetch().mockResolvedValue({
-      ok: true,
-      status: 200,
-      headers: new Map([["content-type", 'image/png']]),
-      arrayBuffer: async () => mockBuf.buffer
-    });
+    const capsXml = `<?xml version="1.0"?><Capabilities><Contents><Layer><Title>GOES-East_ABI_GeoColor</Title><Dimension name="time">2022-12-31T23:00:00Z ${time}</Dimension></Layer></Contents></Capabilities>`;
+    getFetch()
+      .mockResolvedValueOnce({ ok:true,status:200,text: async ()=> capsXml })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Map([["content-type", 'image/png']]),
+        arrayBuffer: async () => mockBuf.buffer
+      });
     const { createApp } = await import('../index.js');
     const app = createApp();
-    const r = await request(app).get(`/api/gibs/geocolor/1/0/0.png?time=${encodeURIComponent(time)}`);
+    const r0 = await request(app).get(`/api/gibs/geocolor/1/0/0.png?time=${encodeURIComponent(time)}`);
+    expect(r0.status).toBe(302);
+    const r = await request(app).get(r0.headers.location!);
     expect(r.status).toBe(200);
     expect(r.headers['content-type']).toBe('image/png');
-    expect(r.headers['cache-control']).toContain('max-age=300');
-    // Upstream URL assertions
-    expect(getFetch()).toHaveBeenCalledTimes(1);
-    const calledUrl: string = getFetch().mock.calls[0][0];
+    expect(r.headers['cache-control']).toContain('max-age=60');
+    expect(getFetch()).toHaveBeenCalledTimes(2);
+    const calledUrl: string = getFetch().mock.calls[1][0];
     expect(calledUrl.startsWith('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/')).toBe(true);
-    // Time segment encoded
     expect(calledUrl).toContain(encodeURIComponent(time));
-    // Coordinate ordering: path pattern .../<z>/<y>/<x>.ext ; request used z=1,x=0,y=0
     expect(calledUrl).toMatch(/\/1\/0\/0\.png$/);
   });
 
-  it('handles upstream error status pass-through', async () => {
-  getFetch().mockResolvedValue({ ok: false, status: 404, headers: new Map(), arrayBuffer: async () => new ArrayBuffer(0) });
+  it('handles upstream error status pass-through (redirect chain)', async () => {
+    const capsXml = `<?xml version="1.0"?><Capabilities><Contents><Layer><Title>GOES-East_ABI_GeoColor</Title><Dimension name="time">2023-01-01T00:00:00Z</Dimension></Layer></Contents></Capabilities>`;
+    getFetch()
+      .mockResolvedValueOnce({ ok:true,status:200,text: async ()=> capsXml })
+      .mockResolvedValueOnce({ ok: false, status: 404, headers: new Map(), arrayBuffer: async () => new ArrayBuffer(0) });
     const { createApp } = await import('../index.js');
     const app = createApp();
-    const r = await request(app).get('/api/gibs/geocolor/2/1/1.jpg?time=current');
+    const r0 = await request(app).get('/api/gibs/geocolor/2/1/1.jpg');
+    expect(r0.status).toBe(302);
+    const r = await request(app).get(r0.headers.location!);
     expect(r.status).toBe(404);
-    expect(getFetch()).toHaveBeenCalled();
+    expect(getFetch()).toHaveBeenCalledTimes(2);
   });
 
-  it('rejects invalid numeric coords', async () => {
+  it('rejects invalid numeric coords (redirect then 400)', async () => {
     const { createApp } = await import('../index.js');
     const app = createApp();
-    const r = await request(app).get('/api/gibs/geocolor/x/y/z.png');
-    expect(r.status).toBe(400);
+  const r0 = await request(app).get('/api/gibs/geocolor/x/y/z.png');
+  expect(r0.status).toBe(302);
+  const r = await request(app).get(r0.headers.location!);
+  expect(r.status).toBe(400);
   });
 
-  it('builds upstream URL with y/x ordering distinct from input x/y', async () => {
-    // Use distinctive numbers to verify ordering
-  getFetch().mockResolvedValue({ ok: true, status: 200, headers: new Map([["content-type", 'image/jpeg']]), arrayBuffer: async () => new Uint8Array([255, 216, 255]).buffer });
+  it('builds upstream URL with y/x ordering distinct from input x/y (redirect chain)', async () => {
+    const capsXml = `<?xml version="1.0"?><Capabilities><Contents><Layer><Title>GOES-East_ABI_GeoColor</Title><Dimension name="time">2023-01-01T00:00:00Z</Dimension></Layer></Contents></Capabilities>`;
+    getFetch()
+      .mockResolvedValueOnce({ ok:true,status:200,text: async ()=> capsXml })
+      .mockResolvedValueOnce({ ok: true, status: 200, headers: new Map([["content-type", 'image/jpeg']]), arrayBuffer: async () => new Uint8Array([255, 216, 255]).buffer });
     const { createApp } = await import('../index.js');
     const app = createApp();
-    const r = await request(app).get('/api/gibs/geocolor/5/7/9.jpg?time=current');
+    const r0 = await request(app).get('/api/gibs/geocolor/5/7/9.jpg');
+    expect(r0.status).toBe(302);
+    const r = await request(app).get(r0.headers.location!);
     expect(r.status).toBe(200);
-    const calledUrl: string = getFetch().mock.calls[0][0];
-    // Expect .../5/9/7.jpg at end (z=5, y=9, x=7)
+    const calledUrl: string = getFetch().mock.calls[1][0];
     expect(calledUrl).toMatch(/\/5\/9\/7\.jpg$/);
+  });
+
+  it('serves explicit time via generic tile route', async () => {
+    const capsXml = `<?xml version="1.0"?><Capabilities><Contents><Layer><Title>GOES-East_ABI_GeoColor</Title><Dimension name="time">2023-01-01T00:00:00Z 2023-01-01T00:10:00Z</Dimension></Layer></Contents></Capabilities>`;
+    const time = '2023-01-01T00:10:00Z';
+    getFetch()
+      .mockResolvedValueOnce({ ok:true,status:200,text: async ()=> capsXml }) // capabilities
+      .mockResolvedValueOnce({ ok:true,status:200, headers: new Map([["content-type",'image/png']]), arrayBuffer: async ()=> new Uint8Array([1,2,3]).buffer });
+    const { createApp } = await import('../index.js');
+    const app = createApp();
+    const r = await request(app).get(`/api/gibs/tile/GOES-East_ABI_GeoColor/3/2/1.png?time=${encodeURIComponent(time)}`);
+    expect(r.status).toBe(200);
+    expect(getFetch()).toHaveBeenCalledTimes(2); // caps + tile
+    const tileUrl: string = getFetch().mock.calls[1][0];
+    expect(tileUrl).toContain(encodeURIComponent(time));
+  });
+
+  it('rejects invalid explicit time', async () => {
+    const capsXml = `<?xml version="1.0"?><Capabilities><Contents><Layer><Title>GOES-East_ABI_GeoColor</Title><Dimension name="time">2023-01-01T00:00:00Z</Dimension></Layer></Contents></Capabilities>`;
+    getFetch().mockResolvedValueOnce({ ok:true,status:200,text: async ()=> capsXml });
+    const { createApp } = await import('../index.js');
+    const app = createApp();
+    const badTime = '2023-01-01T00:10:00Z';
+    const r = await request(app).get(`/api/gibs/tile/GOES-East_ABI_GeoColor/1/0/0.png?time=${encodeURIComponent(badTime)}`);
+    expect(r.status).toBe(400);
+    expect(r.body.error).toBe('invalid time for layer');
   });
 });

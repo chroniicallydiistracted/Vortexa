@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "properties": {
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["provider", "layer_id", "endpoint_type"],
+        "properties": {
+          "provider": { "type": "string" },
+          "product": { "type": "string" },
+          "layer_id": { "type": "string" },
+          "endpoint_type": { "type": "string" },
+          "tile_matrix_set": { "type": "string" },
+          "update_cadence": { "type": "string" },
+          "time_resolution": { "type": "string" },
+          "license": { "type": "string" },
+          "attribution": { "type": "string" },
+          "notes": { "type": "string" },
+          "access": { "type": "string" },
+          "base_url": { "type": "string" },
+          "coverage": { "type": "string" },
+          "auth": { "type": "string" },
+          "latency": { "type": "string" },
+          "format": { "type": "string" },
+          "area": { "type": "string" },
+          "_source": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["sources"],
+  "additionalProperties": false
+}
