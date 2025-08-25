@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "health-check": "tsx health-check.ts"
@@ -24,17 +25,17 @@
     "express": "^4.19.2",
     "morgan": "^1.10.0",
     "pino": "^9.5.0",
-  "prom-client": "^15.1.2",
-  "undici": "^6.19.8",
-  "zod": "^3.23.8",
-  "lru-cache": "^10.2.2"
+    "prom-client": "^15.1.2",
+    "undici": "^6.19.8",
+    "zod": "^3.23.8",
+    "lru-cache": "^10.2.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
-  "@types/node": "^24.3.0",
-  "@types/lru-cache": "^5.1.1",
+    "@types/node": "^24.3.0",
+    "@types/lru-cache": "^5.1.1",
     "@types/supertest": "^2.0.16",
     "pino-pretty": "^11.3.0",
     "supertest": "^6.3.4",

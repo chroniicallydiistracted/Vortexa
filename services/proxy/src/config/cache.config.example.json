@@ -2,7 +2,15 @@
   "maxObjectBytes": 5242880,
   "defaultTTLSeconds": 300,
   "rules": [
-    { "host": "gibs.earthdata.nasa.gov", "pathPrefix": "/wmts", "ttlSeconds": 600 },
-    { "host": "opengeo.ncep.noaa.gov", "pathPrefix": "/geoserver", "ttlSeconds": 120 }
+    {
+      "host": "gibs.earthdata.nasa.gov",
+      "pathPrefix": "/wmts",
+      "ttlSeconds": 600
+    },
+    {
+      "host": "opengeo.ncep.noaa.gov",
+      "pathPrefix": "/geoserver",
+      "ttlSeconds": 120
+    }
   ]
 }

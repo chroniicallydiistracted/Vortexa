@@ -17,4 +17,3 @@ Legend: ✅ Done | 🌓 Partial | ⏳ Not Started
 - 🌓 3D Globe V3 Enhancements (playback, FIRMS points, OWM temp overlay) – baseline implemented, performance & styling polish pending.
 - 🌓 S3 tile cache mechanism (code path present, infra not provisioned).
 - ⏳ 3D Globe (Cesium) — experimental gated feature (env + runtime flag); scaffolding merged, imagery & advanced layers pending.
-

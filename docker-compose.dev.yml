@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 services:
   proxy:
     image: node:20-alpine
@@ -7,7 +7,7 @@ services:
       - NODE_ENV=development
       - PORT=4000
       - ALLOW_HOSTS=gibs.earthdata.nasa.gov,opengeo.ncep.noaa.gov,nomads.ncep.noaa.gov
-    ports: ['4000:4000']
+    ports: ["4000:4000"]
     volumes:
       - ./services/proxy:/app
     command: sh -c "npm i && npm run dev"
@@ -15,6 +15,6 @@ services:
     working_dir: /app
     image: node:20-alpine
     command: sh -c "npm i && npm run dev"
-    ports: ['5173:5173']
+    ports: ["5173:5173"]
     volumes:
       - ./web:/app

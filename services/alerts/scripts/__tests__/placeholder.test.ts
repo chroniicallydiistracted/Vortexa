@@ -1,3 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 
-describe('alerts placeholder', () => { it('noop', ()=> expect(true).toBe(true)); });
+describe("alerts placeholder", () => {
+  it("noop", () => expect(true).toBe(true));
+});

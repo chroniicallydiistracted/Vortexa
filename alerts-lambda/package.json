@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-  "seed": "tsx src/seed.ts",
-  "seed:built": "node dist/index.js"
+    "seed": "tsx src/seed.ts",
+    "seed:built": "node dist/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.588.0",
