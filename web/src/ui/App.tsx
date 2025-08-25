@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { AppShell, ScrollArea, Paper, TextInput, Loader, Group, Text, Checkbox, Button as MantineButton } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
 import { validateCatalog } from "../lib/validateCatalog";
 import { Button } from "@mantine/core";
 import { ModeSwitch } from "../map/ModeSwitch";
@@ -144,172 +146,102 @@ export default function App() {
     }
   };
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateRows: showBanner ? "40px 1fr" : "1fr",
-        height: "100vh",
-      }}
-    >
-      {showBanner && (
-        <div
-          style={{
-            background: "#ffecb3",
-            padding: "6px 12px",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontSize: 14,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            Tile proxy base (VITE_TILE_BASE) is not configured; using
-            http://localhost:4000/tiles
-          </div>
-          <button onClick={() => setHideBanner(true)}>Dismiss</button>
-        </div>
-      )}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 360px",
-          height: "100%",
-        }}
-      >
-        <div style={{ position: "relative" }}>
-          {mode === "2d" && (
-            <CatalogMap
-              activeLayerSlug={activeLayerSlug}
-              catalog={catalogData}
-              onMapReady={setMapInstance}
-              currentTime={currentTime}
-            />
-          )}
-          {mode === "3d" && canUse3D && <Globe3DLoader />}
-          <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
-          {mode === "3d" && canUse3D && (
-            <div
-              style={{
-                position: "absolute",
-                top: 40,
-                right: 8,
-                zIndex: 20,
-                background: "rgba(15,25,35,0.85)",
-                color: "#e6f2fa",
-                padding: "6px 8px",
-                borderRadius: 6,
-                fontSize: 12,
-              }}
-            >
-              <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <input
-                  type="checkbox"
-                  checked={gibsGeocolor3d}
-                  onChange={toggleGibsGeocolor3d}
-                />{" "}
-                GIBS GeoColor
-              </label>
-            </div>
-          )}
-          <div
-            style={{
-              position: "absolute",
-              left: 8,
-              top: 8,
-              background: "rgba(0,0,0,.4)",
-              padding: "4px 8px",
-              borderRadius: 4,
-              fontSize: 12,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            Catalog Demo{" "}
-            <Button size="xs" variant="light">
-              Mantine
-            </Button>
-          </div>
-          <div style={searchContainerStyle}>
-            <input
-              type="text"
-              placeholder="Search location..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={searchInputStyle}
-            />
-            {searchLoading && (
-              <div style={{ fontSize: 11, padding: "4px 6px" }}>Searching…</div>
-            )}
-            {!searchLoading && results.length > 0 && (
-              <div style={resultsBoxStyle}>
-                {results.slice(0, 8).map((r) => (
-                  <div
-                    key={r.place_id}
-                    onClick={() => flyToResult(r)}
-                    style={resultItemStyle}
-                    title={r.display_name}
-                  >
-                    {r.display_name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <Timeline
-            playing={isPlaying}
-            onToggle={() => setIsPlaying((p) => !p)}
-            currentTime={currentTime}
-            setCurrentTime={(t) =>
-              setCurrentTime(
-                typeof t === "function" ? (t as any)(currentTime) : t,
-              )
-            }
-            baseStart={baseStart}
-            hoursSpan={hoursSpan}
-            isUserScrubbing={isUserScrubbing}
-            setIsUserScrubbing={setIsUserScrubbing}
+    <AppShell
+      header={{ height: 0 }}
+      navbar={{ width: 360, breakpoint: "sm", collapsed: { mobile: false } }}
+      padding={0}
+   >
+      <AppShell.Navbar p="xs">
+        <ScrollArea style={{ height: "100%" }}>
+          <CatalogPanel
+            onSelect={setActiveLayerSlug}
+            activeLayerSlug={activeLayerSlug}
           />
-        </div>
-        <CatalogPanel
-          onSelect={setActiveLayerSlug}
-          activeLayerSlug={activeLayerSlug}
+        </ScrollArea>
+      </AppShell.Navbar>
+      <AppShell.Main style={{ position: "relative" }}>
+        {mode === "2d" && (
+          <CatalogMap
+            activeLayerSlug={activeLayerSlug}
+            catalog={catalogData}
+            onMapReady={setMapInstance}
+            currentTime={currentTime}
+          />
+        )}
+        {mode === "3d" && canUse3D && <Globe3DLoader />}
+        <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
+        {mode === "3d" && canUse3D && (
+          <Paper withBorder shadow="sm" p="xs" style={{ position: "absolute", top: 70, right: 8, zIndex: 20 }}>
+            <Checkbox
+              size="xs"
+              label="GIBS GeoColor"
+              checked={gibsGeocolor3d}
+              onChange={() => toggleGibsGeocolor3d()}
+            />
+          </Paper>
+        )}
+        <Paper withBorder shadow="sm" p="xs" style={{ position: "absolute", left: 8, top: 8, zIndex: 15 }}>
+          <Group gap={6} align="center">
+            <Text size="xs" c="dimmed">
+              Catalog Demo
+            </Text>
+            <MantineButton size="xs" variant="light" color="storm">
+              Mantine
+            </MantineButton>
+          </Group>
+        </Paper>
+        <Paper
+          withBorder
+          shadow="sm"
+          p="xs"
+          style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 20, width: "min(480px,80%)" }}
+        >
+          <TextInput
+            placeholder="Search location…"
+            leftSection={<IconSearch size={16} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            size="xs"
+          />
+          {searchLoading && (
+            <Group gap={4} mt={4}>
+              <Loader size="xs" />
+              <Text size="xs" c="dimmed">
+                Searching…
+              </Text>
+            </Group>
+          )}
+          {!searchLoading && results.length > 0 && (
+            <Paper withBorder mt={6} p={4} radius="sm" style={{ maxHeight: 220, overflowY: "auto" }}>
+              {results.slice(0, 8).map((r) => (
+                <Text
+                  key={r.place_id}
+                  size="xs"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => flyToResult(r)}
+                  title={r.display_name}
+                >
+                  {r.display_name}
+                </Text>
+              ))}
+            </Paper>
+          )}
+        </Paper>
+        <Timeline
+          playing={isPlaying}
+          onToggle={() => setIsPlaying((p) => !p)}
+          currentTime={currentTime}
+          setCurrentTime={(t) =>
+            setCurrentTime(typeof t === "function" ? (t as any)(currentTime) : t)
+          }
+          baseStart={baseStart}
+          hoursSpan={hoursSpan}
+          isUserScrubbing={isUserScrubbing}
+          setIsUserScrubbing={setIsUserScrubbing}
         />
-      </div>
-    </div>
+      </AppShell.Main>
+    </AppShell>
   );
 }
 
-const searchContainerStyle: React.CSSProperties = {
-  position: "absolute",
-  top: 8,
-  left: "50%",
-  transform: "translateX(-50%)",
-  display: "flex",
-  flexDirection: "column",
-  width: "min(480px,80%)",
-  zIndex: 10,
-  gap: 4,
-};
-const searchInputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "8px 10px",
-  borderRadius: 6,
-  border: "1px solid #284155",
-  background: "rgba(15,25,35,0.85)",
-  color: "#e6f2fa",
-  fontSize: 14,
-};
-const resultsBoxStyle: React.CSSProperties = {
-  background: "rgba(10,20,30,0.9)",
-  border: "1px solid #2d465a",
-  borderRadius: 6,
-  maxHeight: 220,
-  overflowY: "auto",
-};
-const resultItemStyle: React.CSSProperties = {
-  padding: "6px 8px",
-  cursor: "pointer",
-  fontSize: 12,
-  borderBottom: "1px solid rgba(255,255,255,0.05)",
-};
+// Removed legacy inline style objects (replaced by Mantine components)
