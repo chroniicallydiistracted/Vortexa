@@ -79,6 +79,16 @@ resource "aws_cloudfront_distribution" "cdn" {
   # >>> Custom domain(s) for the distro (add more if needed)
   aliases = var.domain_name == "" ? [] : [var.domain_name]
 
+  # Precondition replaces prior invalid cross-variable validation on variable "domain_name".
+  # Terraform variable validation blocks may only reference the target variable; the prior
+  # implementation referenced var.acm_certificate_arn causing validation failure. Enforce the
+  # coupled requirement here instead: either both domain_name & acm_certificate_arn are empty
+  # (use default CloudFront domain/cert) OR both are set (use provided cert with custom domain).
+  precondition {
+    condition     = (var.domain_name == "" && var.acm_certificate_arn == "") || (var.domain_name != "" && var.acm_certificate_arn != "")
+    error_message = "If domain_name is set you must also set acm_certificate_arn; leave both empty to use the default CloudFront domain/cert."
+  }
+
   origin {
     domain_name              = aws_s3_bucket.web.bucket_regional_domain_name
     origin_id                = "s3-web"
@@ -312,10 +322,8 @@ variable "domain_name" {
   description = "FQDN to serve via CloudFront (e.g., weather.westfam.media). Leave empty string to skip."
   type        = string
   default     = ""
-  validation {
-    condition     = (var.domain_name == "" && var.acm_certificate_arn == "") || (var.domain_name != "" && var.acm_certificate_arn != "")
-    error_message = "If domain_name is set you must also set acm_certificate_arn; leave both empty to use the default CloudFront domain/cert."
-  }
+  # NOTE: Cross-variable validation moved to aws_cloudfront_distribution.cdn precondition
+  # because variable validation blocks cannot reference other variables.
 }
 
 # Optional existing ACM certificate ARN (must be in us-east-1). If provided along with domain_name,
