@@ -119,26 +119,18 @@ export function CesiumGlobe() {
           import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
           '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg?time={time}';
         if (!existing) {
-          const url = template
-            .replace('{z}', String(z))
-            .replace('{y}', String(y))
-            .replace('{x}', String(x))
-            .replace('{time}', encodeURIComponent(timeIso));
+          // For Cesium, we use a template that will be filled by the tile provider
+          // The {z}, {y}, {x} placeholders are handled by Cesium internally
           const provider = new UrlTemplateImageryProvider({
-            url,
+            url: template,
             credit: 'GOES-East GeoColor (NASA GIBS)',
           });
           layers.addImageryProvider(provider, 1);
         } else {
           // Recreate layer with new time (simpler than mutating template)
           layers.remove(existing, true);
-          const url = template
-            .replace('{z}', String(z))
-            .replace('{y}', String(y))
-            .replace('{x}', String(x))
-            .replace('{time}', encodeURIComponent(timeIso));
           const provider = new UrlTemplateImageryProvider({
-            url,
+            url: template,
             credit: 'GOES-East GeoColor (NASA GIBS)',
           });
           layers.addImageryProvider(provider, 1);
