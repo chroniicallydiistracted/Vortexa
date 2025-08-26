@@ -3,22 +3,35 @@ import * as matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
 
-// ResizeObserver polyfill for Mantine in jsdom
-class RO { observe(){} unobserve(){} disconnect(){} }
-// @ts-ignore
-globalThis.ResizeObserver = globalThis.ResizeObserver || RO;
+// Typed ResizeObserver shim
+class RO implements ResizeObserver {
+	observe(): void {}
+	unobserve(): void {}
+	disconnect(): void {}
+	// Support callback signature though unused
+	constructor(_cb?: ResizeObserverCallback) {}
+	static toString() { return 'ResizeObserverShim'; }
+}
+declare global {
+	interface Window {
+		ResizeObserver: typeof RO;
+		matchMedia: (query: string) => MediaQueryList;
+	}
+}
+if (!('ResizeObserver' in globalThis)) {
+	(globalThis as unknown as { ResizeObserver: typeof RO }).ResizeObserver = RO;
+}
 
-// matchMedia polyfill required by Mantine color scheme logic
+// matchMedia shim
 if (typeof window !== 'undefined' && !window.matchMedia) {
-	// @ts-ignore
-	window.matchMedia = (query) => ({
+	(window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) => ({
 		matches: false,
 		media: query,
 		onchange: null,
-		addListener: () => {}, // deprecated
-		removeListener: () => {}, // deprecated
-		addEventListener: () => {},
-		removeEventListener: () => {},
-		dispatchEvent: () => false,
-	});
+		addListener() {}, // deprecated
+		removeListener() {}, // deprecated
+		addEventListener() {},
+		removeEventListener() {},
+		dispatchEvent() { return false; },
+	}) as MediaQueryList;
 }

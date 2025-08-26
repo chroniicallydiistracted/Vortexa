@@ -1,16 +1,24 @@
 import { create } from "zustand";
 
 export type Layer = { id: string; templateRaw: string; opacity?: number };
-export type ViewState = { lat: number; lon: number; zoom: number };
-type Store = {
+export interface ViewState { lat: number; lon: number; zoom: number }
+
+export type PlaybackSpeed = '0.5x' | '1x' | '2x' | '4x';
+export interface TimeState {
+  playbackBaseStartMs: number; // window start (ms UTC)
+  playbackHoursSpan: number;   // total hours represented by slider
+  playbackCurrentTimeMs: number; // current time within window (ms UTC)
+  playbackSpeed: PlaybackSpeed;
+  setPlaybackCurrentTimeMs: (ms: number) => void;
+  setPlaybackSpeed: (s: PlaybackSpeed) => void;
+  setPlaybackBaseStart: (ms: number) => void;
+  setPlaybackHoursSpan: (h: number) => void;
+}
+
+type Store = TimeState & {
   layers: Layer[];
   time: string; // ISO date (YYYY-MM-DD) for now
   playing: boolean;
-  // Centralized playback state (TimeBar)
-  playbackBaseStartMs: number; // window start (ms UTC)
-  playbackHoursSpan: number; // total hours represented by slider
-  playbackCurrentTimeMs: number; // current time within window (ms UTC)
-  playbackSpeed: '0.5x' | '1x' | '2x' | '4x';
   view: ViewState;
   mode: "2d" | "3d";
   gibsGeocolor3d: boolean;
@@ -28,10 +36,6 @@ type Store = {
   stepTime: (deltaDays: number) => void;
   setOpacity: (id: string, opacity: number) => void;
   togglePlaying: () => void;
-  setPlaybackCurrentTimeMs: (ms: number) => void;
-  setPlaybackSpeed: (s: '0.5x' | '1x' | '2x' | '4x') => void;
-  setPlaybackBaseStart: (ms: number) => void;
-  setPlaybackHoursSpan: (h: number) => void;
   setView: (v: Partial<ViewState>) => void;
   setMode: (m: "2d" | "3d") => void;
   toggleGibsGeocolor3d: () => void;
@@ -84,10 +88,10 @@ export const useStore = create<Store>((set, get) => ({
       layers: s.layers.map((x) => (x.id === id ? { ...x, opacity } : x)),
     })),
   togglePlaying: () => set((s) => ({ playing: !s.playing })),
-  setPlaybackCurrentTimeMs: (ms) => set({ playbackCurrentTimeMs: ms }),
-  setPlaybackSpeed: (s) => set({ playbackSpeed: s }),
-  setPlaybackBaseStart: (ms) => set({ playbackBaseStartMs: ms }),
-  setPlaybackHoursSpan: (h) => set({ playbackHoursSpan: h }),
+  setPlaybackCurrentTimeMs: (ms: number) => set({ playbackCurrentTimeMs: ms }),
+  setPlaybackSpeed: (s: PlaybackSpeed) => set({ playbackSpeed: s }),
+  setPlaybackBaseStart: (ms: number) => set({ playbackBaseStartMs: ms }),
+  setPlaybackHoursSpan: (h: number) => set({ playbackHoursSpan: h }),
   setView: (v) => set((s) => ({ view: { ...s.view, ...v } })),
   setMode: (m) => set({ mode: m }),
   toggleGibsGeocolor3d: () =>
@@ -95,21 +99,18 @@ export const useStore = create<Store>((set, get) => ({
   setGibsTimestamps: (ts) => set({ gibsTimestamps: ts }),
   setGibsSelectedTime: (t) => set({ gibsSelectedTime: t }),
   toggleGibsPlaying: () => set((s) => ({ gibsPlaying: !s.gibsPlaying })),
-  stepGibsTime: (direction) =>
+  stepGibsTime: (direction: 1 | -1) =>
     set((s) => {
       const { gibsTimestamps, gibsSelectedTime } = s;
-      if (!gibsTimestamps.length) return {} as any;
-      const idx = gibsSelectedTime
-        ? gibsTimestamps.indexOf(gibsSelectedTime)
-        : gibsTimestamps.length - 1;
-      const next =
-        (idx + direction + gibsTimestamps.length) % gibsTimestamps.length;
+      if (!gibsTimestamps.length) return {};
+      const idx = gibsSelectedTime ? Math.max(0, gibsTimestamps.indexOf(gibsSelectedTime)) : gibsTimestamps.length - 1;
+      const next = (idx + direction + gibsTimestamps.length) % gibsTimestamps.length;
       return { gibsSelectedTime: gibsTimestamps[next] };
     }),
   setGibsPlaybackSpeed: (ms) => set({ gibsPlaybackSpeedMs: ms }),
   // FPS setter (clamp 2-8) and reflect in playback speed ms
   setGibsFps: (fps: number) =>
-    set((s) => {
+    set(() => {
       const clamped = Math.min(8, Math.max(2, Math.round(fps)));
       const ms = Math.round(1000 / clamped);
       return { gibsFps: clamped, gibsPlaybackSpeedMs: ms };

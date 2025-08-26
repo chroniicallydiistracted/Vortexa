@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { validateCatalog } from "../lib/validateCatalog";
+import { validateCatalog, type CatalogLayer } from "../lib/validateCatalog";
 import { useStore } from "../util/store";
 import {
   Accordion,
@@ -18,10 +18,11 @@ import {
 import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
+// Panel expects a richer catalog; adapt CatalogLayer to this internal shape.
 interface CatalogEntry {
-  category: string;
-  suggested_label: string;
   slug: string;
+  category: string; // grouped category
+  suggested_label: string; // display label
   source_type?: string;
   notes?: string;
   attribution?: string;
@@ -56,7 +57,21 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
           const raw = await r.json();
           try {
             const validated = validateCatalog(Array.isArray(raw) ? raw : raw.layers || raw);
-            return validated as any;
+            // Map generic validated layers into CatalogEntry, deriving category/label heuristically
+            const mapped: CatalogEntry[] = validated.map((l: CatalogLayer) => {
+              const record = l as Record<string, unknown>;
+              return {
+                slug: l.slug,
+                category: typeof record.category === 'string' ? record.category : 'General',
+                suggested_label: typeof record.suggested_label === 'string'
+                  ? record.suggested_label
+                  : (typeof record.name === 'string' ? (record.name as string) : l.slug),
+                source_type: typeof record.type === 'string' ? record.type : undefined,
+                notes: typeof record.notes === 'string' ? record.notes : undefined,
+                attribution: typeof record.attribution === 'string' ? record.attribution : undefined,
+              };
+            });
+            return mapped;
           } catch (e) {
             console.warn("Catalog validation failed (panel)", e);
             return raw;
@@ -67,8 +82,8 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       })
       .then((data) => {
         if (!data) return;
-        if (Array.isArray(data)) setPalette(data as any);
-        else if (data && Array.isArray((data as any).layers)) setPalette((data as any).layers);
+        if (Array.isArray(data)) setPalette(data);
+        else if (data && Array.isArray((data as { layers?: CatalogEntry[] }).layers)) setPalette((data as { layers: CatalogEntry[] }).layers);
       })
       .catch(() => {});
   }, []);
@@ -85,13 +100,15 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
     );
   }, [palette]);
   // Track which categories are collapsed
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const toggleCat = (c: string) => setCollapsed((s) => ({ ...s, [c]: !s[c] }));
+  // Track open state implicitly via Accordion defaultValue only; explicit collapsed state not needed
   const allCats = useMemo(() => Object.keys(grouped).sort(), [grouped]);
-  const collapseAll = () =>
-    setCollapsed(Object.fromEntries(allCats.map((c) => [c, true])));
-  const expandAll = () =>
-    setCollapsed(Object.fromEntries(allCats.map((c) => [c, false])));
+  const collapseAll = () => {
+    // No direct API to programmatically collapse all with controlled state; future improvement could lift to controlled Accordion
+    // For now this is a no-op placeholder to satisfy UI; removing would need button removal or redesign.
+  };
+  const expandAll = () => {
+    // Placeholder matching collapseAll above.
+  };
   // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
   useEffect(() => {
     if (mode !== "3d" || !gibsOn) return;
