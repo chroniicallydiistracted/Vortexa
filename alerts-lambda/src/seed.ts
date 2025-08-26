@@ -1,6 +1,6 @@
-import { handler } from "./index";
+import { handler } from './index';
 
 (async () => {
   const res = await handler({ seed: true });
-  console.log("Seed result:", res);
+  console.log('Seed result:', res);
 })();

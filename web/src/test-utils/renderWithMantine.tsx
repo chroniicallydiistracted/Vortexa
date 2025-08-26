@@ -7,7 +7,7 @@ import { vortexaTheme } from '../theme';
 
 export function renderWithMantine(ui: ReactElement) {
   // Ensure matchMedia available (some test runners may load this file before vitest.setup executes fully)
-  if (typeof window !== 'undefined' && !("matchMedia" in window)) {
+  if (typeof window !== 'undefined' && !('matchMedia' in window)) {
     (window as any).matchMedia = (query: string) => ({
       matches: false,
       media: query,
@@ -16,7 +16,9 @@ export function renderWithMantine(ui: ReactElement) {
       removeListener() {},
       addEventListener() {},
       removeEventListener() {},
-      dispatchEvent() { return false; },
+      dispatchEvent() {
+        return false;
+      },
     });
   }
   return render(
@@ -25,6 +27,6 @@ export function renderWithMantine(ui: ReactElement) {
         <Notifications />
         {ui}
       </ModalsProvider>
-    </MantineProvider>
+    </MantineProvider>,
   );
 }

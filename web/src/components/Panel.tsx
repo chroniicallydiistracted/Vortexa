@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { validateCatalog, type CatalogLayer } from "../lib/validateCatalog";
-import { useStore } from "../util/store";
+import React, { useEffect, useState, useMemo } from 'react';
+import { validateCatalog, type CatalogLayer } from '../lib/validateCatalog';
+import { useStore } from '../util/store';
 import {
   Accordion,
   Group,
@@ -14,8 +14,16 @@ import {
   ActionIcon,
   Tooltip,
   Divider,
-} from "@mantine/core";
-import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight, IconArrowsMaximize, IconArrowsMinimize } from "@tabler/icons-react";
+} from '@mantine/core';
+import {
+  IconInfoCircle,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconChevronLeft,
+  IconChevronRight,
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+} from '@tabler/icons-react';
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
 // Panel expects a richer catalog; adapt CatalogLayer to this internal shape.
@@ -51,7 +59,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
   const toggleOwmTemp3d = useStore((s) => s.toggleOwmTemp3d);
   const [palette, setPalette] = useState<CatalogEntry[] | null>(null);
   useEffect(() => {
-    fetch("/catalog.json")
+    fetch('/catalog.json')
       .then(async (r) => {
         try {
           const raw = await r.json();
@@ -63,9 +71,12 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
               return {
                 slug: l.slug,
                 category: typeof record.category === 'string' ? record.category : 'General',
-                suggested_label: typeof record.suggested_label === 'string'
-                  ? record.suggested_label
-                  : (typeof record.name === 'string' ? (record.name as string) : l.slug),
+                suggested_label:
+                  typeof record.suggested_label === 'string'
+                    ? record.suggested_label
+                    : typeof record.name === 'string'
+                      ? (record.name as string)
+                      : l.slug,
                 source_type: typeof record.type === 'string' ? record.type : undefined,
                 notes: typeof record.notes === 'string' ? record.notes : undefined,
                 attribution: typeof record.attribution === 'string' ? record.attribution : undefined,
@@ -73,7 +84,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
             });
             return mapped;
           } catch (e) {
-            console.warn("Catalog validation failed (panel)", e);
+            console.warn('Catalog validation failed (panel)', e);
             return raw;
           }
         } catch {
@@ -83,7 +94,8 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       .then((data) => {
         if (!data) return;
         if (Array.isArray(data)) setPalette(data);
-        else if (data && Array.isArray((data as { layers?: CatalogEntry[] }).layers)) setPalette((data as { layers: CatalogEntry[] }).layers);
+        else if (data && Array.isArray((data as { layers?: CatalogEntry[] }).layers))
+          setPalette((data as { layers: CatalogEntry[] }).layers);
       })
       .catch(() => {});
   }, []);
@@ -92,7 +104,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
     if (!palette) return {} as Record<string, CatalogEntry[]>;
     return palette.reduce(
       (acc, e) => {
-        const key = e.category || "Other";
+        const key = e.category || 'Other';
         (acc[key] = acc[key] || []).push(e);
         return acc;
       },
@@ -112,14 +124,14 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       if (filtered.length === prev.length) return prev; // unchanged
       return filtered;
     });
-  }, [allCats.join(",")]);
+  }, [allCats.join(',')]);
   const expandAll = () => setOpenedCats(allCats);
   const collapseAll = () => setOpenedCats([]);
   // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
   useEffect(() => {
-    if (mode !== "3d" || !gibsOn) return;
+    if (mode !== '3d' || !gibsOn) return;
     if (gibsTimestamps.length > 0) return;
-    fetch("/api/gibs/timestamps")
+    fetch('/api/gibs/timestamps')
       .then((r) => r.json())
       .then((arr) => {
         if (Array.isArray(arr)) {
@@ -134,7 +146,9 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       <Group gap="xs" wrap="nowrap" justify="space-between">
         <Group gap="xs" wrap="nowrap">
           <Text fw={600}>Layers</Text>
-          <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>Clear</Button>
+          <Button size="xs" variant="outline" color="storm" onClick={() => onSelect('')}>
+            Clear
+          </Button>
         </Group>
         {allCats.length > 0 && (
           <Group gap={4} wrap="nowrap">
@@ -163,7 +177,11 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
           </Group>
         )}
       </Group>
-      {!palette && <Text size="xs" c="dimmed">Loading palette…</Text>}
+      {!palette && (
+        <Text size="xs" c="dimmed">
+          Loading palette…
+        </Text>
+      )}
       {palette && (
         <Accordion
           multiple
@@ -178,8 +196,12 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
               <Accordion.Item key={cat} value={cat}>
                 <Accordion.Control>
                   <Group justify="space-between" wrap="nowrap">
-                    <Text size="sm" fw={600}>{cat}</Text>
-                    <Badge size="xs" variant="light" color="storm">{list.length}</Badge>
+                    <Text size="sm" fw={600}>
+                      {cat}
+                    </Text>
+                    <Badge size="xs" variant="light" color="storm">
+                      {list.length}
+                    </Badge>
                   </Group>
                 </Accordion.Control>
                 <Accordion.Panel>
@@ -194,23 +216,28 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
                           withBorder
                           p={6}
                           radius="sm"
-                          shadow={active ? "sm" : undefined}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => onSelect(active ? "" : slug)}
+                          shadow={active ? 'sm' : undefined}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => onSelect(active ? '' : slug)}
                         >
                           <Group justify="space-between" gap={6} wrap="nowrap">
                             <Group gap={6} wrap="nowrap">
                               <Checkbox
                                 aria-label={`Toggle ${label}`}
                                 checked={active}
-                                onChange={() => onSelect(active ? "" : slug)}
+                                onChange={() => onSelect(active ? '' : slug)}
                               />
                               <Text size="xs" style={{ maxWidth: 160 }} lineClamp={1}>
                                 {label}
                               </Text>
                             </Group>
                             {(entry.notes || entry.attribution) && (
-                              <Tooltip label={(entry.notes || "") + (entry.attribution ? ` | ${entry.attribution}` : "")}>
+                              <Tooltip
+                                label={
+                                  (entry.notes || '') +
+                                  (entry.attribution ? ` | ${entry.attribution}` : '')
+                                }
+                              >
                                 <ActionIcon variant="subtle" aria-label="Layer info">
                                   <IconInfoCircle size={14} />
                                 </ActionIcon>
@@ -227,34 +254,53 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
           })}
         </Accordion>
       )}
-      {mode === "3d" && gibsOn && (
+      {mode === '3d' && gibsOn && (
         <Stack gap={6} mt="sm">
-          <Divider label={<Text size="xs" fw={600}>GIBS Time</Text>} labelPosition="left" />
+          <Divider
+            label={
+              <Text size="xs" fw={600}>
+                GIBS Time
+              </Text>
+            }
+            labelPosition="left"
+          />
           {gibsTimestamps.length === 0 && (
-            <Text size="xs" c="dimmed">Loading timestamps…</Text>
+            <Text size="xs" c="dimmed">
+              Loading timestamps…
+            </Text>
           )}
           {gibsTimestamps.length > 0 && (
             <NativeSelect
               size="xs"
-              value={gibsSelectedTime || ""}
+              value={gibsSelectedTime || ''}
               onChange={(e) => setGibsSelectedTime(e.currentTarget.value || null)}
               data={gibsTimestamps.map((t) => ({ value: t, label: t }))}
             />
           )}
           {gibsTimestamps.length > 0 && (
             <Group gap={4}>
-              <ActionIcon variant="light" onClick={() => stepGibsTime(-1)} aria-label="Previous timestamp" disabled={!gibsTimestamps.length}>
+              <ActionIcon
+                variant="light"
+                onClick={() => stepGibsTime(-1)}
+                aria-label="Previous timestamp"
+                disabled={!gibsTimestamps.length}
+              >
                 <IconChevronLeft size={16} />
               </ActionIcon>
               <ActionIcon
                 variant="filled"
                 color="storm"
                 onClick={toggleGibsPlaying}
-                aria-label={gibsPlaying ? "Pause" : "Play"}
+                aria-label={gibsPlaying ? 'Pause' : 'Play'}
               >
                 {gibsPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
               </ActionIcon>
-              <ActionIcon variant="light" onClick={() => stepGibsTime(1)} aria-label="Next timestamp" disabled={!gibsTimestamps.length}>
+              <ActionIcon
+                variant="light"
+                onClick={() => stepGibsTime(1)}
+                aria-label="Next timestamp"
+                disabled={!gibsTimestamps.length}
+              >
                 <IconChevronRight size={16} />
               </ActionIcon>
               <NativeSelect
@@ -262,10 +308,10 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
                 value={String(gibsPlaybackSpeedMs)}
                 onChange={(e) => setGibsPlaybackSpeed(Number(e.currentTarget.value))}
                 data={[
-                  { value: "2000", label: "0.5x" },
-                  { value: "1500", label: "1x" },
-                  { value: "800", label: "2x" },
-                  { value: "400", label: "4x" },
+                  { value: '2000', label: '0.5x' },
+                  { value: '1500', label: '1x' },
+                  { value: '800', label: '2x' },
+                  { value: '400', label: '4x' },
                 ]}
                 style={{ width: 90 }}
               />
@@ -274,9 +320,16 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
           {gibsPlaying && <GibsPlaybackAdvance />}
         </Stack>
       )}
-      {mode === "3d" && (
+      {mode === '3d' && (
         <Stack gap={4} mt="sm">
-          <Divider label={<Text size="xs" fw={600}>3D Data Layers</Text>} labelPosition="left" />
+          <Divider
+            label={
+              <Text size="xs" fw={600}>
+                3D Data Layers
+              </Text>
+            }
+            labelPosition="left"
+          />
           <Checkbox
             size="xs"
             label="FIRMS Fire Detections"

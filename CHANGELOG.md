@@ -3,8 +3,9 @@
 ## Unreleased
 
 ### Changed
+
 - proxy(cartodb): increase Positron tile cache policy from 1h (max-age=3600) to 24h (max-age=86400, immutable) via new `immutable24h` middleware to align with test expectations and upstream tile stability.
- - web(ui): remove legacy `web/src/ui/Panel.tsx` and deprecated empty `Timeline.tsx` placeholder per Mantine migration (now superseded by catalog Panel + TimeBar)
+- web(ui): remove legacy `web/src/ui/Panel.tsx` and deprecated empty `Timeline.tsx` placeholder per Mantine migration (now superseded by catalog Panel + TimeBar)
 
 ### Added
 
@@ -15,6 +16,7 @@
 - GIBS ops polish: rate limiting and tile metrics (status counter & duration histogram)
 
 ### Fixed
- - Correct Cache-Control on GIBS responses (60s), consistent with near-real-time cadence
- - Removed aborted GET prefetch causing DOMException; switched to HEAD prefetch
- - Guard against parsing non-JSON responses (content-type check before JSON.parse)
+
+- Correct Cache-Control on GIBS responses (60s), consistent with near-real-time cadence
+- Removed aborted GET prefetch causing DOMException; switched to HEAD prefetch
+- Guard against parsing non-JSON responses (content-type check before JSON.parse)

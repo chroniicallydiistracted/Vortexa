@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Paper, Group, ActionIcon, Slider, Select, Text } from "@mantine/core";
-import { DateInput } from "@mantine/dates";
-import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { Paper, Group, ActionIcon, Slider, Select, Text } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
+import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react';
 
 type Speed = '0.5x' | '1x' | '2x' | '4x';
 interface TimeBarProps {
@@ -20,10 +20,10 @@ interface TimeBarProps {
 }
 
 const speedMap: Record<Speed, number> = {
-  "0.5x": 2000,
-  "1x": 1000,
-  "2x": 500,
-  "4x": 250,
+  '0.5x': 2000,
+  '1x': 1000,
+  '2x': 500,
+  '4x': 250,
 };
 
 export function TimeBar({
@@ -64,10 +64,7 @@ export function TimeBar({
     return () => clearInterval(id);
   }, [playing, speed, currentTime, baseStart, hoursSpan, setCurrentTime, setHourValue]);
 
-  const isoLabel = new Date(currentTime)
-    .toISOString()
-    .replace("T", " ")
-    .substring(0, 16) + "Z";
+  const isoLabel = new Date(currentTime).toISOString().replace('T', ' ').substring(0, 16) + 'Z';
 
   return (
     <Paper
@@ -75,20 +72,20 @@ export function TimeBar({
       shadow="sm"
       p="xs"
       style={{
-        position: "absolute",
-        left: "50%",
+        position: 'absolute',
+        left: '50%',
         bottom: 12,
-        transform: "translateX(-50%)",
+        transform: 'translateX(-50%)',
         zIndex: 20,
-        width: "min(720px,92%)",
+        width: 'min(720px,92%)',
       }}
     >
       <Group gap="xs" wrap="nowrap" align="center">
         <ActionIcon
           variant="filled"
           color="storm"
-            onClick={togglePlay}
-          aria-label={playing ? "Pause" : "Play"}
+          onClick={togglePlay}
+          aria-label={playing ? 'Pause' : 'Play'}
         >
           {playing ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
         </ActionIcon>
@@ -107,11 +104,7 @@ export function TimeBar({
             setHourValue(v as number);
             setCurrentTime(baseStart + (v as number) * hourMs);
           }}
-          marks={[
-            { value: 0 },
-            { value: Math.floor(hoursSpan / 2) },
-            { value: hoursSpan },
-          ]}
+          marks={[{ value: 0 }, { value: Math.floor(hoursSpan / 2) }, { value: hoursSpan }]}
         />
         <DateInput
           value={currentDate}
@@ -133,12 +126,12 @@ export function TimeBar({
         <Select
           size="xs"
           aria-label="Playback speed"
-          data={["0.5x", "1x", "2x", "4x"]}
+          data={['0.5x', '1x', '2x', '4x']}
           value={speed}
           onChange={(v) => v && setSpeed(v as Speed)}
           w={80}
         />
-        <Text size="xs" ff="monospace" c="dimmed" style={{ minWidth: 130, textAlign: "right" }}>
+        <Text size="xs" ff="monospace" c="dimmed" style={{ minWidth: 130, textAlign: 'right' }}>
           {isoLabel}
         </Text>
       </Group>

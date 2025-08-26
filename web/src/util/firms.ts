@@ -11,17 +11,17 @@ export interface FirmsPointProps {
 
 export function firmsCsvToGeoJSON(csv: string) {
   const lines = csv.trim().split(/\r?\n/);
-  if (lines.length < 2) return { type: "FeatureCollection", features: [] };
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const latIdx = header.indexOf("latitude");
-  const lonIdx = header.indexOf("longitude");
-  const acqDateIdx = header.indexOf("acq_date");
-  const acqTimeIdx = header.indexOf("acq_time");
-  const brightIdx = header.indexOf("bright_ti4");
-  const confIdx = header.indexOf("confidence");
-  const frpIdx = header.indexOf("frp");
-  const satIdx = header.indexOf("satellite");
-  const dnIdx = header.indexOf("daynight");
+  if (lines.length < 2) return { type: 'FeatureCollection', features: [] };
+  const header = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  const latIdx = header.indexOf('latitude');
+  const lonIdx = header.indexOf('longitude');
+  const acqDateIdx = header.indexOf('acq_date');
+  const acqTimeIdx = header.indexOf('acq_time');
+  const brightIdx = header.indexOf('bright_ti4');
+  const confIdx = header.indexOf('confidence');
+  const frpIdx = header.indexOf('frp');
+  const satIdx = header.indexOf('satellite');
+  const dnIdx = header.indexOf('daynight');
   interface Feature {
     type: 'Feature';
     geometry: { type: 'Point'; coordinates: [number, number] };
@@ -29,7 +29,7 @@ export function firmsCsvToGeoJSON(csv: string) {
   }
   const feats: Feature[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(",");
+    const row = lines[i].split(',');
     if (row.length !== header.length) continue;
     const lat = parseFloat(row[latIdx]);
     const lon = parseFloat(row[lonIdx]);
@@ -38,11 +38,11 @@ export function firmsCsvToGeoJSON(csv: string) {
     const time = row[acqTimeIdx];
     const dt =
       date && time
-        ? `${date}T${time.padStart(4, "0").slice(0, 2)}:${time.padStart(4, "0").slice(2, 4)}:00Z`
+        ? `${date}T${time.padStart(4, '0').slice(0, 2)}:${time.padStart(4, '0').slice(2, 4)}:00Z`
         : undefined;
     feats.push({
-      type: "Feature",
-      geometry: { type: "Point", coordinates: [lon, lat] },
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [lon, lat] },
       properties: {
         brightness: brightIdx >= 0 ? Number(row[brightIdx]) : undefined,
         confidence: confIdx >= 0 ? row[confIdx] : undefined,
@@ -53,5 +53,5 @@ export function firmsCsvToGeoJSON(csv: string) {
       } as FirmsPointProps,
     });
   }
-  return { type: "FeatureCollection", features: feats } as const;
+  return { type: 'FeatureCollection', features: feats } as const;
 }
