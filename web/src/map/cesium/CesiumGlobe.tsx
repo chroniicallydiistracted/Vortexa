@@ -77,6 +77,9 @@ export function CesiumGlobe() {
 
   // Reactive GIBS layer (simple check each render; could optimize w/ ref)
   const viewerRef = useRef<InstanceType<typeof Viewer> | null>(null);
+  // Keep direct references to primitives we add (avoid spelunking private fields)
+  // Using `any` here avoids the Cesium type namespace limitation in this build context; we only store/remove the instance.
+  const firmsRef = useRef<any>(null);
   const gibsOn = useStore((s) => s.gibsGeocolor3d);
   const gibsSelectedTime = useStore((s) => s.gibsSelectedTime);
   const gibsTimestamps = useStore((s) => s.gibsTimestamps);
@@ -141,15 +144,13 @@ export function CesiumGlobe() {
       if (!viewer) return;
       // Remove existing collection if toggled off
       if (!showFirms) {
-        const existing = (viewer.scene.primitives as unknown as { _primitives: TaggedPrimitive[] })._primitives
-          .find((p) => (p as TaggedPrimitive)._westfamTag === "firms");
-        if (existing) viewer.scene.primitives.remove(existing); // simplified removal per review
+        if (firmsRef.current) {
+          try { viewer.scene.primitives.remove(firmsRef.current); } catch {}
+          firmsRef.current = null;
+        }
         return;
       }
-      // If already present do nothing
-      const exists = (viewer.scene.primitives as unknown as { _primitives: TaggedPrimitive[] })._primitives
-        .find((p) => (p as TaggedPrimitive)._westfamTag === "firms");
-      if (exists) return;
+      if (firmsRef.current) return; // already added
       try {
         const r = await fetch("/api/firms/VIIRS_NOAA20_NRT/1");
         if (!r.ok) return;
@@ -157,7 +158,7 @@ export function CesiumGlobe() {
         const { firmsCsvToGeoJSON } = await import("../../util/firms");
         const gj = firmsCsvToGeoJSON(csv);
         const collection = new PointPrimitiveCollection();
-        (collection as unknown as { _westfamTag?: string })._westfamTag = "firms"; // tag for later removal lookup
+        firmsRef.current = collection; // store reference
         const color = Color.ORANGERED.withAlpha(0.85);
         for (const f of gj.features) {
           const [lon, lat] = f.geometry.coordinates;

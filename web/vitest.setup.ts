@@ -1,31 +1,10 @@
 import { expect } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
 
-expect.extend(matchers);
-
-// Typed ResizeObserver shim
-class RO implements ResizeObserver {
-	observe(): void {}
-	unobserve(): void {}
-	disconnect(): void {}
-	// Support callback signature though unused
-	constructor(_cb?: ResizeObserverCallback) {}
-	static toString() { return 'ResizeObserverShim'; }
-}
-declare global {
-	interface Window {
-		ResizeObserver: typeof RO;
-		matchMedia: (query: string) => MediaQueryList;
-	}
-}
-if (!('ResizeObserver' in globalThis)) {
-	// Simpler assignment per review suggestion
-	(globalThis as any).ResizeObserver = RO;
-}
-
-// matchMedia shim
-if (typeof window !== 'undefined' && !window.matchMedia) {
-	(window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) => ({
+// Provide matchMedia BEFORE extending matchers so Mantine can access it during component mounting
+// Provide / override matchMedia BEFORE extending matchers so Mantine can access it during component mounting
+if (typeof window !== 'undefined') {
+	(window as any).matchMedia = (query: string) => ({
 		matches: false,
 		media: query,
 		onchange: null,
@@ -34,5 +13,13 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
 		addEventListener() {},
 		removeEventListener() {},
 		dispatchEvent() { return false; },
-	}) as MediaQueryList;
+	});
+	(globalThis as any).matchMedia = (window as any).matchMedia;
 }
+
+expect.extend(matchers);
+
+// Minimal ResizeObserver shim (jsdom doesn't provide it)
+class RO { observe(){} unobserve(){} disconnect(){} }
+declare global { interface Window {} }
+(globalThis as any).ResizeObserver ||= RO;
