@@ -12,7 +12,7 @@ import Map from '../components/Map';
 // TimeBar (Mantine) replaces legacy Timeline component
 import { TimeBar } from '../components/TimeBar';
 import { parseHash, decodeLayers } from '../util/permalink';
-import { useStore } from '../util/util-store';
+import { useStore } from '../state/state-store';
 import { is3DEnabled } from '../lib/lib-env';
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';

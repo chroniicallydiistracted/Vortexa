@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useStore } from '../../util/util-store';
+import { useStore } from '../state-store';
 // Helpers
 const hourMs = 3600_000;
 function configureWindow(base, spanHours = 48) {

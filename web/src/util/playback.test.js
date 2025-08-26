@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useStore } from './util-store';
+import { useStore } from '../state/state-store';
 import { prefetchNextTile } from './util-gibs';
 describe('GIBS FPS clamp', () => {
     it('clamps below 2 to 2 and above 8 to 8', () => {

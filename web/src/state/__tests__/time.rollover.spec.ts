@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useStore } from '../../util/util-store';
+import { useStore } from '../state-store';
 
 // Helper to set a specific playback window
 function setPlayback(baseIso: string) {

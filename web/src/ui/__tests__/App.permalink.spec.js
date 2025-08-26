@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderWithMantine } from '../../test-utils/renderWithMantine';
 import App from '../App';
 import { act } from '@testing-library/react';
-import { useStore } from '../../util/util-store';
+import { useStore } from '../../state/state-store';
 // Mock heavy map
 vi.mock('../../components/Map', () => ({
     __esModule: true,

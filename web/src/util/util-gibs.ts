@@ -1,4 +1,4 @@
-import { useStore } from './util-store';
+import { useStore } from '../state/state-store';
 
 export async function fetchTimestamps(layerId: string): Promise<string[]> {
   try {

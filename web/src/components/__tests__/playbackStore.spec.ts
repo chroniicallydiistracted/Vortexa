@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { act } from '@testing-library/react';
-import { useStore } from '../../util/util-store';
+import { useStore } from '../../state/state-store';
 
 describe('playback store slice', () => {
   it('advances time respecting speed label mapping', () => {

@@ -1,5 +1,5 @@
 // Utilities to serialize/deserialize app state into URL hash for permalinks & share links.
-import { Layer } from './util-store';
+import { Layer } from '../state/state-store';
 
 export interface PermalinkState {
   t?: string; // date (YYYY-MM-DD)
