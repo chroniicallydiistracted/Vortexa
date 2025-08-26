@@ -116,9 +116,9 @@ fi
 
 if [[ $SEED -eq 1 ]]; then
   echo "[cloud-dev] Seeding one sample alert via lambda handler code"
-  ( cd alerts-lambda && \
-    npm install --no-audit --no-fund >/dev/null 2>&1 && \
-    npm run build >/dev/null 2>&1 && \
+  ( cd services/alerts && \
+    pnpm install --no-audit --no-fund >/dev/null 2>&1 && \
+    pnpm run build >/dev/null 2>&1 && \
     node dist/index.js || echo "[cloud-dev] Seed run failed" )
 else
   echo "[cloud-dev] Seeding skipped (--no-seed)"

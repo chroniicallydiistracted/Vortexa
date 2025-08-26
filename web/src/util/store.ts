@@ -1,4 +1,31 @@
 import { create } from 'zustand';
+import { is3DEnabled } from '../lib/env';
+
+function readRequestedModeFromLocation(): '2d' | '3d' {
+  if (typeof window === 'undefined') return '2d';
+  const search = new URLSearchParams(window.location.search);
+  const fromSearch = (search.get('mode') ?? '').toLowerCase();
+  let fromHash = '';
+  if (!fromSearch && window.location.hash) {
+    const h = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    fromHash = (h.get('mode') ?? '').toLowerCase();
+  }
+  const requested = fromSearch || fromHash;
+  return requested === '3d' ? '3d' : '2d';
+}
+
+function initialMode(): '2d' | '3d' {
+  const requested = readRequestedModeFromLocation();
+  const enabled = is3DEnabled();
+  return requested === '3d' && enabled ? '3d' : '2d';
+}
+
+// Helper to get current mode from location (for runtime updates)
+function getCurrentModeFromLocation(): '2d' | '3d' {
+  const requested = readRequestedModeFromLocation();
+  const enabled = is3DEnabled();
+  return requested === '3d' && enabled ? '3d' : '2d';
+}
 
 export type Layer = { id: string; templateRaw: string; opacity?: number };
 export interface ViewState {
@@ -73,7 +100,7 @@ export const useStore = create<Store>((set, get) => ({
   })(),
   playbackSpeed: '1x',
   view: { lat: 33.448, lon: -112.074, zoom: 6 },
-  mode: '2d',
+  mode: initialMode(),
   gibsGeocolor3d: false,
   gibsTimestamps: [],
   gibsSelectedTime: null,
@@ -105,6 +132,7 @@ export const useStore = create<Store>((set, get) => ({
   setPlaybackHoursSpan: (h: number) => set({ playbackHoursSpan: h }),
   setView: (v) => set((s) => ({ view: { ...s.view, ...v } })),
   setMode: (m) => set({ mode: m }),
+  updateModeFromLocation: () => set({ mode: getCurrentModeFromLocation() }),
   toggleGibsGeocolor3d: () => set((s) => ({ gibsGeocolor3d: !s.gibsGeocolor3d })),
   setGibsTimestamps: (ts) => set({ gibsTimestamps: ts }),
   setGibsSelectedTime: (t) => set({ gibsSelectedTime: t }),

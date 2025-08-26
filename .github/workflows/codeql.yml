@@ -19,19 +19,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-  language: ['javascript']
+        language: ['javascript']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-      - name: Install deps
-        run: |
-          npm install -g pnpm@9
-          pnpm install --frozen-lockfile
-      - name: Autobuild
+      - name: Autobuild (monorepo)
         uses: github/codeql-action/autobuild@v3
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

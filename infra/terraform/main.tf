@@ -163,9 +163,9 @@ resource "aws_s3_bucket_policy" "web_allow_cf_oac" {
         Action    = ["s3:GetObject"],
         Resource  = "${aws_s3_bucket.web.arn}/*",
         Condition = {
-            StringEquals = {
-              "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.me.account_id}:distribution/${aws_cloudfront_distribution.cdn.id}"
-            }
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.me.account_id}:distribution/${aws_cloudfront_distribution.cdn.id}"
+          }
         }
       }
     ]
@@ -301,11 +301,11 @@ resource "aws_lambda_permission" "alerts" {
 # -------------------------
 # Variables & Outputs
 # -------------------------
-variable "region"        { type = string }
-variable "name"          { type = string }
-variable "web_bucket"    { type = string }
-variable "data_bucket"   { type = string }
-variable "alerts_zip"    { type = string }
+variable "region" { type = string }
+variable "name" { type = string }
+variable "web_bucket" { type = string }
+variable "data_bucket" { type = string }
+variable "alerts_zip" { type = string }
 variable "nws_user_agent" {
   type    = string
   default = ""
