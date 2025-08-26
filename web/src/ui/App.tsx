@@ -55,11 +55,9 @@ export default function App() {
   }
   const requested3d = requestedMode === '3d';
   const canUse3D = envEnable && flags.enable3d;
-  // Coerce mode based on gating (do not allow 3D if flags off)
   useEffect(() => {
-    // Guard: never downgrade a valid 3D selection chosen via URL/store init
     const current = useStore.getState().mode;
-    if (current === '3d' && mode === '3d') return;
+    if (current === '3d' && mode === '3d') return; // don't downgrade
     if (requested3d && !canUse3D && mode === '3d') setMode('2d');
     if (requested3d && canUse3D && mode !== '3d') setMode('3d');
     if (!requested3d && mode === '3d' && !canUse3D) setMode('2d');
