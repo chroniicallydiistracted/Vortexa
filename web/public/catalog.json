@@ -13,7 +13,7 @@
       "category": "Satellite",
       "suggested_label": "MODIS Terra surface reflectance, natural-color (true color) daily imagery",
       "slug": "MODIS_Terra_CorrectedReflectance_TrueColor",
-  "id": "nasa_gibs_wmts",
+      "id": "nasa_gibs_wmts",
       "source_type": "raster",
       "attribution": "NASA GIBS",
       "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/{time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
@@ -61,8 +61,7 @@
       "slug": "GOES-East_ABI_GeoColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -70,8 +69,7 @@
       "slug": "GOES-West_ABI_GeoColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_GeoColor/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -79,8 +77,7 @@
       "slug": "GOES-East_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Band13_Clean_IR/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band13_Clean_IR/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -88,8 +85,7 @@
       "slug": "GOES-West_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band13_Clean_IR/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band13_Clean_IR/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -97,8 +93,7 @@
       "slug": "GOES-East_ABI_Band2_Red_Visible",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Band2_Red_Visible/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band2_Red_Visible/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -106,8 +101,7 @@
       "slug": "GOES-West_ABI_Band2_Red_Visible",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -115,8 +109,7 @@
       "slug": "GOES-East_ABI_Air_Mass",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Air_Mass/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Air_Mass/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -124,8 +117,7 @@
       "slug": "GOES-West_ABI_Air_Mass",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Air_Mass/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Air_Mass/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -133,8 +125,7 @@
       "slug": "GOES-East_ABI_Dust",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Dust/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Dust/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -142,8 +133,7 @@
       "slug": "GOES-West_ABI_Dust",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Dust/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Dust/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -151,8 +141,7 @@
       "slug": "GOES-East_ABI_FireTemp",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_FireTemp/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_FireTemp/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -160,8 +149,7 @@
       "slug": "GOES-West_ABI_FireTemp",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_FireTemp/default/{time}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-      "time_format": "YYYY-MM-DD"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_FireTemp/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -429,8 +417,8 @@
     {
       "category": "Hazards",
       "suggested_label": "Active Fires (24h)",
-  "slug": "active-fires",
-  "id": "nasa_firms_api",
+      "slug": "active-fires",
+      "id": "nasa_firms_api",
       "source_type": "vector",
       "attribution": "NASA FIRMS",
       "api_endpoint": "/api/firms/VIIRS_NOAA20_NRT/1"

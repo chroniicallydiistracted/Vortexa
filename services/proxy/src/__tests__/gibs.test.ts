@@ -12,6 +12,7 @@ describe('gibs geocolor proxy route', () => {
     // Clear caches between tests to ensure fetch call counts deterministic
     __internals.capsCache.clear();
     __internals.tsCache.clear();
+    __internals.latestCache.clear();
   });
   afterEach(() => {
     delete (global as any).__TEST_FETCH__;
@@ -50,7 +51,7 @@ describe('gibs geocolor proxy route', () => {
         'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/',
       ),
     ).toBe(true);
-    expect(calledUrl).toContain(encodeURIComponent(time));
+    expect(calledUrl).toContain(time);
     expect(calledUrl).toMatch(/\/1\/0\/0\.png$/);
   });
 
@@ -133,7 +134,7 @@ describe('gibs geocolor proxy route', () => {
     expect(r.status).toBe(200);
     expect(getFetch()).toHaveBeenCalledTimes(2); // caps + tile
     const tileUrl: string = getFetch().mock.calls[1][0];
-    expect(tileUrl).toContain(encodeURIComponent(time));
+    expect(tileUrl).toContain(time);
   });
 
   it('rejects invalid explicit time', async () => {

@@ -272,6 +272,35 @@ Note: Removed explicit dependency on an internal cert validation resource (not d
 - Need to run: `npm run build` and `npm run package:alerts` after merge to confirm packaging.
 
 ---
+### 2025-08-26: GOES proxy tile migration & prefetch fix
+
+Summary:
+
+- Routed all GOES layers through internal proxy endpoints without time segments and removed misleading `time_format` fields.
+- Updated tile prefetch helper to default to `.jpg` for GOES layers and only append `?time=` when a timestamp is supplied.
+
+Rationale:
+
+- Letting the proxy resolve the latest timestamp prevents stale or invalid GOES requests and simplifies catalog metadata.
+
+Tests:
+
+- `pnpm exec eslint web/src/util/gibs.ts scripts/update-goes-catalog.js --fix`
+- `pnpm format:check`
+- `pnpm test`
+- `pnpm --filter weather-web run build`
+- `curl -sI http://localhost:4000/api/gibs/tile/GOES-East_ABI_GeoColor/3/2/1.jpg` *(500 ENETUNREACH)*
+
+Rollback:
+
+- Revert `web/src/util/gibs.ts`, `web/public/catalog.json`, and remove `scripts/update-goes-catalog.js`.
+
+Vision Alignment:
+
+- 1. Unification of Data Sources
+- 2. High-Performance Visualization
+
+---
 
 Prepared by automated assistant per user request before PR creation.
 
@@ -394,5 +423,61 @@ Vision Alignment:
 
 - Scalable Infrastructure / Operational Excellence (Goal 6): better governance & auditability.
 - Personalization & Accessibility (Goal 5): indirectly via process rigor enabling safe a11y improvements.
+
+---
+
+### 2025-08-25: NWS alerts rewrite & GOES timestamp format
+
+Context:
+
+- Health check reported 400s from api.weather.gov and GOES tiles using date-only timestamps.
+
+Change:
+
+- Rewrote NWS proxy to force `/alerts/active`, apply required headers, and forward upstream bodies.
+- Switched GOES catalog entries to full ISO `YYYY-MM-DDTHH:mm:ssZ` timestamps.
+
+Rationale:
+
+- Weather.gov requires explicit active path and policy-compliant headers; GIBS GOES endpoints reject date-only requests.
+
+Tests:
+
+- `pnpm test`
+- `pnpm format:check` (warn: web/vite.config.ts)
+- `pnpm --filter "./services/proxy" run health-check` (proxy startup warning, upstream 502s)
+
+Rollback:
+
+- Revert `services/proxy/src/routes/nws.ts`, related tests, and both catalog.json files.
+
+Vision Alignment:
+
+- 1. Unification of Data Sources
+- 2. High-Performance Visualization
+- 4. Alerting & Notification System
+
+---
+
+### 2025-08-26: GIBS time colon encoding fix
+
+Summary:
+
+- Preserve colons in GOES/GIBS timestamps by switching to `encodeURI` for tile URL construction and health-check replacement.
+- Updated unit tests to expect raw ISO timestamps.
+
+Rationale:
+
+- `encodeURIComponent` was percent-encoding `:` characters, yielding 400 responses from GIBS tile endpoints.
+
+Tests:
+
+- `pnpm test`
+- `pnpm format:check`
+
+Vision Alignment:
+
+- 1. Unification of Data Sources
+- 2. High-Performance Visualization
 
 ---

@@ -49,13 +49,13 @@ export async function prefetchNextTile(
   z: number,
   y: number,
   x: number,
-  nextIso: string,
-  ext: string = 'png',
+  nextIso?: string,
+  ext?: 'png' | 'jpg' | 'jpeg',
 ) {
-  const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.${ext}?time=${encodeURIComponent(nextIso)}`;
+  const guessedExt = ext ?? (layerId.startsWith('GOES-') ? 'jpg' : 'png');
+  const timeQuery = nextIso ? `?time=${encodeURIComponent(nextIso)}` : '';
+  const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.${guessedExt}${timeQuery}`;
   try {
     await fetch(url, { method: 'HEAD' });
-  } catch {
-    // swallow; prefetch is opportunistic
-  }
+  } catch {}
 }

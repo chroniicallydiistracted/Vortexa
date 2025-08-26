@@ -60,7 +60,7 @@ describe('vendor routes', () => {
       vi.fn(async (_url: string, init: any) => ({
         ok: true,
         status: 200,
-        arrayBuffer: async () => Buffer.from('{"ok":true}'),
+        text: async () => '{"ok":true}',
         headers: {
           get: (k: string) => (k.toLowerCase() === 'content-type' ? 'application/json' : null),
         },

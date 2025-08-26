@@ -10,6 +10,7 @@ const DEFAULT_TILE_BASE =
 // Simple TTL cache wrappers
 const capsCache = new LRUCache<string, string>({ max: 32, ttl: 60_000 }); // raw XML per key (currently single key)
 const tsCache = new LRUCache<string, string[]>({ max: 256, ttl: 60_000 }); // timestamps per layer
+const latestCache = new LRUCache<string, string | null>({ max: 256, ttl: 60_000 }); // latest timestamp per layer
 
 export async function getCapabilitiesXML(): Promise<string> {
   const key = 'caps';
@@ -43,9 +44,9 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
   const layerBlock = layerBlockMatch[0];
   // dimension variations: name="time" or <Dimension><Identifier>time</Identifier><Value>...</Value>
   const dimMatch =
-    layerBlock.match(/<Dimension[^>]*name=\"time\"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
+    layerBlock.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
     layerBlock.match(
-      /<Dimension[\s\S]*?(?:name=\"time\"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
+      /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
     );
   if (!dimMatch) {
     tsCache.set(layerId, []);
@@ -63,8 +64,46 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
 }
 
 export async function getLatestTimestamp(layerId: string): Promise<string | null> {
-  const times = await getTimestamps(layerId);
-  return times.length ? times[times.length - 1] : null;
+  if (latestCache.has(layerId)) return latestCache.get(layerId)!;
+  const xml = await getCapabilitiesXML();
+  const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const layerRegex = new RegExp(
+    `<Layer>[\\s\\S]*?<(?:(?:ows:)?Title)>\\s*${escaped}\\s*<\\/(?:ows:)?Title>[\\s\\S]*?<\\/Layer>`,
+    'i',
+  );
+  const layerBlockMatch = xml.match(layerRegex);
+  if (!layerBlockMatch) {
+    latestCache.set(layerId, null);
+    return null;
+  }
+  const layerBlock = layerBlockMatch[0];
+  const dimMatch =
+    layerBlock.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
+    layerBlock.match(
+      /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
+    );
+  if (!dimMatch) {
+    latestCache.set(layerId, null);
+    return null;
+  }
+  const defaultAttr = dimMatch[0].match(/default="([^"]+)"/i);
+  let latest: string | null = defaultAttr ? defaultAttr[1] : null;
+  if (!latest) {
+    const body = dimMatch[1].trim();
+    if (body.includes('/P')) {
+      const parts = body.split('/');
+      if (parts.length >= 2) latest = parts[1];
+    } else {
+      const tokens = body
+        .split(/[\s,]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      latest =
+        tokens.filter((t) => /^\d{4}-\d{2}-\d{2}T\d{2}:?\d{2}:?\d{2}Z$/.test(t)).pop() || null;
+    }
+  }
+  latestCache.set(layerId, latest);
+  return latest;
 }
 
 export function pickTms(
@@ -87,9 +126,9 @@ export interface BuildTileUrlOpts {
 export function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlOpts): string {
   const tmsSet = tms || pickTms(layerId);
   const extension = (ext || 'png').toLowerCase();
-  const safeTime = encodeURIComponent(time);
+  const safeTime = encodeURI(time);
   return `${DEFAULT_TILE_BASE}/${layerId}/default/${safeTime}/${tmsSet}/${z}/${y}/${x}.${extension}`;
 }
 
 // For tests
-export const __internals = { capsCache, tsCache };
+export const __internals = { capsCache, tsCache, latestCache };
