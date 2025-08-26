@@ -5,7 +5,7 @@
  * Run with: node scripts/test-wmts-urls.js
  */
 
-const { buildTileUrl, pickTms } = require('../services/proxy/src/lib/gibs/capabilities.js');
+const { buildTileUrl, pickTms } = require('../services/proxy/dist/src/lib/gibs/capabilities.js');
 
 console.log('Testing WMTS URL construction...\n');
 
@@ -67,7 +67,7 @@ console.log('\nTesting connectivity...');
 // Test the health endpoint if running locally
 const testHealth = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/gibs/health?layer=GOES-East_ABI_GeoColor');
+    const response = await fetch('http://localhost:4000/api/gibs/health?layer=GOES-East_ABI_GeoColor');
     if (response.ok) {
       const data = await response.json();
       console.log('✅ Health check passed:');
@@ -80,7 +80,7 @@ const testHealth = async () => {
     }
   } catch (error) {
     console.log('❌ Health check error:', error.message);
-    console.log('  Make sure the proxy service is running on port 3000');
+    console.log('  Make sure the proxy service is running on port 4000');
   }
 };
 

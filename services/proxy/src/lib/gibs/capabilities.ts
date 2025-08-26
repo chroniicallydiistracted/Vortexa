@@ -10,7 +10,9 @@ const DEFAULT_TILE_BASE =
 // Simple TTL cache wrappers
 const capsCache = new LRUCache<string, string>({ max: 32, ttl: 60_000 }); // raw XML per key (currently single key)
 const tsCache = new LRUCache<string, string[]>({ max: 256, ttl: 60_000 }); // timestamps per layer
-const latestCache = new LRUCache<string, string | null>({ max: 256, ttl: 60_000 }); // latest timestamp per layer
+// Use Map for latest timestamp cache to avoid LRU cache type constraints
+const latestCache = new Map<string, { value: string | null; timestamp: number }>();
+const LATEST_CACHE_TTL = 60_000; // 60 seconds
 
 export async function getCapabilitiesXML(): Promise<string> {
   const key = 'caps';
@@ -92,7 +94,12 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
 }
 
 export async function getLatestTimestamp(layerId: string): Promise<string | null> {
-  if (latestCache.has(layerId)) return latestCache.get(layerId)!;
+  const now = Date.now();
+  const cached = latestCache.get(layerId);
+  if (cached && now - cached.timestamp < LATEST_CACHE_TTL) {
+    return cached.value;
+  }
+
   const xml = await getCapabilitiesXML();
   const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   // Look for Layer blocks by Identifier, not Title
@@ -102,7 +109,7 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
   );
   const layerBlockMatch = xml.match(layerRegex);
   if (!layerBlockMatch) {
-    latestCache.set(layerId, null);
+    latestCache.set(layerId, { value: null, timestamp: now });
     return null;
   }
   const layerBlock = layerBlockMatch[0];
@@ -115,7 +122,7 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
   if (defaultMatch) {
     const defaultTime = defaultMatch[1].trim();
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(defaultTime)) {
-      latestCache.set(layerId, defaultTime);
+      latestCache.set(layerId, { value: defaultTime, timestamp: now });
       return defaultTime;
     }
   }
@@ -123,14 +130,14 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
   // If no default, get all timestamps and use the latest
   const timestamps = await getTimestamps(layerId);
   if (timestamps.length === 0) {
-    latestCache.set(layerId, null);
+    latestCache.set(layerId, { value: null, timestamp: now });
     return null;
   }
   
   // Sort timestamps and get the latest
   const sorted = timestamps.sort();
   const latest = sorted[sorted.length - 1];
-  latestCache.set(layerId, latest);
+  latestCache.set(layerId, { value: latest, timestamp: now });
   return latest;
 }
 
