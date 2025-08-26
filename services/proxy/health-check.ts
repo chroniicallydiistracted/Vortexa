@@ -46,6 +46,14 @@ ensureEnv(
   process.env.NWS_USER_AGENT || 'WestFamDev/0.1 (contact: dev@example.com)',
 );
 ensureEnv('ALERTS_TABLE', process.env.ALERTS_TABLE || 'westfam-alerts');
+// Optional/secondary auth keys we may need during local checks
+ensureEnv('AIRNOW_API_KEY', process.env.AIRNOW_API_KEY || '');
+ensureEnv('OPENAQ_API_KEY', process.env.OPENAQ_API_KEY || '');
+ensureEnv('CESIUM_ION_TOKEN', process.env.CESIUM_ION_TOKEN || '');
+ensureEnv('EARTHDATA_AUTH_KEY', process.env.EARTHDATA_AUTH_KEY || '');
+ensureEnv('AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID || 'test');
+ensureEnv('AWS_SECRET_ACCESS_KEY', process.env.AWS_SECRET_ACCESS_KEY || 'test');
+ensureEnv('AWS_DEFAULT_REGION', process.env.AWS_DEFAULT_REGION || 'us-west-2');
 // Visible summary (masked)
 if (!QUIET) {
   console.log('[health-check] Env summary:', {
@@ -54,6 +62,13 @@ if (!QUIET) {
     NWS_USER_AGENT: process.env.NWS_USER_AGENT,
     ALERTS_TABLE: process.env.ALERTS_TABLE,
   });
+    console.log('[health-check] Optional keys:', {
+      AIRNOW_API_KEY: (process.env.AIRNOW_API_KEY || '').slice(0, 6) + '...',
+      OPENAQ_API_KEY: (process.env.OPENAQ_API_KEY || '').slice(0, 6) + '...',
+      CESIUM_ION_TOKEN: (process.env.CESIUM_ION_TOKEN || '').slice(0, 6) + '...',
+      EARTHDATA_AUTH_KEY: (process.env.EARTHDATA_AUTH_KEY || '').slice(0, 6) + '...',
+      AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION,
+    });
   console.log('[health-check] Time budgets:', {
     MAX_LAYER_MS,
     MAX_TOTAL_MS,

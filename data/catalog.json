@@ -46,6 +46,7 @@
     {
       "area": "Satellite",
       "layer": "NASA GIBS WMTS (GOES, MODIS, VIIRS)",
+      "id": "nasa_gibs_wmts",
       "provider": "NASA GIBS",
       "access": "WMTS",
       "base_url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi",
@@ -74,6 +75,7 @@
     {
       "area": "Air Quality",
       "layer": "AirNow API",
+      "id": "airnow_api",
       "provider": "EPA/partners",
       "access": "REST JSON",
       "base_url": "https://docs.airnowapi.org/",
@@ -88,6 +90,7 @@
     {
       "area": "Air Quality",
       "layer": "OpenAQ",
+      "id": "openaq_api",
       "provider": "OpenAQ",
       "access": "REST JSON",
       "base_url": "https://api.openaq.org/",
@@ -102,6 +105,7 @@
     {
       "area": "Fires",
       "layer": "NASA FIRMS Active Fire",
+      "id": "nasa_firms_api",
       "provider": "NASA",
       "access": "REST/tiles",
       "base_url": "https://firms.modaps.eosdis.nasa.gov/",
