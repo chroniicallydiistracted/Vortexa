@@ -43,47 +43,44 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
   }
   const layerBlock = layerBlockMatch[0];
   
-  // Look for Time dimension with ows:Identifier>Time</ows:Identifier>
-  const dimMatch = layerBlock.match(
-    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/i
+  // Look for all Value elements within the Time dimension
+  const valueMatches = layerBlock.matchAll(
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/gi
   );
-  
-  if (!dimMatch) {
-    tsCache.set(layerId, []);
-    return [];
-  }
-  
-  const raw = dimMatch[1];
-  // Split on commas or whitespace; keep date tokens
-  const tokens = raw
-    .split(/[\s,]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
   
   const times: string[] = [];
   
-  // Process each token to extract timestamps
-  for (const token of tokens) {
-    if (token.includes('/')) {
-      // Handle period format like "2025-08-15T12:00:00Z/2025-08-15T12:30:00Z/PT10M"
-      const parts = token.split('/');
-      if (parts.length >= 2) {
-        // Add both start and end times
-        const startTime = parts[0];
-        const endTime = parts[1];
-        
-        // Validate ISO8601 format
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(startTime)) {
-          times.push(startTime);
+  for (const match of valueMatches) {
+    const raw = match[1];
+    // Split on commas or whitespace; keep date tokens
+    const tokens = raw
+      .split(/[\s,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    
+    // Process each token to extract timestamps
+    for (const token of tokens) {
+      if (token.includes('/')) {
+        // Handle period format like "2025-08-15T12:00:00Z/2025-08-15T12:30:00Z/PT10M"
+        const parts = token.split('/');
+        if (parts.length >= 2) {
+          // Add both start and end times
+          const startTime = parts[0];
+          const endTime = parts[1];
+          
+          // Validate ISO8601 format
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(startTime)) {
+            times.push(startTime);
+          }
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endTime)) {
+            times.push(endTime);
+          }
         }
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endTime)) {
-          times.push(endTime);
+      } else {
+        // Handle single timestamp
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(token)) {
+          times.push(token);
         }
-      }
-    } else {
-      // Handle single timestamp
-      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(token)) {
-        times.push(token);
       }
     }
   }
@@ -110,49 +107,41 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
   }
   const layerBlock = layerBlockMatch[0];
   
-  // Look for Time dimension with ows:Identifier>Time</ows:Identifier>
-  const dimMatch = layerBlock.match(
-    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/i
+  // First check for Default attribute in the Time dimension
+  const defaultMatch = layerBlock.match(
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Default>([^<]+)<\/Default>/i
   );
   
-  if (!dimMatch) {
+  if (defaultMatch) {
+    const defaultTime = defaultMatch[1].trim();
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(defaultTime)) {
+      latestCache.set(layerId, defaultTime);
+      return defaultTime;
+    }
+  }
+  
+  // If no default, get all timestamps and use the latest
+  const timestamps = await getTimestamps(layerId);
+  if (timestamps.length === 0) {
     latestCache.set(layerId, null);
     return null;
   }
   
-  // Check for default attribute first
-  const defaultAttr = dimMatch[0].match(/default="([^"]+)"/i);
-  let latest: string | null = defaultAttr ? defaultAttr[1] : null;
-  
-  if (!latest) {
-    const body = dimMatch[1].trim();
-    if (body.includes('/')) {
-      // Handle period format like "2025-08-15T12:00:00Z/2025-08-15T12:30:00Z/PT10M"
-      const parts = body.split('/');
-      if (parts.length >= 2) {
-        // Use the end time (most recent) from the period
-        const endTime = parts[1];
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endTime)) {
-          latest = endTime;
-        }
-      }
-    } else {
-      // Handle single timestamp
-      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(body)) {
-        latest = body;
-      }
-    }
-  }
-  
+  // Sort timestamps and get the latest
+  const sorted = timestamps.sort();
+  const latest = sorted[sorted.length - 1];
   latestCache.set(layerId, latest);
   return latest;
 }
 
 export function pickTms(
   layerId: string,
-): 'GoogleMapsCompatible_Level8' | 'GoogleMapsCompatible_Level9' {
-  // Heuristic: GOES / ABI layers go Level8 else Level9
-  return /GOES|ABI/i.test(layerId) ? 'GoogleMapsCompatible_Level8' : 'GoogleMapsCompatible_Level9';
+): 'GoogleMapsCompatible_Level7' | 'GoogleMapsCompatible_Level8' | 'GoogleMapsCompatible_Level9' | 'GoogleMapsCompatible_Level13' {
+  // Based on the XML, GOES layers use Level7, Graticule uses Level13
+  if (/GOES|ABI/i.test(layerId)) return 'GoogleMapsCompatible_Level7';
+  if (/Graticule/i.test(layerId)) return 'GoogleMapsCompatible_Level13';
+  // Default fallback
+  return 'GoogleMapsCompatible_Level8';
 }
 
 export interface BuildTileUrlOpts {
@@ -169,6 +158,9 @@ export function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlO
   const tmsSet = tms || pickTms(layerId);
   const extension = (ext || 'png').toLowerCase();
   const safeTime = encodeURI(time);
+  
+  // Use the correct WMTS URL structure from the XML specification
+  // Format: /{layerId}/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.{ext}
   return `${DEFAULT_TILE_BASE}/${layerId}/default/${safeTime}/${tmsSet}/${z}/${y}/${x}.${extension}`;
 }
 

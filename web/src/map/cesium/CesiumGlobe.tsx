@@ -117,12 +117,12 @@ export function CesiumGlobe() {
           new Date().toISOString().slice(0, 19) + 'Z';
         const template =
           import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
-          '/api/gibs/geocolor/{z}/{x}/{y}.jpg?time={time}';
+          '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg?time={time}';
         if (!existing) {
           const url = template
-            .replace('{TileMatrix}', '{z}')
-            .replace('{TileRow}', '{y}')
-            .replace('{TileCol}', '{x}')
+            .replace('{z}', String(z))
+            .replace('{y}', String(y))
+            .replace('{x}', String(x))
             .replace('{time}', encodeURIComponent(timeIso));
           const provider = new UrlTemplateImageryProvider({
             url,
@@ -133,9 +133,9 @@ export function CesiumGlobe() {
           // Recreate layer with new time (simpler than mutating template)
           layers.remove(existing, true);
           const url = template
-            .replace('{TileMatrix}', '{z}')
-            .replace('{TileRow}', '{y}')
-            .replace('{TileCol}', '{x}')
+            .replace('{z}', String(z))
+            .replace('{y}', String(y))
+            .replace('{x}', String(x))
             .replace('{time}', encodeURIComponent(timeIso));
           const provider = new UrlTemplateImageryProvider({
             url,
