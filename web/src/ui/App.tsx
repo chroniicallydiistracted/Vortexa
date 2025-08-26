@@ -6,7 +6,7 @@ import { validateCatalog } from "../lib/validateCatalog";
 import { ModeSwitch } from "../map/ModeSwitch";
 import Globe3DLoader from "../features/globe/Globe3DLoader";
 import { getRuntimeFlags } from "../util/featureFlags";
-// Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
+// Legacy MapView/Panel removed; using modern catalog-based components
 import CatalogPanel from "../components/Panel";
 import CatalogMap, { CatalogEntry as MapCatalogEntry } from "../components/Map";
 // TimeBar (Mantine) replaces legacy Timeline component
