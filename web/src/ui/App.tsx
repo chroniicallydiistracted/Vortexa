@@ -41,7 +41,6 @@ export default function App() {
     playbackCurrentTimeMs,
   } = useStore();
   
-  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D);
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });
@@ -63,7 +62,7 @@ export default function App() {
   // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
   const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
   
-  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D, 'requested3d:', requested3d);
+  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D);
 
   // Update mode from location on mount to handle hash changes after store initialization
   useEffect(() => {
