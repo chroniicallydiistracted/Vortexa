@@ -1,7 +1,10 @@
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
-const backend = process.env.VITE_BACKEND_URL || 'http://localhost:4000'; // configurable in dev
+// Use explicit IPv4 loopback by default to avoid IPv6 resolution issues that
+// prevented the map proxy from being reached in some environments.
+const backend =
+  process.env.VITE_BACKEND_URL || 'http://127.0.0.1:4000'; // configurable in dev
 
 // Custom plugin to strip the eval usage in protobufjs's minimal build (inquire helper)
 // to silence Vite's eval warning while keeping module behavior (returns null for optional deps).
