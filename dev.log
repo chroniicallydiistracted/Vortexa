@@ -71,3 +71,8 @@
 [web] 2:36:56 PM [vite] (client) hmr update /src/ui/App.tsx
 [web] 2:38:01 PM [vite] (client) hmr update /src/ui/App.tsx
 [web] 2:45:42 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] /home/andre/Vortexa/web:
+[web]  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  weather-web@0.2.0 dev: `vite`
+[web] Exit status 143
+[web]  ELIFECYCLE  Command failed with exit code 143.
+[web] pnpm dev:web exited with code 143
