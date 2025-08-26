@@ -1,12 +1,16 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export type Layer = { id: string; templateRaw: string; opacity?: number };
-export interface ViewState { lat: number; lon: number; zoom: number }
+export interface ViewState {
+  lat: number;
+  lon: number;
+  zoom: number;
+}
 
 export type PlaybackSpeed = '0.5x' | '1x' | '2x' | '4x';
 export interface TimeState {
   playbackBaseStartMs: number; // window start (ms UTC)
-  playbackHoursSpan: number;   // total hours represented by slider
+  playbackHoursSpan: number; // total hours represented by slider
   playbackCurrentTimeMs: number; // current time within window (ms UTC)
   playbackSpeed: PlaybackSpeed;
   setPlaybackCurrentTimeMs: (ms: number) => void;
@@ -20,7 +24,7 @@ type Store = TimeState & {
   time: string; // ISO date (YYYY-MM-DD) for now
   playing: boolean;
   view: ViewState;
-  mode: "2d" | "3d";
+  mode: '2d' | '3d';
   gibsGeocolor3d: boolean;
   gibsTimestamps: string[]; // Available GIBS times (ISO)
   gibsSelectedTime: string | null;
@@ -37,7 +41,7 @@ type Store = TimeState & {
   setOpacity: (id: string, opacity: number) => void;
   togglePlaying: () => void;
   setView: (v: Partial<ViewState>) => void;
-  setMode: (m: "2d" | "3d") => void;
+  setMode: (m: '2d' | '3d') => void;
   toggleGibsGeocolor3d: () => void;
   setGibsTimestamps: (ts: string[]) => void;
   setGibsSelectedTime: (t: string | null) => void;
@@ -56,12 +60,20 @@ export const useStore = create<Store>((set, get) => ({
   layers: [],
   time: today,
   playing: false,
-  playbackBaseStartMs: (() => { const d = new Date(); d.setMinutes(0,0,0); return d.getTime() - 24*3600_000; })(),
+  playbackBaseStartMs: (() => {
+    const d = new Date();
+    d.setMinutes(0, 0, 0);
+    return d.getTime() - 24 * 3600_000;
+  })(),
   playbackHoursSpan: 48,
-  playbackCurrentTimeMs: (() => { const d = new Date(); d.setMinutes(0,0,0); return d.getTime(); })(),
+  playbackCurrentTimeMs: (() => {
+    const d = new Date();
+    d.setMinutes(0, 0, 0);
+    return d.getTime();
+  })(),
   playbackSpeed: '1x',
   view: { lat: 33.448, lon: -112.074, zoom: 6 },
-  mode: "2d",
+  mode: '2d',
   gibsGeocolor3d: false,
   gibsTimestamps: [],
   gibsSelectedTime: null,
@@ -75,11 +87,10 @@ export const useStore = create<Store>((set, get) => ({
     set((s) => ({
       layers: s.layers.find((x) => x.id === l.id) ? s.layers : [...s.layers, l],
     })),
-  removeLayer: (id) =>
-    set((s) => ({ layers: s.layers.filter((x) => x.id !== id) })),
+  removeLayer: (id) => set((s) => ({ layers: s.layers.filter((x) => x.id !== id) })),
   setTime: (iso) => set({ time: iso }),
   stepTime: (delta) => {
-    const cur = new Date(get().time + "T00:00:00Z");
+    const cur = new Date(get().time + 'T00:00:00Z');
     cur.setDate(cur.getDate() + delta);
     set({ time: cur.toISOString().slice(0, 10) });
   },
@@ -94,8 +105,7 @@ export const useStore = create<Store>((set, get) => ({
   setPlaybackHoursSpan: (h: number) => set({ playbackHoursSpan: h }),
   setView: (v) => set((s) => ({ view: { ...s.view, ...v } })),
   setMode: (m) => set({ mode: m }),
-  toggleGibsGeocolor3d: () =>
-    set((s) => ({ gibsGeocolor3d: !s.gibsGeocolor3d })),
+  toggleGibsGeocolor3d: () => set((s) => ({ gibsGeocolor3d: !s.gibsGeocolor3d })),
   setGibsTimestamps: (ts) => set({ gibsTimestamps: ts }),
   setGibsSelectedTime: (t) => set({ gibsSelectedTime: t }),
   toggleGibsPlaying: () => set((s) => ({ gibsPlaying: !s.gibsPlaying })),
@@ -103,7 +113,9 @@ export const useStore = create<Store>((set, get) => ({
     set((s) => {
       const { gibsTimestamps, gibsSelectedTime } = s;
       if (!gibsTimestamps.length) return {};
-      const idx = gibsSelectedTime ? Math.max(0, gibsTimestamps.indexOf(gibsSelectedTime)) : gibsTimestamps.length - 1;
+      const idx = gibsSelectedTime
+        ? Math.max(0, gibsTimestamps.indexOf(gibsSelectedTime))
+        : gibsTimestamps.length - 1;
       const next = (idx + direction + gibsTimestamps.length) % gibsTimestamps.length;
       return { gibsSelectedTime: gibsTimestamps[next] };
     }),
@@ -126,27 +138,27 @@ export const useStore = create<Store>((set, get) => ({
 export const LAYER_PRESETS: {
   key: string;
   name: string;
-  layers: Omit<Layer, "opacity">[];
+  layers: Omit<Layer, 'opacity'>[];
 }[] = [
   {
-    key: "sat-geocolor",
-    name: "Satellite GeoColor",
+    key: 'sat-geocolor',
+    name: 'Satellite GeoColor',
     layers: [
       {
-        id: "gibs-geocolor",
+        id: 'gibs-geocolor',
         templateRaw:
-          "{TILE_BASE}/wmts?base=https%3A%2F%2Fgibs.earthdata.nasa.gov%2Fwmts&layer=GOES-East_ABI_GeoColor&format=jpg&time={time}&z={z}&x={x}&y={y}",
+          '{TILE_BASE}/wmts?base=https%3A%2F%2Fgibs.earthdata.nasa.gov%2Fwmts&layer=GOES-East_ABI_GeoColor&format=jpg&time={time}&z={z}&x={x}&y={y}',
       },
     ],
   },
   {
-    key: "radar-basic",
-    name: "Radar Composite",
+    key: 'radar-basic',
+    name: 'Radar Composite',
     layers: [
       {
-        id: "ncep-mrms",
+        id: 'ncep-mrms',
         templateRaw:
-          "{TILE_BASE}/wmts?base=https%3A%2F%2Fopengeo.ncep.noaa.gov&layer=conus_radar&format=png&time={time}&z={z}&x={x}&y={y}",
+          '{TILE_BASE}/wmts?base=https%3A%2F%2Fopengeo.ncep.noaa.gov&layer=conus_radar&format=png&time={time}&z={z}&x={x}&y={y}',
       },
     ],
   },

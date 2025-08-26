@@ -4,8 +4,8 @@ export interface RuntimeFlags {
 
 export async function getRuntimeFlags(): Promise<RuntimeFlags> {
   try {
-    const r = await fetch("/api/flags");
-    if (!r.ok) throw new Error("flags not ok");
+    const r = await fetch('/api/flags');
+    if (!r.ok) throw new Error('flags not ok');
     const data = await r.json();
     return { enable3d: !!data.enable3d };
   } catch {

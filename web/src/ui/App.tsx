@@ -1,18 +1,28 @@
-import React, { useState, useEffect, useRef } from "react";
-import { AppShell, ScrollArea, Paper, TextInput, Loader, Group, Text, Checkbox, Button as MantineButton } from "@mantine/core";
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  AppShell,
+  ScrollArea,
+  Paper,
+  TextInput,
+  Loader,
+  Group,
+  Text,
+  Checkbox,
+  Button as MantineButton,
+} from '@mantine/core';
 import type { Map as MLMap } from 'maplibre-gl';
-import { IconSearch } from "@tabler/icons-react";
-import { validateCatalog } from "../lib/validateCatalog";
-import { ModeSwitch } from "../map/ModeSwitch";
-import Globe3DLoader from "../features/globe/Globe3DLoader";
-import { getRuntimeFlags } from "../util/featureFlags";
+import { IconSearch } from '@tabler/icons-react';
+import { validateCatalog } from '../lib/validateCatalog';
+import { ModeSwitch } from '../map/ModeSwitch';
+import Globe3DLoader from '../features/globe/Globe3DLoader';
+import { getRuntimeFlags } from '../util/featureFlags';
 // Legacy MapView/Panel removed; using modern catalog-based components
-import CatalogPanel from "../components/Panel";
-import CatalogMap, { CatalogEntry as MapCatalogEntry } from "../components/Map";
+import CatalogPanel from '../components/Panel';
+import CatalogMap, { CatalogEntry as MapCatalogEntry } from '../components/Map';
 // TimeBar (Mantine) replaces legacy Timeline component
-import { TimeBar } from "../components/TimeBar";
-import { parseHash, decodeLayers } from "../util/permalink";
-import { useStore } from "../util/store";
+import { TimeBar } from '../components/TimeBar';
+import { parseHash, decodeLayers } from '../util/permalink';
+import { useStore } from '../util/store';
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';
 export default function App() {
@@ -24,7 +34,7 @@ export default function App() {
     setMode,
     gibsGeocolor3d,
     toggleGibsGeocolor3d,
-  playbackCurrentTimeMs,
+    playbackCurrentTimeMs,
   } = useStore();
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
@@ -32,27 +42,26 @@ export default function App() {
   useEffect(() => {
     getRuntimeFlags().then(setFlags);
   }, []);
-  const envEnable = import.meta.env.VITE_ENABLE_3D === "1";
+  const envEnable = import.meta.env.VITE_ENABLE_3D === '1';
   const params = new URLSearchParams(location.search);
-  const requested3d = params.get("mode") === "3d";
+  const requested3d = params.get('mode') === '3d';
   const canUse3D = envEnable && flags.enable3d;
   // Coerce mode based on gating (do not allow 3D if flags off)
   useEffect(() => {
-    if (requested3d && !canUse3D && mode === "3d") {
-      setMode("2d");
-    } else if (requested3d && canUse3D && mode !== "3d") {
-      setMode("3d");
+    if (requested3d && !canUse3D && mode === '3d') {
+      setMode('2d');
+    } else if (requested3d && canUse3D && mode !== '3d') {
+      setMode('3d');
     }
-    if (!requested3d && mode === "3d" && !canUse3D) setMode("2d");
+    if (!requested3d && mode === '3d' && !canUse3D) setMode('2d');
   }, [requested3d, canUse3D]);
   // Persist (only if valid)
   useEffect(() => {
     const p = new URLSearchParams(location.search);
-    if (mode === "3d" && canUse3D) p.set("mode", "3d");
-    else p.delete("mode");
-    const newUrl =
-      `${location.pathname}?${p.toString()}${location.hash}`.replace(/\?$/, "");
-    window.history.replaceState({}, "", newUrl);
+    if (mode === '3d' && canUse3D) p.set('mode', '3d');
+    else p.delete('mode');
+    const newUrl = `${location.pathname}?${p.toString()}${location.hash}`.replace(/\?$/, '');
+    window.history.replaceState({}, '', newUrl);
   }, [mode, canUse3D]);
   // On initial mount, parse permalink hash
   useEffect(() => {
@@ -62,10 +71,10 @@ export default function App() {
       if (p.lat != null && p.lon != null) setView({ lat: p.lat, lon: p.lon });
       if (p.z != null) setView({ zoom: p.z });
       if (p.l) {
-  const base = import.meta.env.VITE_TILE_BASE || "http://localhost:4000/tiles";
+        const base = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
         const ls = decodeLayers(p.l).map((l) => {
           // heuristic map id to known template if preset; fallback noop layer placeholder
-          if (l.id === "gibs-geocolor")
+          if (l.id === 'gibs-geocolor')
             return {
               id: l.id,
               templateRaw: `${base}/wmts?base=https%3A%2F%2Fgibs.earthdata.nasa.gov%2Fwmts&layer=GOES-East_ABI_GeoColor&format=jpg&time={time}&z={z}&x={x}&y={y}`,
@@ -83,7 +92,9 @@ export default function App() {
   }, []);
   const [activeLayerSlug, setActiveLayerSlug] = useState<string | null>(null);
   type RawCatalogLayer = { slug: string } & Record<string, unknown>;
-  const [catalogData, setCatalogData] = useState<RawCatalogLayer[] | { layers?: RawCatalogLayer[] } | null>(null);
+  const [catalogData, setCatalogData] = useState<
+    RawCatalogLayer[] | { layers?: RawCatalogLayer[] } | null
+  >(null);
   interface MappableCatalogLayer {
     slug: string;
     category?: string;
@@ -91,7 +102,7 @@ export default function App() {
     name?: string;
     type?: string;
     template?: string; // raster template
-    url?: string;      // vector/geojson url
+    url?: string; // vector/geojson url
     attribution?: string;
     notes?: string;
   }
@@ -99,7 +110,9 @@ export default function App() {
     if (!catalogData) return null;
     const arr: MappableCatalogLayer[] = Array.isArray(catalogData)
       ? catalogData
-      : (Array.isArray(catalogData.layers) ? (catalogData.layers as MappableCatalogLayer[]) : []);
+      : Array.isArray(catalogData.layers)
+        ? (catalogData.layers as MappableCatalogLayer[])
+        : [];
     return arr.map<MapCatalogEntry>((l) => ({
       slug: l.slug,
       category: l.category ?? 'General',
@@ -113,14 +126,14 @@ export default function App() {
     }));
   }, [catalogData]);
   useEffect(() => {
-    fetch("/catalog.json")
+    fetch('/catalog.json')
       .then(async (r) => {
         try {
           const raw = await r.json();
           try {
             return validateCatalog(raw);
           } catch (e) {
-            console.warn("Catalog validation failed", e);
+            console.warn('Catalog validation failed', e);
             return raw; // fallback to raw for non-breaking behavior
           }
         } catch {
@@ -141,23 +154,31 @@ export default function App() {
   } = useStore();
   const [isPlaying, setIsPlaying] = useState(false); // keep play/pause locally for now
   // Search state
-  const [search, setSearch] = useState("");
-  interface GeoResult { place_id: string; display_name: string; lat: string; lon: string }
+  const [search, setSearch] = useState('');
+  interface GeoResult {
+    place_id: string;
+    display_name: string;
+    lat: string;
+    lon: string;
+  }
   const [results, setResults] = useState<GeoResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  // One-time tile proxy fallback notification
-  const warnedRef = useRef(false);
+  // One-time tile proxy fallback notification (persist across mounts)
+  // eslint-disable-next-line no-undef
+  // @ts-ignore - attach to module scope variable
+  let _tileProxyWarned: boolean = (globalThis as any).__TILE_PROXY_WARNED__ || false;
   const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
   useEffect(() => {
-  if (!warnedRef.current && (!import.meta.env.VITE_TILE_BASE || tileBase.includes('localhost'))) {
-      warnedRef.current = true;
+    if (!_tileProxyWarned && (!import.meta.env.VITE_TILE_BASE || tileBase.includes('localhost'))) {
+      (globalThis as any).__TILE_PROXY_WARNED__ = true;
+      _tileProxyWarned = true;
       notifications.show({
         color: 'yellow',
         title: 'Using default tile proxy',
         message: `Falling back to ${tileBase}. Set VITE_TILE_BASE in web/.env.local to remove this message.`,
       });
     }
-  }, [tileBase]);
+  }, [tileBase, _tileProxyWarned]);
   const [mapInstance, setMapInstance] = useState<MLMap | null>(null);
   useEffect(() => {
     if (!search) {
@@ -190,12 +211,13 @@ export default function App() {
   const debouncedHashUpdate = useDebouncedCallback(() => {
     const dt = new Date(playbackCurrentTimeMs);
     // encode date hour in ISO minute precision
-    const iso = dt.toISOString().slice(0,16).replace(/[-:T]/g,'').toLowerCase();
+    const iso = dt.toISOString().slice(0, 16).replace(/[-:T]/g, '').toLowerCase();
     const existing = parseHash(location.hash);
     existing.t = iso; // reuse t key (already used for date-only earlier)
     const params: string[] = [];
     if (existing.t) params.push(`t=${existing.t}`);
-    if (existing.lat != null && existing.lon != null) params.push(`lat=${existing.lat}&lon=${existing.lon}`);
+    if (existing.lat != null && existing.lon != null)
+      params.push(`lat=${existing.lat}&lon=${existing.lon}`);
     if (existing.z != null) params.push(`z=${existing.z}`);
     if (existing.l) params.push(`l=${existing.l}`);
     const newHash = params.length ? `#${params.join('&')}` : '';
@@ -209,19 +231,16 @@ export default function App() {
   return (
     <AppShell
       header={{ height: 0 }}
-      navbar={{ width: 360, breakpoint: "sm", collapsed: { mobile: false } }}
+      navbar={{ width: 360, breakpoint: 'sm', collapsed: { mobile: false } }}
       padding={0}
-   >
+    >
       <AppShell.Navbar p="xs">
-        <ScrollArea style={{ height: "100%" }}>
-          <CatalogPanel
-            onSelect={setActiveLayerSlug}
-            activeLayerSlug={activeLayerSlug}
-          />
+        <ScrollArea style={{ height: '100%' }}>
+          <CatalogPanel onSelect={setActiveLayerSlug} activeLayerSlug={activeLayerSlug} />
         </ScrollArea>
       </AppShell.Navbar>
-      <AppShell.Main style={{ position: "relative" }}>
-        {mode === "2d" && (
+      <AppShell.Main style={{ position: 'relative' }}>
+        {mode === '2d' && (
           <CatalogMap
             activeLayerSlug={activeLayerSlug}
             catalog={mappedCatalog}
@@ -229,10 +248,15 @@ export default function App() {
             currentTime={currentTime}
           />
         )}
-        {mode === "3d" && canUse3D && <Globe3DLoader />}
+        {mode === '3d' && canUse3D && <Globe3DLoader />}
         <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
-        {mode === "3d" && canUse3D && (
-          <Paper withBorder shadow="sm" p="xs" style={{ position: "absolute", top: 70, right: 8, zIndex: 20 }}>
+        {mode === '3d' && canUse3D && (
+          <Paper
+            withBorder
+            shadow="sm"
+            p="xs"
+            style={{ position: 'absolute', top: 70, right: 8, zIndex: 20 }}
+          >
             <Checkbox
               size="xs"
               label="GIBS GeoColor"
@@ -241,7 +265,12 @@ export default function App() {
             />
           </Paper>
         )}
-        <Paper withBorder shadow="sm" p="xs" style={{ position: "absolute", left: 8, top: 8, zIndex: 15 }}>
+        <Paper
+          withBorder
+          shadow="sm"
+          p="xs"
+          style={{ position: 'absolute', left: 8, top: 8, zIndex: 15 }}
+        >
           <Group gap={6} align="center">
             <Text size="xs" c="dimmed">
               Catalog Demo
@@ -255,7 +284,14 @@ export default function App() {
           withBorder
           shadow="sm"
           p="xs"
-          style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 20, width: "min(480px,80%)" }}
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 20,
+            width: 'min(480px,80%)',
+          }}
         >
           <TextInput
             placeholder="Search location…"
@@ -273,12 +309,18 @@ export default function App() {
             </Group>
           )}
           {!searchLoading && results.length > 0 && (
-            <Paper withBorder mt={6} p={4} radius="sm" style={{ maxHeight: 220, overflowY: "auto" }}>
+            <Paper
+              withBorder
+              mt={6}
+              p={4}
+              radius="sm"
+              style={{ maxHeight: 220, overflowY: 'auto' }}
+            >
               {results.slice(0, 8).map((r) => (
                 <Text
                   key={r.place_id}
                   size="xs"
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => flyToResult(r)}
                   title={r.display_name}
                 >
@@ -296,7 +338,8 @@ export default function App() {
           currentTime={currentTime}
           setCurrentTime={(t) => {
             type MaybeFn<T, A> = T | ((arg: A) => T);
-            const resolve = <T, A>(m: MaybeFn<T, A>, a: A): T => (typeof m === 'function' ? (m as (x: A) => T)(a) : m);
+            const resolve = <T, A>(m: MaybeFn<T, A>, a: A): T =>
+              typeof m === 'function' ? (m as (x: A) => T)(a) : m;
             setPlaybackCurrentTimeMs(resolve(t, currentTime));
           }}
           currentDate={new Date(currentTime)}

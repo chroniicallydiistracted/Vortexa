@@ -1,12 +1,10 @@
-import { useStore } from "./store";
+import { useStore } from './store';
 
 export async function fetchTimestamps(layerId: string): Promise<string[]> {
-  const r = await fetch(
-    `/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`,
-  );
+  const r = await fetch(`/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`);
   if (!r.ok) return [];
-  const ct = r.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) return [];
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) return [];
   try {
     const json = await r.json();
     return json.timestamps || [];
@@ -24,12 +22,12 @@ export function buildTileUrl(
 ): string {
   // baseTemplate expected like /api/gibs/tile/Layer/{z}/{y}/{x}.ext
   let url = baseTemplate
-    .replace("{z", "{z")
-    .replace("{z}", String(z))
-    .replace("{y}", String(y))
-    .replace("{x}", String(x));
+    .replace('{z', '{z')
+    .replace('{z}', String(z))
+    .replace('{y}', String(y))
+    .replace('{x}', String(x));
   if (time) {
-    const sep = url.includes("?") ? "&" : "?";
+    const sep = url.includes('?') ? '&' : '?';
     url += `${sep}time=${encodeURIComponent(time)}`;
   }
   return url;
@@ -51,11 +49,11 @@ export async function prefetchNextTile(
   y: number,
   x: number,
   nextIso: string,
-  ext: string = "png",
+  ext: string = 'png',
 ) {
   const url = `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.${ext}?time=${encodeURIComponent(nextIso)}`;
   try {
-    await fetch(url, { method: "HEAD" });
+    await fetch(url, { method: 'HEAD' });
   } catch {
     // swallow; prefetch is opportunistic
   }

@@ -13,6 +13,8 @@
     "services/shared"
   ],
   "scripts": {
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "dev:proxy": "pnpm --filter tile-proxy dev",
     "dev:web": "pnpm --filter weather-web dev",
     "dev:alerts": "pnpm --filter alerts-lambda build --watch",

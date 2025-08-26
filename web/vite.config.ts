@@ -1,20 +1,20 @@
-import { defineConfig, splitVendorChunkPlugin } from "vite";
-import react from "@vitejs/plugin-react";
-import { visualizer } from "rollup-plugin-visualizer";
-const backend = process.env.VITE_BACKEND_URL || "http://localhost:4000"; // configurable in dev
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
+import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
+const backend = process.env.VITE_BACKEND_URL || 'http://localhost:4000'; // configurable in dev
 
 // Custom plugin to strip the eval usage in protobufjs's minimal build (inquire helper)
 // to silence Vite's eval warning while keeping module behavior (returns null for optional deps).
 function stripProtobufEval() {
   return {
-    name: "strip-protobuf-eval",
-    enforce: "pre" as const,
+    name: 'strip-protobuf-eval',
+    enforce: 'pre' as const,
     transform(code: string, id: string) {
-      if (id.includes("protobufjs/dist/minimal/protobuf.js")) {
+      if (id.includes('protobufjs/dist/minimal/protobuf.js')) {
         const before = code;
         const replaced = code.replace(
           'var mod = eval("quire".replace(/^/,"re"))(moduleName); // eslint-disable-line no-eval',
-          'var mod = null; // stripped eval (dynamic require) for bundler safety'
+          'var mod = null; // stripped eval (dynamic require) for bundler safety',
         );
         if (before !== replaced) {
           return { code: replaced, map: null };
@@ -26,37 +26,42 @@ function stripProtobufEval() {
 }
 
 export default defineConfig({
-  plugins: [react(), splitVendorChunkPlugin(), stripProtobufEval(), visualizer({ filename: "dist/stats.html", brotliSize: true, gzipSize: true })],
+  plugins: [
+    react(),
+    splitVendorChunkPlugin(),
+    stripProtobufEval(),
+    visualizer({ filename: 'dist/stats.html', brotliSize: true, gzipSize: true }),
+  ],
   server: {
     port: 5173,
     host: true,
     proxy: {
-      "/api": { target: backend, changeOrigin: true },
+      '/api': { target: backend, changeOrigin: true },
       // "/cesium": { target: backend, changeOrigin: true }, // retained until asset requests verified
       // Optional: surface metrics locally (comment out if not needed)
-      "/metrics": { target: backend, changeOrigin: true },
+      '/metrics': { target: backend, changeOrigin: true },
     },
   },
   resolve: {
     alias: {
-  // (intentionally empty) – earlier attempt to alias protobufjs to its minimal
-  // runtime caused path rewriting issues (Cesium already imports
-  // "protobufjs/dist/minimal/protobuf.js" directly). Leaving this empty avoids
-  // build failures like: protobufjs/minimal.js/dist/minimal/protobuf.js ENOENT.
+      // (intentionally empty) – earlier attempt to alias protobufjs to its minimal
+      // runtime caused path rewriting issues (Cesium already imports
+      // "protobufjs/dist/minimal/protobuf.js" directly). Leaving this empty avoids
+      // build failures like: protobufjs/minimal.js/dist/minimal/protobuf.js ENOENT.
     },
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ["react", "react-dom"],
-          mantine: ["@mantine/core", "@mantine/hooks", "@mantine/notifications", "@mantine/dates"],
-          maplibre: ["maplibre-gl"],
-          cesium: ["cesium"],
+          react: ['react', 'react-dom'],
+          mantine: ['@mantine/core', '@mantine/hooks', '@mantine/notifications', '@mantine/dates'],
+          maplibre: ['maplibre-gl'],
+          cesium: ['cesium'],
         },
       },
     },
     chunkSizeWarningLimit: 1600,
   },
-  optimizeDeps: { include: ["maplibre-gl"] },
+  optimizeDeps: { include: ['maplibre-gl'] },
 });

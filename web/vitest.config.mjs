@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['src/components/__tests__/**/*.{test,spec}.{ts,tsx}'],
-  }
+    // Broaden include to cover new state, ui, a11y, map suites
+    include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
+  },
 });

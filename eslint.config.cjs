@@ -1,32 +1,32 @@
 // ESLint flat config migrated from previous .eslintrc.cjs
-const ts = require("@typescript-eslint/eslint-plugin");
-const tsParser = require("@typescript-eslint/parser");
+const ts = require('@typescript-eslint/eslint-plugin');
+const tsParser = require('@typescript-eslint/parser');
 
 module.exports = [
   {
-    files: ["**/*.ts", "**/*.tsx"],
-  ignores: ["**/dist/**", "**/node_modules/**", "sam-installer/**"],
+    files: ['**/*.ts', '**/*.tsx'],
+    ignores: ['**/dist/**', '**/node_modules/**', 'sam-installer/**'],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: "module",
+      sourceType: 'module',
       parser: tsParser,
     },
-    plugins: { "@typescript-eslint": ts },
+    plugins: { '@typescript-eslint': ts },
     rules: {
       ...ts.configs.recommended.rules,
       // Central rule customizations
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       // (Legacy restricted imports handled in root .eslintrc.cjs to avoid false positives here)
     },
   },
   {
-    files: ["**/*.test.ts", "**/__tests__/**/*.ts", "**/*.spec.ts"],
+    files: ['**/*.test.ts', '**/__tests__/**/*.ts', '**/*.spec.ts'],
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

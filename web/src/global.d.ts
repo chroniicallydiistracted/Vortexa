@@ -9,4 +9,4 @@ interface ImportMeta {
 }
 
 // Cesium module stub (types included with package, but ensure TS finds it)
-declare module "cesium";
+declare module 'cesium';
