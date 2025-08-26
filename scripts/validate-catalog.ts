@@ -10,8 +10,14 @@ type Layer = {
 };
 
 const p = path.resolve('web/public/catalog.json');
-const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
-const layers: Layer[] = Array.isArray(raw) ? raw : raw.layers || raw;
+let raw: unknown;
+try {
+  raw = JSON.parse(fs.readFileSync(p, 'utf8'));
+} catch (e) {
+  console.error('ERROR parsing catalog.json', { path: p, error: (e as Error).message });
+  process.exit(1);
+}
+const layers: Layer[] = Array.isArray(raw) ? (raw as Layer[]) : (raw as any).layers || (raw as any);
 
 let errors = 0;
 const byTemplate = new Map<string, string[]>();
