@@ -5,10 +5,41 @@ vi.mock('../../components/Map', () => ({ default: () => null }));
 vi.mock('../../map/cesium/CesiumGlobe', () => ({ default: () => null }));
 
 describe('App mode permalink + env gating', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
     vi.unstubAllEnvs();
     window.history.replaceState(null, '', '/');
+    
+    // Reset store state to ensure clean test environment
+    const { useStore } = await import('../../state/store');
+    useStore.setState({
+      mode: '2d',
+      layers: [],
+      time: new Date().toISOString().slice(0, 10),
+      playing: false,
+      view: { lat: 33.448, lon: -112.074, zoom: 6 },
+      gibsGeocolor3d: false,
+      gibsTimestamps: [],
+      gibsSelectedTime: null,
+      gibsPlaying: false,
+      gibsPlaybackSpeedMs: 1500,
+      gibsFps: 4,
+      gibsLoadError: null,
+      showFirms3d: false,
+      showOwmTemp3d: false,
+      playbackBaseStartMs: (() => {
+        const d = new Date();
+        d.setMinutes(0, 0, 0);
+        return d.getTime() - 24 * 3600_000;
+      })(),
+      playbackHoursSpan: 48,
+      playbackCurrentTimeMs: (() => {
+        const d = new Date();
+        d.setMinutes(0, 0, 0);
+        return d.getTime();
+      })(),
+      playbackSpeed: '1x',
+    });
   });
 
   it('restores 3D mode from ?mode=3d when VITE_ENABLE_3D=1', async () => {

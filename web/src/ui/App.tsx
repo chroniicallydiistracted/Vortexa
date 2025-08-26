@@ -35,6 +35,7 @@ export default function App() {
     setView,
     mode,
     setMode,
+    updateModeFromLocation,
     gibsGeocolor3d,
     toggleGibsGeocolor3d,
     playbackCurrentTimeMs,
@@ -59,6 +60,12 @@ export default function App() {
   const requested3d = requestedMode === '3d';
   // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
   const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
+  
+  // Update mode from location on mount to handle hash changes after store initialization
+  useEffect(() => {
+    updateModeFromLocation();
+  }, [updateModeFromLocation]);
+  
   useEffect(() => {
     const current = useStore.getState().mode;
     if (current === '3d' && mode === '3d') return; // don't downgrade
