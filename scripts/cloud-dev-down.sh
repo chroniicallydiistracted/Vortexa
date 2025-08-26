@@ -97,7 +97,7 @@ if [[ $DROP_TABLE -eq 1 ]]; then
         echo "[cloud-dev-down] Delete requested; waiting for table removal..."
         deleted=0
         for i in {1..60}; do
-          if aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" >/devnull 2>&1; then sleep 1; else deleted=1; break; fi
+          if aws dynamodb describe-table --table-name "$TABLE" --region "$REGION" >/dev/null 2>&1; then sleep 1; else deleted=1; break; fi
         done
         if [[ $deleted -eq 1 ]]; then echo "[cloud-dev-down] Table deletion confirmed."; else echo "[cloud-dev-down] WARNING: Table still present after timeout."; fi
       else

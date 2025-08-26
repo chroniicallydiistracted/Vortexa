@@ -272,6 +272,7 @@ Note: Removed explicit dependency on an internal cert validation resource (not d
 - Need to run: `npm run build` and `npm run package:alerts` after merge to confirm packaging.
 
 ---
+
 ### 2025-08-26: GOES proxy tile migration & prefetch fix
 
 Summary:
@@ -289,7 +290,7 @@ Tests:
 - `pnpm format:check`
 - `pnpm test`
 - `pnpm --filter weather-web run build`
-- `curl -sI http://localhost:4000/api/gibs/tile/GOES-East_ABI_GeoColor/3/2/1.jpg` *(500 ENETUNREACH)*
+- `curl -sI http://localhost:4000/api/gibs/tile/GOES-East_ABI_GeoColor/3/2/1.jpg` _(500 ENETUNREACH)_
 
 Rollback:
 

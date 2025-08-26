@@ -37,8 +37,16 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
   const theme = useMantineTheme();
   const mapRef = useRef<MLMap | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  
+  console.log('[Map] Map component rendered with props:', { activeLayerSlug, catalog: catalog ? 'loaded' : 'null', currentTime });
   // init
   useEffect(() => {
+    if (!containerRef.current) {
+      console.log('[Map] Container ref not ready, skipping map initialization');
+      return;
+    }
+    
+    console.log('[Map] Initializing map with basemap template:', import.meta.env.VITE_BASEMAP_TILE_URL || '/api/cartodb/positron/{z}/{x}/{y}.png');
     const baseTemplate =
       import.meta.env.VITE_BASEMAP_TILE_URL || '/api/cartodb/positron/{z}/{x}/{y}.png';
     const style: StyleSpecification = {
@@ -58,6 +66,7 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
       center: [-112.074, 33.448],
       zoom: 3,
     };
+    console.log('[Map] Creating map with container:', containerRef.current);
     const map: MapLibreMap = new maplibregl.Map(options);
     map.addControl(new maplibregl.NavigationControl());
     // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
@@ -68,6 +77,7 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
     };
     canvas.addEventListener('webglcontextlost', onContextLost, { once: true });
     mapRef.current = map;
+    console.log('[Map] Map created successfully');
     if (onMapReady) onMapReady(map);
     return () => {
       try {
@@ -83,7 +93,7 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
       // Null out ref so async effects know map is gone
       mapRef.current = null;
     };
-  }, []);
+  }, [containerRef.current]);
 
   // helper: format time per format token
   function formatTime(fmt: string | undefined, ms: number): string {

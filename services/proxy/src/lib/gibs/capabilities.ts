@@ -31,9 +31,9 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
   if (tsCache.has(layerId)) return tsCache.get(layerId)!;
   const xml = await getCapabilitiesXML();
   const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // Support <Title> or <ows:Title>
+  // Look for Layer blocks by Identifier, not Title
   const layerRegex = new RegExp(
-    `<Layer>[\\s\\S]*?<(?:(?:ows:)?Title)>\\s*${escaped}\\s*<\\/(?:ows:)?Title>[\\s\\S]*?<\\/Layer>`,
+    `<Layer>[\\s\\S]*?<ows:Identifier>\\s*${escaped}\\s*<\\/ows:Identifier>[\\s\\S]*?<\\/Layer>`,
     'i',
   );
   const layerBlockMatch = xml.match(layerRegex);
@@ -42,33 +42,65 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
     return [];
   }
   const layerBlock = layerBlockMatch[0];
-  // dimension variations: name="time" or <Dimension><Identifier>time</Identifier><Value>...</Value>
-  const dimMatch =
-    layerBlock.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
-    layerBlock.match(
-      /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
-    );
+  
+  // Look for Time dimension with ows:Identifier>Time</ows:Identifier>
+  const dimMatch = layerBlock.match(
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/i
+  );
+  
   if (!dimMatch) {
     tsCache.set(layerId, []);
     return [];
   }
+  
   const raw = dimMatch[1];
-  // Split on commas or whitespace; keep ISO-like tokens
+  // Split on commas or whitespace; keep date tokens
   const tokens = raw
     .split(/[\s,]+/)
     .map((s) => s.trim())
     .filter(Boolean);
-  const times = tokens.filter((t) => /^\d{4}-\d{2}-\d{2}T\d{2}:?\d{2}:?\d{2}Z$/.test(t)).sort();
-  tsCache.set(layerId, times);
-  return times;
+  
+  const times: string[] = [];
+  
+  // Process each token to extract timestamps
+  for (const token of tokens) {
+    if (token.includes('/')) {
+      // Handle period format like "2025-08-15T12:00:00Z/2025-08-15T12:30:00Z/PT10M"
+      const parts = token.split('/');
+      if (parts.length >= 2) {
+        // Add both start and end times
+        const startTime = parts[0];
+        const endTime = parts[1];
+        
+        // Validate ISO8601 format
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(startTime)) {
+          times.push(startTime);
+        }
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endTime)) {
+          times.push(endTime);
+        }
+      }
+    } else {
+      // Handle single timestamp
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(token)) {
+        times.push(token);
+      }
+    }
+  }
+  
+  // Remove duplicates and sort
+  const uniqueTimes = [...new Set(times)].sort();
+  tsCache.set(layerId, uniqueTimes);
+  return uniqueTimes;
 }
 
 export async function getLatestTimestamp(layerId: string): Promise<string | null> {
   if (latestCache.has(layerId)) return latestCache.get(layerId)!;
   const xml = await getCapabilitiesXML();
   const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Look for Layer blocks by Identifier, not Title
   const layerRegex = new RegExp(
-    `<Layer>[\\s\\S]*?<(?:(?:ows:)?Title)>\\s*${escaped}\\s*<\\/(?:ows:)?Title>[\\s\\S]*?<\\/Layer>`,
+    `<Layer>[\\s\\S]*?<ows:Identifier>\\s*${escaped}\\s*<\\/ows:Identifier>[\\s\\S]*?<\\/Layer>`,
     'i',
   );
   const layerBlockMatch = xml.match(layerRegex);
@@ -77,31 +109,41 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
     return null;
   }
   const layerBlock = layerBlockMatch[0];
-  const dimMatch =
-    layerBlock.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
-    layerBlock.match(
-      /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
-    );
+  
+  // Look for Time dimension with ows:Identifier>Time</ows:Identifier>
+  const dimMatch = layerBlock.match(
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/i
+  );
+  
   if (!dimMatch) {
     latestCache.set(layerId, null);
     return null;
   }
+  
+  // Check for default attribute first
   const defaultAttr = dimMatch[0].match(/default="([^"]+)"/i);
   let latest: string | null = defaultAttr ? defaultAttr[1] : null;
+  
   if (!latest) {
     const body = dimMatch[1].trim();
-    if (body.includes('/P')) {
+    if (body.includes('/')) {
+      // Handle period format like "2025-08-15T12:00:00Z/2025-08-15T12:30:00Z/PT10M"
       const parts = body.split('/');
-      if (parts.length >= 2) latest = parts[1];
+      if (parts.length >= 2) {
+        // Use the end time (most recent) from the period
+        const endTime = parts[1];
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endTime)) {
+          latest = endTime;
+        }
+      }
     } else {
-      const tokens = body
-        .split(/[\s,]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      latest =
-        tokens.filter((t) => /^\d{4}-\d{2}-\d{2}T\d{2}:?\d{2}:?\d{2}Z$/.test(t)).pop() || null;
+      // Handle single timestamp
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(body)) {
+        latest = body;
+      }
     }
   }
+  
   latestCache.set(layerId, latest);
   return latest;
 }

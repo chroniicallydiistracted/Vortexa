@@ -18,7 +18,7 @@ import Globe3DLoader from '../features/globe/Globe3DLoader';
 import { getRuntimeFlags } from '../util/featureFlags';
 // Legacy MapView/Panel removed; using modern catalog-based components
 import CatalogPanel from '../components/Panel';
-import CatalogMap, { CatalogEntry as MapCatalogEntry } from '../components/Map';
+import Map, { CatalogEntry as MapCatalogEntry } from '../components/Map';
 // TimeBar (Mantine) replaces legacy Timeline component
 import { TimeBar } from '../components/TimeBar';
 import { parseHash, decodeLayers } from '../util/permalink';
@@ -40,6 +40,8 @@ export default function App() {
     toggleGibsGeocolor3d,
     playbackCurrentTimeMs,
   } = useStore();
+  
+  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D);
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });
@@ -60,6 +62,8 @@ export default function App() {
   const requested3d = requestedMode === '3d';
   // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
   const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
+  
+  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D, 'requested3d:', requested3d);
 
   // Update mode from location on mount to handle hash changes after store initialization
   useEffect(() => {
@@ -259,12 +263,15 @@ export default function App() {
       </AppShell.Navbar>
       <AppShell.Main style={{ position: 'relative' }}>
         {mode === '2d' && (
-          <CatalogMap
-            activeLayerSlug={activeLayerSlug}
-            catalog={mappedCatalog}
-            onMapReady={setMapInstance}
-            currentTime={currentTime}
-          />
+          <>
+            {console.log('[App] Rendering Map component in 2D mode')}
+            <Map
+              activeLayerSlug={activeLayerSlug}
+              catalog={mappedCatalog}
+              onMapReady={setMapInstance}
+              currentTime={currentTime}
+            />
+          </>
         )}
         {mode === '3d' && canUse3D && <Globe3DLoader />}
         <ModeSwitch mode={mode} setMode={setMode} canUse3D={canUse3D} />
