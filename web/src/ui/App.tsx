@@ -40,7 +40,7 @@ export default function App() {
     toggleGibsGeocolor3d,
     playbackCurrentTimeMs,
   } = useStore();
-
+  
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });

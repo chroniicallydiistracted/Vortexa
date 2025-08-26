@@ -32,7 +32,7 @@
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "validate:inventory": "node scripts/validate-inventory.mjs",
     "codemod:aliases": "node scripts/codemod-alias-imports.mjs",
-    "typecheck": "pnpm build"
+  "typecheck": "pnpm -w exec tsc -b web services/proxy services/alerts services/shared --pretty false"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
@@ -44,7 +44,8 @@
     "eslint-config-prettier": "^10.1.8",
     "globby": "^14.1.0",
     "prettier": "^3.6.2",
-    "vitest": "^2.1.9"
+  "vitest": "^2.1.9",
+  "typescript": "^5.4.2"
   },
   "dependencies": {
     "zod": "^3.25.76"

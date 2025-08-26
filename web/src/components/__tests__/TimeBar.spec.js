@@ -1,0 +1,34 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import { describe, it, expect, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
+import { TimeBar } from '../TimeBar';
+import { renderWithMantine } from '../../test-utils/renderWithMantine';
+describe('TimeBar', () => {
+    it('toggles play button and displays slider', async () => {
+        const user = userEvent.setup();
+        const togglePlay = vi.fn();
+        let hourValue = 5;
+        const setHourValue = (n) => {
+            hourValue = n;
+        };
+        let speed = '1x';
+        const setSpeed = (s) => {
+            speed = s;
+        };
+        const baseStart = Date.UTC(2025, 7, 24, 0, 0, 0, 0); // Aug 24 2025 UTC
+        const hoursSpan = 48;
+        let currentTime = baseStart + hourValue * 3600_000;
+        const setCurrentTime = (v) => {
+            currentTime = v;
+        };
+        let currentDate = new Date(baseStart);
+        const setCurrentDate = (d) => {
+            currentDate = d;
+        };
+        renderWithMantine(_jsx(TimeBar, { playing: false, togglePlay: togglePlay, baseStart: baseStart, hoursSpan: hoursSpan, currentTime: currentTime, setCurrentTime: setCurrentTime, currentDate: currentDate, setCurrentDate: setCurrentDate, hourValue: hourValue, setHourValue: setHourValue, speed: speed, setSpeed: setSpeed }));
+        await user.click(screen.getByRole('button', { name: /play/i }));
+        expect(togglePlay).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('slider')).toBeInTheDocument();
+    });
+});

@@ -63,3 +63,11 @@
 [proxy] GET /api/firms/VIIRS_NOAA20_NRT/1 502 82 - 0.667 ms
 [proxy] [2025-08-26 13:57:51.857 -0700] [31mERROR[39m (75584): [36malerts scan failed[39m
 [proxy]     error: "Requested resource not found"
+[web] 2:01:24 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:01:24 PM [vite] (client) hmr update /src/ui/App.tsx, /src/components/Panel.tsx
+[web] 2:02:36 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:02:47 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:36:26 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:36:56 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:38:01 PM [vite] (client) hmr update /src/ui/App.tsx
+[web] 2:45:42 PM [vite] (client) hmr update /src/ui/App.tsx
