@@ -79,8 +79,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
                       : l.slug,
                 source_type: typeof record.type === 'string' ? record.type : undefined,
                 notes: typeof record.notes === 'string' ? record.notes : undefined,
-                attribution:
-                  typeof record.attribution === 'string' ? record.attribution : undefined,
+                attribution: typeof record.attribution === 'string' ? record.attribution : undefined,
               };
             });
             return mapped;

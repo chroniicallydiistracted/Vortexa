@@ -71,7 +71,7 @@ export default function App() {
       if (p.lat != null && p.lon != null) setView({ lat: p.lat, lon: p.lon });
       if (p.z != null) setView({ zoom: p.z });
       if (p.l) {
-        const base = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
+  const base = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
         const ls = decodeLayers(p.l).map((l) => {
           // heuristic map id to known template if preset; fallback noop layer placeholder
           if (l.id === 'gibs-geocolor')
@@ -102,7 +102,7 @@ export default function App() {
     name?: string;
     type?: string;
     template?: string; // raster template
-    url?: string; // vector/geojson url
+  url?: string; // vector/geojson url
     attribution?: string;
     notes?: string;
   }

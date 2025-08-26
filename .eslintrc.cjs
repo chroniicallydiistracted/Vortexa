@@ -6,7 +6,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
-    // Legacy restricted imports cleaned up (Panel/Timeline fully removed)
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+  // Legacy restricted imports cleaned up (Panel/Timeline fully removed)
+  '@typescript-eslint/explicit-module-boundary-types': 'off',
   },
 };

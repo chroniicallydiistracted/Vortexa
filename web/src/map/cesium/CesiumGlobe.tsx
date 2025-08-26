@@ -203,7 +203,7 @@ export function CesiumGlobe() {
       }
       if (showOwmTemp && !existing) {
         // Use 'temp_new' layer name; adjust if environment variable provided
-        const template = '/api/owm/tiles/temp_new/{z}/{x}/{y}.png';
+  const template = '/api/owm/tiles/temp_new/{z}/{x}/{y}.png';
         const provider = new UrlTemplateImageryProvider({
           url: template,
           credit: 'OWM Temperature (OpenWeatherMap)',

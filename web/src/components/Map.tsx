@@ -50,7 +50,7 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
           tileSize: 256,
         } as RasterSourceSpecification,
       },
-      layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }],
+  layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }],
     };
     const options: MapOptions = {
       container: containerRef.current as HTMLElement,
@@ -58,17 +58,17 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
       center: [-112.074, 33.448],
       zoom: 3,
     };
-    const map: MapLibreMap = new maplibregl.Map(options);
-    map.addControl(new maplibregl.NavigationControl());
-    // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
-    const canvas = map.getCanvas();
-    const onContextLost = (e: Event) => {
+  const map: MapLibreMap = new maplibregl.Map(options);
+  map.addControl(new maplibregl.NavigationControl());
+  // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
+  const canvas = map.getCanvas();
+  const onContextLost = (e: Event) => {
       e.preventDefault();
       console.warn('[Map] WebGL context lost');
     };
-    canvas.addEventListener('webglcontextlost', onContextLost, { once: true });
-    mapRef.current = map;
-    if (onMapReady) onMapReady(map);
+  canvas.addEventListener('webglcontextlost', onContextLost, { once: true });
+  mapRef.current = map;
+  if (onMapReady) onMapReady(map);
     return () => {
       try {
         canvas.removeEventListener('webglcontextlost', onContextLost);
