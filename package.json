@@ -17,14 +17,14 @@
     "format:check": "prettier . --check",
     "dev:proxy": "pnpm --filter tile-proxy dev",
     "dev:web": "pnpm --filter weather-web dev",
-    "dev:alerts": "pnpm --filter alerts-lambda build --watch",
+    "dev:alerts": "pnpm --filter @westfam/alerts build --watch",
     "dev:all": "concurrently -n proxy,web -c blue,green \"pnpm dev:proxy\" \"pnpm dev:web\"",
-    "start": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter alerts-lambda build && pnpm --filter weather-web build && concurrently -n proxy,web -c blue,green \"pnpm --filter tile-proxy start\" \"pnpm --filter weather-web start\"",
+    "start": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter @westfam/alerts build && pnpm --filter weather-web build && concurrently -n proxy,web -c blue,green \"pnpm --filter tile-proxy start\" \"pnpm --filter weather-web start\"",
     "cloud:down": "bash scripts/cloud-dev-down.sh",
     "cloud:dev": "bash scripts/cloud-dev.sh",
-    "build": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter alerts-lambda build && pnpm --filter weather-web build",
+    "build": "pnpm -r --filter @westfam/shared build && pnpm --filter tile-proxy build && pnpm --filter @westfam/alerts build && pnpm --filter weather-web build",
     "package:alerts": "bash scripts/package-alerts.sh",
-    "test": "pnpm --filter tile-proxy test && pnpm --filter alerts-lambda test && pnpm --filter @westfam/shared test && pnpm --filter weather-web test",
+    "test": "pnpm --filter tile-proxy test && pnpm --filter @westfam/alerts test && pnpm --filter @westfam/shared test && pnpm --filter weather-web test",
     "validate:history": "node scripts/validate-history.js",
     "deploy": "bash scripts/deploy.sh",
     "verify:history": "node scripts/verify-history-coverage.js",
@@ -35,17 +35,17 @@
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
-    "@typescript-eslint/eslint-plugin": "^8.40.0",
-    "@typescript-eslint/parser": "^8.40.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
     "ajv": "^8.17.1",
-    "concurrently": "^9.0.1",
+    "concurrently": "^9.2.1",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "globby": "^14.1.0",
     "prettier": "^3.6.2",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.9"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   }
 }

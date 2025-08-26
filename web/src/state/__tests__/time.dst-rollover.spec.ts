@@ -24,11 +24,11 @@ describe('playback rollover & DST edge cases', () => {
   it('advancing from last hour in window (23->0) increments date', () => {
     // Start at midnight UTC for deterministic rollover check
     configureWindow('2025-10-05T00:00:00Z', 24); // 24-hour window
-  const base = useStore.getState().playbackBaseStartMs;
-  useStore.getState().setPlaybackCurrentTimeMs(base + 23 * hourMs);
-  expect(new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours()).toBe(23);
-  useStore.getState().setPlaybackCurrentTimeMs(base + 24 * hourMs); // +24h crosses to next day 00:00
-  const d = new Date(useStore.getState().playbackCurrentTimeMs);
+    const base = useStore.getState().playbackBaseStartMs;
+    useStore.getState().setPlaybackCurrentTimeMs(base + 23 * hourMs);
+    expect(new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours()).toBe(23);
+    useStore.getState().setPlaybackCurrentTimeMs(base + 24 * hourMs); // +24h crosses to next day 00:00
+    const d = new Date(useStore.getState().playbackCurrentTimeMs);
     expect(d.getUTCHours()).toBe(0);
     // Date component should now be next day
     expect(d.toISOString().startsWith('2025-10-06')).toBe(true);
@@ -40,13 +40,13 @@ describe('playback rollover & DST edge cases', () => {
     // NOTE: Store uses UTC milliseconds; we assert UTC progression consistent with expected skip of one local hour.
     const baseUtc = Date.UTC(2025, 2, 9, 0, 0, 0); // 2025-03-09T00:00:00Z
     configureWindow(new Date(baseUtc), 48);
-  // Pre-shift pick an hour index representing 01:00 UTC offset from base
-  useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 1 * hourMs);
-  const before = new Date(useStore.getState().playbackCurrentTimeMs);
+    // Pre-shift pick an hour index representing 01:00 UTC offset from base
+    useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 1 * hourMs);
+    const before = new Date(useStore.getState().playbackCurrentTimeMs);
     expect(before.getUTCHours()).toBe(1);
     // Jump over the skipped local 02:00 by advancing +2 hours (simulate user scrubbing or playback advancement)
-  useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 3 * hourMs);
-  const after = new Date(useStore.getState().playbackCurrentTimeMs);
+    useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 3 * hourMs);
+    const after = new Date(useStore.getState().playbackCurrentTimeMs);
     expect(after.getUTCHours()).toBe(3);
     // Ensure no accidental extra hour subtraction/addition
     expect(after.getTime() - before.getTime()).toBe(2 * hourMs);
@@ -73,10 +73,10 @@ describe('playback rollover & DST edge cases', () => {
     // 2026 spring forward: March 8, 2026
     const baseUtc = Date.UTC(2026, 2, 8, 0, 0, 0);
     configureWindow(new Date(baseUtc), 24);
-  useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 1 * hourMs);
-  const h1 = new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours();
-  useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 3 * hourMs);
-  const h2 = new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours();
+    useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 1 * hourMs);
+    const h1 = new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours();
+    useStore.getState().setPlaybackCurrentTimeMs(baseUtc + 3 * hourMs);
+    const h2 = new Date(useStore.getState().playbackCurrentTimeMs).getUTCHours();
     expect(h1).toBe(1);
     expect(h2).toBe(3);
   });

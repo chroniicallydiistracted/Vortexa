@@ -16,10 +16,10 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '1');
     window.history.replaceState(null, '', '/?mode=3d');
 
-  const { useStore } = await import('../../state/store');
-  const { default: App } = await import('../App');
-  renderWithMantine(<App />);
-  expect(useStore.getState().mode).toBe('3d');
+    const { useStore } = await import('../../state/store');
+    const { default: App } = await import('../App');
+    renderWithMantine(<App />);
+    expect(useStore.getState().mode).toBe('3d');
   });
 
   it('coerces to 2D when VITE_ENABLE_3D=0 even if ?mode=3d present', async () => {
@@ -27,10 +27,10 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '0');
     window.history.replaceState(null, '', '/?mode=3d');
 
-  const { useStore } = await import('../../state/store');
-  const { default: App } = await import('../App');
-  renderWithMantine(<App />);
-  expect(useStore.getState().mode).toBe('2d');
+    const { useStore } = await import('../../state/store');
+    const { default: App } = await import('../App');
+    renderWithMantine(<App />);
+    expect(useStore.getState().mode).toBe('2d');
   });
 
   it('accepts #mode=3d (hash fallback) when enabled', async () => {
@@ -38,9 +38,9 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '1');
     window.history.replaceState(null, '', '/#mode=3d');
 
-  const { useStore } = await import('../../state/store');
-  const { default: App } = await import('../App');
-  renderWithMantine(<App />);
-  expect(useStore.getState().mode).toBe('3d');
+    const { useStore } = await import('../../state/store');
+    const { default: App } = await import('../App');
+    renderWithMantine(<App />);
+    expect(useStore.getState().mode).toBe('3d');
   });
 });

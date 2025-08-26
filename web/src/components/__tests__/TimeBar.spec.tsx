@@ -15,8 +15,8 @@ describe('TimeBar', () => {
     const setHourValue = (n: number) => {
       hourValue = n;
     };
-  let speed: Speed = '1x';
-  const setSpeed = (s: Speed) => {
+    let speed: Speed = '1x';
+    const setSpeed = (s: Speed) => {
       speed = s;
     };
     const baseStart = Date.UTC(2025, 7, 24, 0, 0, 0, 0); // Aug 24 2025 UTC
