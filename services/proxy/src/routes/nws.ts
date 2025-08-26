@@ -13,12 +13,17 @@ nwsRouter.get('/*', async (req: Request, res: Response) => {
     const r = await fetch(full, {
       headers: {
         'User-Agent': NWS_USER_AGENT,
-        'Accept': (req.headers['accept'] as string) || 'application/geo+json,application/json;q=0.9,*/*;q=0.1',
+        Accept:
+          (req.headers['accept'] as string) ||
+          'application/geo+json,application/json;q=0.9,*/*;q=0.1',
       },
     });
     if (!r.ok) {
       const text = await r.text().catch(() => '');
-      res.status(r.status).type('text/plain').send(text || 'upstream_error');
+      res
+        .status(r.status)
+        .type('text/plain')
+        .send(text || 'upstream_error');
       return;
     }
     const ct = r.headers.get('content-type') || 'application/json';
@@ -26,6 +31,8 @@ nwsRouter.get('/*', async (req: Request, res: Response) => {
     const buf = Buffer.from(await r.arrayBuffer());
     res.send(buf);
   } catch (e) {
-    res.status(502).json({ error: 'nws_proxy_failed', message: (e as Error).message || 'fetch_failed' });
+    res
+      .status(502)
+      .json({ error: 'nws_proxy_failed', message: (e as Error).message || 'fetch_failed' });
   }
 });

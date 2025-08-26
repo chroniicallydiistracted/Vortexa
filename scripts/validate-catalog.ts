@@ -17,7 +17,7 @@ try {
   console.error('ERROR parsing catalog.json', { path: p, error: (e as Error).message });
   process.exit(1);
 }
-const layers: Layer[] = Array.isArray(raw) ? (raw as Layer[]) : ((raw as any).layers || (raw as any));
+const layers: Layer[] = Array.isArray(raw) ? (raw as Layer[]) : (raw as any).layers || (raw as any);
 
 let errors = 0;
 const byTemplate = new Map<string, string[]>();

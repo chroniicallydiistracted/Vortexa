@@ -17,12 +17,17 @@ firmsRouter.get('/:source/:days', async (req: Request, res: Response) => {
     });
     if (!r.ok) {
       const text = await r.text().catch(() => '');
-      res.status(r.status).type('text/plain').send(text || 'upstream_error');
+      res
+        .status(r.status)
+        .type('text/plain')
+        .send(text || 'upstream_error');
       return;
     }
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.send(await r.text());
   } catch (e) {
-    res.status(502).json({ error: 'firms_proxy_failed', message: (e as Error).message || 'fetch_failed' });
+    res
+      .status(502)
+      .json({ error: 'firms_proxy_failed', message: (e as Error).message || 'fetch_failed' });
   }
 });

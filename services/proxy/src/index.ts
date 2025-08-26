@@ -688,7 +688,11 @@ export function createApp(opts: CreateAppOptions = {}) {
         } catch (e) {
           const code = (e as any)?.$metadata?.httpStatusCode;
           if (code !== 404) {
-            logger.warn({ msg: 's3 get failed (treat as miss)', error: (e as Error).message, cacheKey });
+            logger.warn({
+              msg: 's3 get failed (treat as miss)',
+              error: (e as Error).message,
+              cacheKey,
+            });
           }
           // fall through to fetch upstream
         }

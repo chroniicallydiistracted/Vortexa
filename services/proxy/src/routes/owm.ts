@@ -14,13 +14,18 @@ owmRouter.get('/tiles/:layer/:z/:x/:y.png', async (req: Request, res: Response) 
     const r = await fetch(url);
     if (!r.ok) {
       const text = await r.text().catch(() => '');
-      res.status(r.status).type('text/plain').send(text || 'upstream_error');
+      res
+        .status(r.status)
+        .type('text/plain')
+        .send(text || 'upstream_error');
       return;
     }
     res.setHeader('Content-Type', 'image/png');
     const buf = Buffer.from(await r.arrayBuffer());
     res.send(buf);
   } catch (e) {
-    res.status(502).json({ error: 'owm_proxy_failed', message: (e as Error).message || 'fetch_failed' });
+    res
+      .status(502)
+      .json({ error: 'owm_proxy_failed', message: (e as Error).message || 'fetch_failed' });
   }
 });
