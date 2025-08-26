@@ -99,16 +99,8 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       {} as Record<string, CatalogEntry[]>,
     );
   }, [palette]);
-  // Track which categories are collapsed
-  // Track open state implicitly via Accordion defaultValue only; explicit collapsed state not needed
+  // Categories list for Accordion default expansion
   const allCats = useMemo(() => Object.keys(grouped).sort(), [grouped]);
-  const collapseAll = () => {
-    // No direct API to programmatically collapse all with controlled state; future improvement could lift to controlled Accordion
-    // For now this is a no-op placeholder to satisfy UI; removing would need button removal or redesign.
-  };
-  const expandAll = () => {
-    // Placeholder matching collapseAll above.
-  };
   // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
   useEffect(() => {
     if (mode !== "3d" || !gibsOn) return;
@@ -127,15 +119,7 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
     <Stack gap="sm" p={0} style={{ fontSize: 13 }}>
       <Group gap="xs" wrap="nowrap">
         <Text fw={600}>Layers</Text>
-        <Button size="xs" variant="light" onClick={collapseAll}>
-          Collapse
-        </Button>
-        <Button size="xs" variant="light" onClick={expandAll}>
-          Expand
-        </Button>
-        <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>
-          Clear
-        </Button>
+        <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>Clear</Button>
       </Group>
       {!palette && <Text size="xs" c="dimmed">Loading palette…</Text>}
       {palette && (

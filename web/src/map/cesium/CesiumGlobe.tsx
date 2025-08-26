@@ -47,8 +47,8 @@ export function CesiumGlobe() {
           minimumLevel: 0,
           maximumLevel: 18,
         });
-        const layer0 = viewer.imageryLayers.get(0 as number); // first layer
-  if (layer0) viewer.imageryLayers.remove(layer0 as unknown as typeof layer0, true);
+  const layer0 = viewer.imageryLayers.get(0 as number); // first layer
+  if (layer0) viewer.imageryLayers.remove(layer0, true); // simplified per review
         viewer.imageryLayers.addImageryProvider(provider, 0);
       } catch {}
       const height = zoomToHeight(view.zoom);
@@ -143,7 +143,7 @@ export function CesiumGlobe() {
       if (!showFirms) {
         const existing = (viewer.scene.primitives as unknown as { _primitives: TaggedPrimitive[] })._primitives
           .find((p) => (p as TaggedPrimitive)._westfamTag === "firms");
-  if (existing) viewer.scene.primitives.remove(existing as unknown as InstanceType<typeof PointPrimitiveCollection>);
+        if (existing) viewer.scene.primitives.remove(existing); // simplified removal per review
         return;
       }
       // If already present do nothing

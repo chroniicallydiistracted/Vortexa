@@ -19,7 +19,8 @@ declare global {
 	}
 }
 if (!('ResizeObserver' in globalThis)) {
-	(globalThis as unknown as { ResizeObserver: typeof RO }).ResizeObserver = RO;
+	// Simpler assignment per review suggestion
+	(globalThis as any).ResizeObserver = RO;
 }
 
 // matchMedia shim
