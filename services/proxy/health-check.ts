@@ -353,7 +353,7 @@ async function getGibsLatestTime(layerId: string): Promise<string | null> {
       if (!QUIET) console.log(`[gibs] Could not parse time for ${layerId}`);
     }
   } catch (e) {
-    if (!QUIET) console.log(`[gibs] Error getting time for ${layerId}:`, e.message);
+    if (!QUIET) console.log(`[gibs] Error getting time for ${layerId}:`, (e as Error).message);
   }
   return null;
 }
