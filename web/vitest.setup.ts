@@ -20,6 +20,24 @@ if (typeof window !== 'undefined') {
 expect.extend(matchers);
 
 // Minimal ResizeObserver shim (jsdom doesn't provide it)
-class RO { observe(){} unobserve(){} disconnect(){} }
-declare global { interface Window {} }
-(globalThis as any).ResizeObserver ||= RO;
+class RO {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// Only polyfill if missing in jsdom
+if (!('ResizeObserver' in globalThis)) {
+  (globalThis as any).ResizeObserver = RO;
+}
+
+// (optional) keep your matchMedia shim here as-is or in the same style:
+if (!('matchMedia' in window)) {
+  (window as any).matchMedia = (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener() {}, removeListener() {},
+    addEventListener() {}, removeEventListener() {}, dispatchEvent() { return false; },
+  });
+}
