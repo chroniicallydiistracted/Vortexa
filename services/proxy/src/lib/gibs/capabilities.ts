@@ -43,14 +43,12 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
   }
   const layerBlock = layerBlockMatch[0];
   
-  // Look for all Value elements within the Time dimension
-  const valueMatches = layerBlock.matchAll(
-    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/gi
-  );
-  
+  // Look for all Value elements within the Time dimension using a compatible approach
+  const valueRegex = /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/gi;
   const times: string[] = [];
+  let match;
   
-  for (const match of valueMatches) {
+  while ((match = valueRegex.exec(layerBlock)) !== null) {
     const raw = match[1];
     // Split on commas or whitespace; keep date tokens
     const tokens = raw
@@ -85,8 +83,15 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
     }
   }
   
-  // Remove duplicates and sort
-  const uniqueTimes = [...new Set(times)].sort();
+  // Remove duplicates and sort using a compatible approach
+  const uniqueTimes: string[] = [];
+  for (const time of times) {
+    if (uniqueTimes.indexOf(time) === -1) {
+      uniqueTimes.push(time);
+    }
+  }
+  uniqueTimes.sort();
+  
   tsCache.set(layerId, uniqueTimes);
   return uniqueTimes;
 }
