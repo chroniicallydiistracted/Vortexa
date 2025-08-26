@@ -23,8 +23,11 @@ import CatalogMap, { CatalogEntry as MapCatalogEntry } from '../components/Map';
 import { TimeBar } from '../components/TimeBar';
 import { parseHash, decodeLayers } from '../util/permalink';
 import { useStore } from '../util/store';
+import { is3DEnabled } from '../lib/env';
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';
+// URL mode initialization now handled inside store at module load.
+
 export default function App() {
   const {
     setTime,
@@ -42,19 +45,25 @@ export default function App() {
   useEffect(() => {
     getRuntimeFlags().then(setFlags);
   }, []);
-  const envEnable = import.meta.env.VITE_ENABLE_3D === '1';
-  const params = new URLSearchParams(location.search);
-  const requested3d = params.get('mode') === '3d';
+  const envEnable = is3DEnabled();
+  // Support ?mode=3d and fallback #mode=3d (hash) for backward compatibility
+  const searchParams = new URLSearchParams(location.search);
+  let requestedMode = searchParams.get('mode');
+  if (!requestedMode && window.location.hash) {
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    requestedMode = hashParams.get('mode');
+  }
+  const requested3d = requestedMode === '3d';
   const canUse3D = envEnable && flags.enable3d;
   // Coerce mode based on gating (do not allow 3D if flags off)
   useEffect(() => {
-    if (requested3d && !canUse3D && mode === '3d') {
-      setMode('2d');
-    } else if (requested3d && canUse3D && mode !== '3d') {
-      setMode('3d');
-    }
+    // Guard: never downgrade a valid 3D selection chosen via URL/store init
+    const current = useStore.getState().mode;
+    if (current === '3d' && mode === '3d') return;
+    if (requested3d && !canUse3D && mode === '3d') setMode('2d');
+    if (requested3d && canUse3D && mode !== '3d') setMode('3d');
     if (!requested3d && mode === '3d' && !canUse3D) setMode('2d');
-  }, [requested3d, canUse3D]);
+  }, [requested3d, canUse3D, mode, setMode]);
   // Persist (only if valid)
   useEffect(() => {
     const p = new URLSearchParams(location.search);

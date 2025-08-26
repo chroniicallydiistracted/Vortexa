@@ -16,8 +16,8 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '1');
     window.history.replaceState(null, '', '/?mode=3d');
 
-  const { default: App } = await import('../App');
   const { useStore } = await import('../../state/store');
+  const { default: App } = await import('../App');
   renderWithMantine(<App />);
   expect(useStore.getState().mode).toBe('3d');
   });
@@ -27,8 +27,8 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '0');
     window.history.replaceState(null, '', '/?mode=3d');
 
-  const { default: App } = await import('../App');
   const { useStore } = await import('../../state/store');
+  const { default: App } = await import('../App');
   renderWithMantine(<App />);
   expect(useStore.getState().mode).toBe('2d');
   });
@@ -38,8 +38,8 @@ describe('App mode permalink + env gating', () => {
     vi.stubEnv('VITE_ENABLE_3D', '1');
     window.history.replaceState(null, '', '/#mode=3d');
 
-  const { default: App } = await import('../App');
   const { useStore } = await import('../../state/store');
+  const { default: App } = await import('../App');
   renderWithMantine(<App />);
   expect(useStore.getState().mode).toBe('3d');
   });
