@@ -11,7 +11,8 @@
     "start": "vite preview",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+  "test": "vitest run",
+  "test:unit": "vitest run --reporter=dot",
     "analyze": "vite build --mode=production && npx --yes source-map-explorer 'dist/assets/*.js' --html analyze.html",
     "grep:no-legacy": "git grep -n 'src/ui/Panel' -- web || true",
     "grep:no-hex": "git grep -nE '#[0-9a-fA-F]{3,8}\\b' -- web/src | grep -v 'src/theme' || true"
