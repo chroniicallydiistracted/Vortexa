@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { TimeBar } from '../TimeBar';
+// Reuse Speed union from component for type safety
+type Speed = '0.5x' | '1x' | '2x' | '4x';
 import { renderWithMantine } from '../../test-utils/renderWithMantine';
 
 describe('TimeBar', () => {
@@ -13,8 +15,8 @@ describe('TimeBar', () => {
     const setHourValue = (n: number) => {
       hourValue = n;
     };
-    let speed = '1x';
-    const setSpeed = (s: string) => {
+  let speed: Speed = '1x';
+  const setSpeed = (s: Speed) => {
       speed = s;
     };
     const baseStart = Date.UTC(2025, 7, 24, 0, 0, 0, 0); // Aug 24 2025 UTC
