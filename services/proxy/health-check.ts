@@ -18,12 +18,12 @@ import crypto from 'node:crypto';
 // Allow overriding via env vars; provide conservative defaults so the script
 // cannot appear to "hang" indefinitely if upstreams are slow.
 // ---------------------------------------------------------------------------
-const MAX_LAYER_MS = Number(process.env.HC_MAX_LAYER_MS || 7000); // hard cap per layer
-const MAX_TOTAL_MS = Number(process.env.HC_MAX_TOTAL_MS || 120000); // overall watchdog
+const MAX_LAYER_MS = Number(process.env.HC_MAX_LAYER_MS || 10000); // hard cap per layer
+const MAX_TOTAL_MS = Number(process.env.HC_MAX_TOTAL_MS || 180000); // overall watchdog
 const RAINVIEWER_MAX_ATTEMPTS = Number(process.env.RAINVIEWER_MAX_ATTEMPTS || 9); // (timestamps * zooms)
 const RAINVIEWER_FETCH_TIMEOUT_MS = Number(process.env.RAINVIEWER_FETCH_TIMEOUT_MS || 1800);
-const PROBE_TIMEOUT_MS = Number(process.env.HC_PROBE_TIMEOUT_MS || 5000);
-const GIBS_CAP_TIMEOUT_MS = Number(process.env.GIBS_CAP_TIMEOUT_MS || 6000);
+const PROBE_TIMEOUT_MS = Number(process.env.HC_PROBE_TIMEOUT_MS || 8000);
+const GIBS_CAP_TIMEOUT_MS = Number(process.env.GIBS_CAP_TIMEOUT_MS || 15000);
 const QUIET = process.env.HC_QUIET === '1';
 
 // Load env from repo root fallbacks
@@ -297,26 +297,36 @@ async function getGibsLatestTime(layerId: string): Promise<string | null> {
   const now = Date.now();
   const cached = gibsTimeCache.get(layerId);
   if (cached && now - cached.ts < 5 * 60_000) return cached.value; // 5 min cache
+  
   const capUrl =
     'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities';
   try {
+    if (!QUIET) console.log(`[gibs] Fetching capabilities for ${layerId}...`);
     const r = await fetchWithTimeout(capUrl, { timeout: GIBS_CAP_TIMEOUT_MS });
     if (!r.ok) throw new Error('caps status ' + r.status);
     const xml = await r.text();
+    
+    if (!QUIET) console.log(`[gibs] Parsing capabilities XML for ${layerId}...`);
     const escaped = layerId.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
     const layerRegex = new RegExp(
       `<Layer>[\\s\\S]*?<Identifier>${escaped}<\\/Identifier>[\\s\\S]*?<\\/Layer>`,
       'i',
     );
     const layerBlockMatch = xml.match(layerRegex);
-    if (!layerBlockMatch) return null;
+    if (!layerBlockMatch) {
+      if (!QUIET) console.log(`[gibs] No layer block found for ${layerId}`);
+      return null;
+    }
     const block = layerBlockMatch[0];
     const dimMatch =
       block.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
       block.match(
         /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
       );
-    if (!dimMatch) return null;
+    if (!dimMatch) {
+      if (!QUIET) console.log(`[gibs] No time dimension found for ${layerId}`);
+      return null;
+    }
     const defaultAttr = dimMatch[0].match(/default="([^"]+)"/i);
     let latest: string | null = defaultAttr ? defaultAttr[1] : null;
     if (!latest) {
@@ -336,10 +346,15 @@ async function getGibsLatestTime(layerId: string): Promise<string | null> {
       }
     }
     if (latest) {
+      if (!QUIET) console.log(`[gibs] Resolved time for ${layerId}: ${latest}`);
       gibsTimeCache.set(layerId, { ts: now, value: latest });
       return latest;
+    } else {
+      if (!QUIET) console.log(`[gibs] Could not parse time for ${layerId}`);
     }
-  } catch {}
+  } catch (e) {
+    if (!QUIET) console.log(`[gibs] Error getting time for ${layerId}:`, e.message);
+  }
   return null;
 }
 
@@ -355,9 +370,22 @@ async function resolveGibsTime(url: string): Promise<string> {
     }
     return url.replace(/\/default\/[^/]+\//, `/default/${safe}/`);
   }
-  if (url.includes('{time}'))
-    return url.replace('{time}', 'current').replace(/\/default\/[^/]+\//, '/default/current/');
-  return url;
+  
+  // Fallback: try multiple recent dates for better data availability
+  const fallbackDates = [];
+  for (let i = 1; i <= 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    fallbackDates.push(date.toISOString().slice(0, 10));
+  }
+  
+  // Use 3 days ago as primary fallback (good balance of recency and availability)
+  const fallbackStr = fallbackDates[2];
+  
+  if (url.includes('{time}')) {
+    return url.replace('{time}', fallbackStr).replace(/\/default\/[^/]+\//, `/default/${fallbackStr}/`);
+  }
+  return url.replace(/\/default\/[^/]+\//, `/default/${fallbackStr}/`);
 }
 async function resolveDynamicTime(layer: Layer, url: string): Promise<string> {
   // Rainviewer
@@ -380,6 +408,10 @@ async function buildTestUrl(layer: Layer): Promise<string | null> {
     .replace('{z}', root ? '0' : '1')
     .replace('{x}', root ? '0' : '1')
     .replace('{y}', root ? '0' : '1');
+  // Resolve dynamic time first (GIBS, Rainviewer, etc.)
+  base = await resolveDynamicTime(layer, base);
+  
+  // Then handle any remaining {time} placeholders with current time
   if (base.includes('{time}')) {
     const now = new Date();
     let timeStr = now.toISOString().slice(0, 10);
@@ -393,11 +425,11 @@ async function buildTestUrl(layer: Layer): Promise<string | null> {
     }
     base = base.replace('{time}', encodeURIComponent(timeStr));
   }
+  
   if (base.includes('YOUR_API_KEY')) {
     if (base.includes('OWM')) base = base.replace('YOUR_API_KEY', OWM_API_KEY || 'MISSING');
     else base = base.replace('YOUR_API_KEY', 'MISSING');
   }
-  base = await resolveDynamicTime(layer, base);
   return base;
 }
 
