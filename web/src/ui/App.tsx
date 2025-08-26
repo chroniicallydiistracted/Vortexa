@@ -42,8 +42,11 @@ export default function App() {
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });
+  const [flagsReady, setFlagsReady] = useState(false);
   useEffect(() => {
-    getRuntimeFlags().then(setFlags);
+    getRuntimeFlags()
+      .then((f) => setFlags(f))
+      .finally(() => setFlagsReady(true));
   }, []);
   const envEnable = is3DEnabled();
   // Support ?mode=3d and fallback #mode=3d (hash) for backward compatibility
@@ -54,7 +57,8 @@ export default function App() {
     requestedMode = hashParams.get('mode');
   }
   const requested3d = requestedMode === '3d';
-  const canUse3D = envEnable && flags.enable3d;
+  // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
+  const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
   useEffect(() => {
     const current = useStore.getState().mode;
     if (current === '3d' && mode === '3d') return; // don't downgrade
