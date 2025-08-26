@@ -9,7 +9,7 @@ describe('App mode permalink + env gating', () => {
     vi.resetModules();
     vi.unstubAllEnvs();
     window.history.replaceState(null, '', '/');
-    
+
     // Reset store state to ensure clean test environment
     const { useStore } = await import('../../state/store');
     useStore.setState({
