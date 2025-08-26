@@ -10,6 +10,7 @@ import {
   UrlTemplateImageryProvider,
   PointPrimitiveCollection,
   Color,
+  type ImageryLayer,
 } from "cesium";
 
 // Narrowing helpers for accessing private (underscore) arrays without using `as any`.
@@ -47,8 +48,8 @@ export function CesiumGlobe() {
           minimumLevel: 0,
           maximumLevel: 18,
         });
-  const layer0 = viewer.imageryLayers.get(0 as number); // first layer
-  if (layer0) viewer.imageryLayers.remove(layer0, true); // simplified per review
+  const layer0 = viewer.imageryLayers.get(0); // first layer
+        if (layer0) viewer.imageryLayers.remove(layer0, true);
         viewer.imageryLayers.addImageryProvider(provider, 0);
       } catch {}
       const height = zoomToHeight(view.zoom);
