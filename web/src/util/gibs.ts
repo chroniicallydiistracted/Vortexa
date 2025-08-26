@@ -3,11 +3,19 @@ import { useStore } from './store';
 export async function fetchTimestamps(layerId: string): Promise<string[]> {
   try {
     const r = await fetch(`/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`);
-    if (!r.ok) return [];
+    if (!r.ok) {
+      console.warn(`Failed to fetch timestamps for ${layerId}: ${r.status} ${r.statusText}`);
+      return [];
+    }
     const ct = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) return [];
+    if (!ct.includes('application/json')) {
+      console.warn(`Invalid content type for timestamps: ${ct}`);
+      return [];
+    }
     const json = await r.json();
-    return json.timestamps || [];
+    const timestamps = json.timestamps || [];
+    console.log(`Fetched ${timestamps.length} timestamps for ${layerId}`);
+    return timestamps;
   } catch (e) {
     console.debug('fetchTimestamps failed', { layerId, error: (e as Error).message });
     return [];
