@@ -2,15 +2,20 @@
 set -euo pipefail
 
 # Simple orchestrator: export env, ensure local dynamodb, start proxy, run health check.
+# Load local overrides if present (do NOT commit .env.local)
+if [ -f .env.local ]; then set -a; . ./.env.local; set +a; fi
 
-export AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-west-2
-export OWM_API_KEY=${OWM_API_KEY:-c936b44e0480ef48e6b25612bd949125}
-export FIRMS_MAP_KEY=${FIRMS_MAP_KEY:-fa4e409ce1e5037b60bd85114fa6e7fd}
-export NWS_USER_AGENT=${NWS_USER_AGENT:-Vortexa/0.1 (contact: chroniicallydiistracted@gmail.com)}
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-west-2}
+
+export OWM_API_KEY=${OWM_API_KEY?Set OWM_API_KEY}
+export FIRMS_MAP_KEY=${FIRMS_MAP_KEY?Set FIRMS_MAP_KEY}
+export NWS_USER_AGENT=${NWS_USER_AGENT:-Vortexa/0.1 (contact: dev@westfam.media)}
 export ALERTS_TABLE=${ALERTS_TABLE:-westfam-alerts}
 export DYNAMODB_ENDPOINT=${DYNAMODB_ENDPOINT:-http://localhost:8000}
 
-echo "[dev-health] Using OWM_API_KEY=${OWM_API_KEY:0:6}... FIRMS_MAP_KEY=${FIRMS_MAP_KEY:0:6}... DYNAMODB_ENDPOINT=$DYNAMODB_ENDPOINT"
+echo "[dev-health] Environment configured; region=$AWS_DEFAULT_REGION"
 
 # Ensure no prior processes hold required ports (proxy:4000)
 free_port(){

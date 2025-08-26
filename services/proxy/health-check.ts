@@ -89,7 +89,13 @@ if (!catalogFile) {
   console.error('Catalog file not found in expected locations');
   process.exit(1);
 }
-const catalog: Catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+let catalog: Catalog;
+try {
+  catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+} catch (e) {
+  console.error('Failed to parse catalog.json', { file: catalogFile, error: (e as Error).message });
+  process.exit(1);
+}
 
 const OWM_API_KEY = process.env.OWM_API_KEY || process.env.OPENWEATHERMAP_API_KEY || '';
 const FIRMS_MAP_KEY = process.env.FIRMS_MAP_KEY || process.env.MAP_KEY || '';

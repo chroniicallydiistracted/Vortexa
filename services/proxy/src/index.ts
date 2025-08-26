@@ -372,8 +372,9 @@ export function createApp(opts: CreateAppOptions = {}) {
           : []
         ).map((p: RainviewerEntry) => ({ time: p.time, path: p.path })),
       };
-    } catch {
-      /* timeout or network error: keep old cache */
+    } catch (e) {
+      logger.warn({ msg: 'rainviewer meta fetch failed', error: (e as Error).message });
+      // keep existing cache value if present
     }
     clearTimeout(timer);
     return rainviewerMeta;
@@ -680,12 +681,16 @@ export function createApp(opts: CreateAppOptions = {}) {
           const get = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: cacheKey }));
           res.set('Content-Type', get.ContentType || 'application/octet-stream');
           // Body is a stream (Readable). Type cast to allow piping.
-          (get.Body as unknown as { pipe: (r: typeof res) => void }).pipe(res);
+          (get.Body as any).pipe(res);
           proxyCacheHits.inc({ host });
           updateHitRatio();
           return;
-        } catch {
-          /* cache miss */
+        } catch (e) {
+          const code = (e as any)?.$metadata?.httpStatusCode;
+          if (code !== 404) {
+            logger.warn({ msg: 's3 get failed (treat as miss)', error: (e as Error).message, cacheKey });
+          }
+          // fall through to fetch upstream
         }
       }
       if (s3) {

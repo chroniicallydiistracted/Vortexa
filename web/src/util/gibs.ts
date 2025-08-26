@@ -1,14 +1,15 @@
 import { useStore } from './store';
 
 export async function fetchTimestamps(layerId: string): Promise<string[]> {
-  const r = await fetch(`/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`);
-  if (!r.ok) return [];
-  const ct = r.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) return [];
   try {
+    const r = await fetch(`/api/gibs/timestamps?layer=${encodeURIComponent(layerId)}`);
+    if (!r.ok) return [];
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) return [];
     const json = await r.json();
     return json.timestamps || [];
-  } catch {
+  } catch (e) {
+    console.debug('fetchTimestamps failed', { layerId, error: (e as Error).message });
     return [];
   }
 }

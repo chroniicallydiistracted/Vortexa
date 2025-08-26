@@ -72,10 +72,14 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
     return () => {
       try {
         canvas.removeEventListener('webglcontextlost', onContextLost);
-      } catch {}
+      } catch (e) {
+        console.debug('Map: cleanup failed', (e as Error).message);
+      }
       try {
         map.remove();
-      } catch {}
+      } catch (e) {
+        console.debug('Map: cleanup failed', (e as Error).message);
+      }
       // Null out ref so async effects know map is gone
       mapRef.current = null;
     };

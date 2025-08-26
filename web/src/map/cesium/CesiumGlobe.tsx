@@ -56,7 +56,9 @@ export function CesiumGlobe() {
         const layer0 = viewer.imageryLayers.get(0); // first layer
         if (layer0) viewer.imageryLayers.remove(layer0, true);
         viewer.imageryLayers.addImageryProvider(provider, 0);
-      } catch {}
+      } catch (e) {
+        console.warn('CesiumGlobe: operation failed', (e as Error).message);
+      }
       const height = zoomToHeight(view.zoom);
       viewer.camera.setView({
         destination: Cartesian3.fromDegrees(view.lon, view.lat, height),
@@ -158,7 +160,9 @@ export function CesiumGlobe() {
         if (firmsRef.current) {
           try {
             viewer.scene.primitives.remove(firmsRef.current);
-          } catch {}
+          } catch (e) {
+            console.warn('CesiumGlobe: operation failed', (e as Error).message);
+          }
           firmsRef.current = null;
         }
         return;

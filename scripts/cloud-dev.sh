@@ -4,6 +4,8 @@ set -euo pipefail
 REGION="${AWS_REGION:-us-west-2}"
 # Disable AWS CLI pager to avoid blocking output
 export AWS_PAGER="" AWS_CLI_PAGER="" AWS_CLI_AUTO_PROMPT=off
+# Load local overrides if present (do NOT commit .env.local)
+if [ -f .env.local ]; then set -a; . ./.env.local; set +a; fi
 
 # Core environment exports (provide defaults if not already set)
 export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
@@ -11,9 +13,9 @@ export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$REGION}
 LOCAL_DYNAMO=${LOCAL_DYNAMO:-1}
 LOCAL_ENDPOINT=${DYNAMODB_ENDPOINT:-http://localhost:8000}
-export OWM_API_KEY=${OWM_API_KEY:-c936b44e0480ef48e6b25612bd949125}
-export FIRMS_MAP_KEY=${FIRMS_MAP_KEY:-fa4e409ce1e5037b60bd85114fa6e7fd}
-export NWS_USER_AGENT=${NWS_USER_AGENT:-Vortexa/0.1 (contact: chroniicallydiistracted@gmail.com)}
+export OWM_API_KEY=${OWM_API_KEY?Set OWM_API_KEY}
+export FIRMS_MAP_KEY=${FIRMS_MAP_KEY?Set FIRMS_MAP_KEY}
+export NWS_USER_AGENT=${NWS_USER_AGENT:-Vortexa/0.1 (contact: dev@westfam.media)}
 TABLE="${ALERTS_TABLE:-westfam-alerts}"
 export ALERTS_TABLE="$TABLE"
 SK_VERSION="${ALERT_SK_VERSION:-v0}"
@@ -35,7 +37,7 @@ if [[ $LOCAL_DYNAMO -eq 1 ]]; then
 else
   echo "[cloud-dev] Using AWS DynamoDB (region $REGION)"
 fi
-echo "[cloud-dev] OWM_API_KEY=${OWM_API_KEY:0:6}... FIRMS_MAP_KEY=${FIRMS_MAP_KEY:0:6}..."
+echo "[cloud-dev] Environment configured; region=$AWS_DEFAULT_REGION"
 
 # Ensure required dev ports are free (proxy:4000, web:5173)
 free_port(){
