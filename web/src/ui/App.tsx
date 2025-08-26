@@ -41,7 +41,6 @@ export default function App() {
     playbackCurrentTimeMs,
   } = useStore();
 
-  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D);
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });
@@ -63,7 +62,7 @@ export default function App() {
   // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
   const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
 
-  console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D, 'requested3d:', requested3d);
+  // debug: mode and 3d availability (removed verbose logging for production)
 
   // Update mode from location on mount to handle hash changes after store initialization
   useEffect(() => {
@@ -186,7 +185,7 @@ export default function App() {
   const [results, setResults] = useState<GeoResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   // One-time tile proxy fallback notification (persist across mounts)
-  // eslint-disable-next-line no-undef
+   
   // @ts-ignore - attach to module scope variable
   let _tileProxyWarned: boolean = (globalThis as any).__TILE_PROXY_WARNED__ || false;
   const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
@@ -264,7 +263,7 @@ export default function App() {
       <AppShell.Main style={{ position: 'relative' }}>
         {mode === '2d' && (
           <>
-            {console.log('[App] Rendering Map component in 2D mode')}
+            {/* Rendering Map component in 2D mode */}
             <Map
               activeLayerSlug={activeLayerSlug}
               catalog={mappedCatalog}

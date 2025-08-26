@@ -69,6 +69,7 @@ type Store = TimeState & {
   togglePlaying: () => void;
   setView: (v: Partial<ViewState>) => void;
   setMode: (m: '2d' | '3d') => void;
+  updateModeFromLocation: () => void;
   toggleGibsGeocolor3d: () => void;
   setGibsTimestamps: (ts: string[]) => void;
   setGibsSelectedTime: (t: string | null) => void;
