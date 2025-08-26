@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AppShell, ScrollArea, Paper, TextInput, Loader, Group, Text, Checkbox, Button as MantineButton } from "@mantine/core";
+import type { Map as MLMap } from 'maplibre-gl';
 import { IconSearch } from "@tabler/icons-react";
 import { validateCatalog } from "../lib/validateCatalog";
-import { Button } from "@mantine/core";
 import { ModeSwitch } from "../map/ModeSwitch";
 import Globe3DLoader from "../features/globe/Globe3DLoader";
 import { getRuntimeFlags } from "../util/featureFlags";
 // Legacy components (MapView, Panel) retained elsewhere; using new catalog-based components here
 import CatalogPanel from "../components/Panel";
-import CatalogMap from "../components/Map";
+import CatalogMap, { CatalogEntry as MapCatalogEntry } from "../components/Map";
 // TimeBar (Mantine) replaces legacy Timeline component
 import { TimeBar } from "../components/TimeBar";
 import { parseHash, decodeLayers } from "../util/permalink";
@@ -16,9 +16,6 @@ import { useStore } from "../util/store";
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';
 export default function App() {
-  const tileEnv = (import.meta as any).env?.VITE_TILE_BASE;
-  const [hideBanner, setHideBanner] = useState(false);
-  const showBanner = !tileEnv && !hideBanner;
   const {
     setTime,
     replaceLayers,
@@ -35,7 +32,7 @@ export default function App() {
   useEffect(() => {
     getRuntimeFlags().then(setFlags);
   }, []);
-  const envEnable = (import.meta as any).env?.VITE_ENABLE_3D === "1";
+  const envEnable = import.meta.env.VITE_ENABLE_3D === "1";
   const params = new URLSearchParams(location.search);
   const requested3d = params.get("mode") === "3d";
   const canUse3D = envEnable && flags.enable3d;
@@ -65,9 +62,7 @@ export default function App() {
       if (p.lat != null && p.lon != null) setView({ lat: p.lat, lon: p.lon });
       if (p.z != null) setView({ zoom: p.z });
       if (p.l) {
-        const base =
-          (import.meta as any).env?.VITE_TILE_BASE ||
-          "http://localhost:4000/tiles";
+  const base = import.meta.env.VITE_TILE_BASE || "http://localhost:4000/tiles";
         const ls = decodeLayers(p.l).map((l) => {
           // heuristic map id to known template if preset; fallback noop layer placeholder
           if (l.id === "gibs-geocolor")
@@ -87,7 +82,36 @@ export default function App() {
     }
   }, []);
   const [activeLayerSlug, setActiveLayerSlug] = useState<string | null>(null);
-  const [catalogData, setCatalogData] = useState<any>(null); // now array
+  type RawCatalogLayer = { slug: string } & Record<string, unknown>;
+  const [catalogData, setCatalogData] = useState<RawCatalogLayer[] | { layers?: RawCatalogLayer[] } | null>(null);
+  interface MappableCatalogLayer {
+    slug: string;
+    category?: string;
+    suggested_label?: string;
+    name?: string;
+    type?: string;
+    template?: string; // raster template
+    url?: string;      // vector/geojson url
+    attribution?: string;
+    notes?: string;
+  }
+  const mappedCatalog: MapCatalogEntry[] | null = React.useMemo(() => {
+    if (!catalogData) return null;
+    const arr: MappableCatalogLayer[] = Array.isArray(catalogData)
+      ? catalogData
+      : (Array.isArray(catalogData.layers) ? (catalogData.layers as MappableCatalogLayer[]) : []);
+    return arr.map<MapCatalogEntry>((l) => ({
+      slug: l.slug,
+      category: l.category ?? 'General',
+      suggested_label: l.suggested_label ?? l.name ?? l.slug,
+      source_type: l.type ?? 'raster',
+      tile_url_template: l.template,
+      api_endpoint: l.url,
+      time_format: undefined,
+      attribution: l.attribution,
+      notes: l.notes,
+    }));
+  }, [catalogData]);
   useEffect(() => {
     fetch("/catalog.json")
       .then(async (r) => {
@@ -118,13 +142,14 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false); // keep play/pause locally for now
   // Search state
   const [search, setSearch] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  interface GeoResult { place_id: string; display_name: string; lat: string; lon: string }
+  const [results, setResults] = useState<GeoResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   // One-time tile proxy fallback notification
   const warnedRef = useRef(false);
-  const tileBase = (import.meta as any).env?.VITE_TILE_BASE || 'http://localhost:4000/tiles';
+  const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
   useEffect(() => {
-    if (!warnedRef.current && (!(import.meta as any).env?.VITE_TILE_BASE || tileBase.includes('localhost'))) {
+  if (!warnedRef.current && (!import.meta.env.VITE_TILE_BASE || tileBase.includes('localhost'))) {
       warnedRef.current = true;
       notifications.show({
         color: 'yellow',
@@ -133,7 +158,7 @@ export default function App() {
       });
     }
   }, [tileBase]);
-  const [mapInstance, setMapInstance] = useState<any>(null);
+  const [mapInstance, setMapInstance] = useState<MLMap | null>(null);
   useEffect(() => {
     if (!search) {
       setResults([]);
@@ -153,7 +178,7 @@ export default function App() {
     }, 300);
     return () => clearTimeout(handle);
   }, [search]);
-  const flyToResult = (r: any) => {
+  const flyToResult = (r: GeoResult) => {
     if (!mapInstance) return;
     const lat = parseFloat(r.lat);
     const lon = parseFloat(r.lon);
@@ -199,7 +224,7 @@ export default function App() {
         {mode === "2d" && (
           <CatalogMap
             activeLayerSlug={activeLayerSlug}
-            catalog={catalogData}
+            catalog={mappedCatalog}
             onMapReady={setMapInstance}
             currentTime={currentTime}
           />
@@ -269,10 +294,11 @@ export default function App() {
           baseStart={baseStart}
           hoursSpan={hoursSpan}
           currentTime={currentTime}
-          setCurrentTime={(t) =>
-            setPlaybackCurrentTimeMs(
-              typeof t === "function" ? (t as any)(currentTime) : t,
-            )}
+          setCurrentTime={(t) => {
+            type MaybeFn<T, A> = T | ((arg: A) => T);
+            const resolve = <T, A>(m: MaybeFn<T, A>, a: A): T => (typeof m === 'function' ? (m as (x: A) => T)(a) : m);
+            setPlaybackCurrentTimeMs(resolve(t, currentTime));
+          }}
           currentDate={new Date(currentTime)}
           setCurrentDate={(d) => {
             // keep hour index
@@ -286,7 +312,10 @@ export default function App() {
           hourValue={Math.round((currentTime - baseStart) / 3600_000)}
           setHourValue={(n) => setPlaybackCurrentTimeMs(baseStart + n * 3600_000)}
           speed={speed}
-          setSpeed={(label) => setPlaybackSpeed(label as any)}
+          setSpeed={(label) => {
+            type PlaybackSpeed = '0.5x' | '1x' | '2x' | '4x';
+            if (label) setPlaybackSpeed(label as PlaybackSpeed);
+          }}
         />
       </AppShell.Main>
     </AppShell>

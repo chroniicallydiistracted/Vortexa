@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { useMantineTheme } from '@mantine/core';
 import maplibregl, { Map as MLMap } from "maplibre-gl";
+import type { StyleSpecification, RasterSourceSpecification, GeoJSONSourceSpecification, MapOptions, Map as MapLibreMap } from 'maplibre-gl';
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // New catalog structure: { layers: [...] }
-interface CatalogEntry {
+export interface CatalogEntry {
   slug: string;
   category: string;
   suggested_label: string;
@@ -21,7 +22,7 @@ type Catalog = CatalogEntry[];
 
 interface MapProps {
   activeLayerSlug: string | null;
-  catalog: any;
+  catalog: CatalogEntry[] | { layers?: CatalogEntry[] } | null;
   onMapReady?: (map: MLMap) => void;
   currentTime?: number;
 }
@@ -38,35 +39,36 @@ export default function Map({
   // init
   useEffect(() => {
     const baseTemplate =
-      (import.meta as any).env?.VITE_BASEMAP_TILE_URL ||
+      import.meta.env.VITE_BASEMAP_TILE_URL ||
       "/api/cartodb/positron/{z}/{x}/{y}.png";
-    const style = {
+    const style: StyleSpecification = {
       version: 8,
       sources: {
         basemap: {
           type: "raster",
           tiles: [baseTemplate],
           tileSize: 256,
-        },
+        } as RasterSourceSpecification,
       },
       layers: [{ id: "basemap", type: "raster", source: "basemap" }],
-    } as any;
-    const map = new maplibregl.Map({
-      container: containerRef.current!,
+    };
+    const options: MapOptions = {
+      container: containerRef.current as HTMLElement,
       style,
       center: [-112.074, 33.448],
       zoom: 3,
-    });
-    map.addControl(new maplibregl.NavigationControl());
-    // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
-    const canvas = map.getCanvas();
-    const onContextLost = (e: any) => {
+    };
+    const map: MapLibreMap = new maplibregl.Map(options);
+  map.addControl(new maplibregl.NavigationControl());
+  // Defensive: log (once) if WebGL context lost (can trigger DOMExceptions otherwise)
+  const canvas = map.getCanvas();
+  const onContextLost = (e: Event) => {
       e.preventDefault();
       console.warn("[Map] WebGL context lost");
     };
     canvas.addEventListener("webglcontextlost", onContextLost, { once: true });
-    mapRef.current = map;
-    onMapReady && onMapReady(map);
+  mapRef.current = map;
+  if (onMapReady) onMapReady(map);
     return () => {
       try {
         canvas.removeEventListener("webglcontextlost", onContextLost);
@@ -120,19 +122,21 @@ export default function Map({
     ].forEach(safeRemoveLayer);
     ["active-raster", "active-vector"].forEach(safeRemoveSource);
 
-    if (!activeLayerSlug)
-      return () => {
-        cancelled = true;
-      };
+    if (!activeLayerSlug) {
+      cancelled = true;
+      return () => { /* cleanup handled below */ };
+    }
 
     const entries: Catalog = Array.isArray(catalog)
       ? catalog
-      : catalog?.layers || [];
+      : (catalog && Array.isArray((catalog as { layers?: CatalogEntry[] }).layers)
+          ? (catalog as { layers: CatalogEntry[] }).layers
+          : []);
     const entry = entries.find((e) => e.slug === activeLayerSlug);
-    if (!entry)
-      return () => {
-        cancelled = true;
-      };
+    if (!entry) {
+      cancelled = true;
+      return () => { /* cleanup handled below */ };
+    }
 
     const nowMs = currentTime || Date.now();
     const stillValid = () =>
@@ -149,7 +153,7 @@ export default function Map({
             type: "raster",
             tiles: [url],
             tileSize: 256,
-          } as any);
+          } as RasterSourceSpecification);
           map.addLayer({
             id: "active-raster",
             type: "raster",
@@ -177,7 +181,7 @@ export default function Map({
         .then((data) => {
           if (!stillValid()) return;
           if (map.getSource("active-vector")) return;
-          map.addSource("active-vector", { type: "geojson", data } as any);
+          map.addSource("active-vector", { type: "geojson", data } satisfies GeoJSONSourceSpecification);
           try {
             map.addLayer({
               id: "active-vector-line",
@@ -234,8 +238,8 @@ export default function Map({
       .then((fc) => {
         if (aborted) return;
         if (!fc?.features) return;
-        if (map.getSource("alerts-static")) return;
-        map.addSource("alerts-static", { type: "geojson", data: fc } as any);
+  if (map.getSource("alerts-static")) return;
+  map.addSource("alerts-static", { type: "geojson", data: fc } satisfies GeoJSONSourceSpecification);
         map.addLayer({
           id: "alerts-static-fill",
           type: "fill",
