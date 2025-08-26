@@ -22,7 +22,12 @@ export function firmsCsvToGeoJSON(csv: string) {
   const frpIdx = header.indexOf("frp");
   const satIdx = header.indexOf("satellite");
   const dnIdx = header.indexOf("daynight");
-  const feats = [] as any[];
+  interface Feature {
+    type: 'Feature';
+    geometry: { type: 'Point'; coordinates: [number, number] };
+    properties: FirmsPointProps;
+  }
+  const feats: Feature[] = [];
   for (let i = 1; i < lines.length; i++) {
     const row = lines[i].split(",");
     if (row.length !== header.length) continue;
@@ -48,5 +53,5 @@ export function firmsCsvToGeoJSON(csv: string) {
       } as FirmsPointProps,
     });
   }
-  return { type: "FeatureCollection", features: feats };
+  return { type: "FeatureCollection", features: feats } as const;
 }

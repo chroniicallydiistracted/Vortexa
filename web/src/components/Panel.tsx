@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { validateCatalog } from "../lib/validateCatalog";
+import { validateCatalog, type CatalogLayer } from "../lib/validateCatalog";
 import { useStore } from "../util/store";
 import {
   Accordion,
@@ -15,13 +15,14 @@ import {
   Tooltip,
   Divider,
 } from "@mantine/core";
-import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight, IconArrowsMaximize, IconArrowsMinimize } from "@tabler/icons-react";
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
+// Panel expects a richer catalog; adapt CatalogLayer to this internal shape.
 interface CatalogEntry {
-  category: string;
-  suggested_label: string;
   slug: string;
+  category: string; // grouped category
+  suggested_label: string; // display label
   source_type?: string;
   notes?: string;
   attribution?: string;
@@ -56,7 +57,21 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
           const raw = await r.json();
           try {
             const validated = validateCatalog(Array.isArray(raw) ? raw : raw.layers || raw);
-            return validated as any;
+            // Map generic validated layers into CatalogEntry, deriving category/label heuristically
+            const mapped: CatalogEntry[] = validated.map((l: CatalogLayer) => {
+              const record = l as Record<string, unknown>;
+              return {
+                slug: l.slug,
+                category: typeof record.category === 'string' ? record.category : 'General',
+                suggested_label: typeof record.suggested_label === 'string'
+                  ? record.suggested_label
+                  : (typeof record.name === 'string' ? (record.name as string) : l.slug),
+                source_type: typeof record.type === 'string' ? record.type : undefined,
+                notes: typeof record.notes === 'string' ? record.notes : undefined,
+                attribution: typeof record.attribution === 'string' ? record.attribution : undefined,
+              };
+            });
+            return mapped;
           } catch (e) {
             console.warn("Catalog validation failed (panel)", e);
             return raw;
@@ -67,8 +82,8 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       })
       .then((data) => {
         if (!data) return;
-        if (Array.isArray(data)) setPalette(data as any);
-        else if (data && Array.isArray((data as any).layers)) setPalette((data as any).layers);
+        if (Array.isArray(data)) setPalette(data);
+        else if (data && Array.isArray((data as { layers?: CatalogEntry[] }).layers)) setPalette((data as { layers: CatalogEntry[] }).layers);
       })
       .catch(() => {});
   }, []);
@@ -84,14 +99,22 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       {} as Record<string, CatalogEntry[]>,
     );
   }, [palette]);
-  // Track which categories are collapsed
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const toggleCat = (c: string) => setCollapsed((s) => ({ ...s, [c]: !s[c] }));
+  // Categories list (stable ordering)
   const allCats = useMemo(() => Object.keys(grouped).sort(), [grouped]);
-  const collapseAll = () =>
-    setCollapsed(Object.fromEntries(allCats.map((c) => [c, true])));
-  const expandAll = () =>
-    setCollapsed(Object.fromEntries(allCats.map((c) => [c, false])));
+  // Controlled accordion open state (default: first 3 or all if <=3)
+  const [openedCats, setOpenedCats] = useState<string[]>(() => allCats.slice(0, 3));
+  // Keep openedCats in sync if categories change
+  useEffect(() => {
+    setOpenedCats((prev) => {
+      if (prev.length === 0) return prev; // respect fully collapsed state
+      // Remove categories that disappeared
+      const filtered = prev.filter((c) => allCats.includes(c));
+      if (filtered.length === prev.length) return prev; // unchanged
+      return filtered;
+    });
+  }, [allCats.join(",")]);
+  const expandAll = () => setOpenedCats(allCats);
+  const collapseAll = () => setOpenedCats([]);
   // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
   useEffect(() => {
     if (mode !== "3d" || !gibsOn) return;
@@ -108,21 +131,47 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
   }, [mode, gibsOn, gibsTimestamps.length]);
   return (
     <Stack gap="sm" p={0} style={{ fontSize: 13 }}>
-      <Group gap="xs" wrap="nowrap">
-        <Text fw={600}>Layers</Text>
-        <Button size="xs" variant="light" onClick={collapseAll}>
-          Collapse
-        </Button>
-        <Button size="xs" variant="light" onClick={expandAll}>
-          Expand
-        </Button>
-        <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>
-          Clear
-        </Button>
+      <Group gap="xs" wrap="nowrap" justify="space-between">
+        <Group gap="xs" wrap="nowrap">
+          <Text fw={600}>Layers</Text>
+          <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>Clear</Button>
+        </Group>
+        {allCats.length > 0 && (
+          <Group gap={4} wrap="nowrap">
+            <Tooltip label="Expand all">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                aria-label="Expand all sections"
+                onClick={expandAll}
+                disabled={openedCats.length === allCats.length}
+              >
+                <IconArrowsMaximize size={16} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Collapse all">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                aria-label="Collapse all sections"
+                onClick={collapseAll}
+                disabled={openedCats.length === 0}
+              >
+                <IconArrowsMinimize size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+        )}
       </Group>
       {!palette && <Text size="xs" c="dimmed">Loading palette…</Text>}
       {palette && (
-        <Accordion multiple chevronPosition="left" variant="contained" defaultValue={allCats.slice(0,3)}>
+        <Accordion
+          multiple
+          chevronPosition="left"
+          variant="contained"
+          value={openedCats}
+          onChange={(val) => setOpenedCats(Array.isArray(val) ? val : [])}
+        >
           {allCats.map((cat) => {
             const list = grouped[cat];
             return (

@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, splitVendorChunkPlugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 const backend = process.env.VITE_BACKEND_URL || "http://localhost:4000"; // configurable in dev
@@ -26,7 +26,7 @@ function stripProtobufEval() {
 }
 
 export default defineConfig({
-  plugins: [react(), stripProtobufEval(), visualizer({ filename: "dist/stats.html", brotliSize: true, gzipSize: true })],
+  plugins: [react(), splitVendorChunkPlugin(), stripProtobufEval(), visualizer({ filename: "dist/stats.html", brotliSize: true, gzipSize: true })],
   server: {
     port: 5173,
     host: true,
@@ -49,9 +49,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
+          react: ["react", "react-dom"],
+          mantine: ["@mantine/core", "@mantine/hooks", "@mantine/notifications", "@mantine/dates"],
+          maplibre: ["maplibre-gl"],
           cesium: ["cesium"],
         },
       },
     },
+    chunkSizeWarningLimit: 1600,
   },
+  optimizeDeps: { include: ["maplibre-gl"] },
 });

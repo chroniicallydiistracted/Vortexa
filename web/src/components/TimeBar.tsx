@@ -3,22 +3,23 @@ import { Paper, Group, ActionIcon, Slider, Select, Text } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
 
+type Speed = '0.5x' | '1x' | '2x' | '4x';
 interface TimeBarProps {
   playing: boolean;
   togglePlay: () => void;
-  baseStart: number; // ms
-  hoursSpan: number; // total hours shown
-  currentTime: number; // ms
+  baseStart: number;
+  hoursSpan: number;
+  currentTime: number;
   setCurrentTime: (v: number) => void;
   currentDate: Date;
   setCurrentDate: (d: Date) => void;
-  hourValue: number; // 0..hoursSpan
+  hourValue: number;
   setHourValue: (n: number) => void;
-  speed: string; // '0.5x' | '1x' | '2x' | '4x'
-  setSpeed: (s: string) => void;
+  speed: Speed;
+  setSpeed: (s: Speed) => void;
 }
 
-const speedMap: Record<string, number> = {
+const speedMap: Record<Speed, number> = {
   "0.5x": 2000,
   "1x": 1000,
   "2x": 500,
@@ -113,11 +114,12 @@ export function TimeBar({
           ]}
         />
         <DateInput
-          value={currentDate as any}
-          onChange={(val: any) => {
+          value={currentDate}
+          onChange={(val) => {
             if (!val) return;
-            const d = val instanceof Date ? val : new Date(val);
-            if (isNaN(d.getTime())) return;
+            const raw: unknown = val;
+            const d = raw instanceof Date ? raw : new Date(raw as string);
+            if (Number.isNaN(d.getTime())) return;
             setCurrentDate(d);
             const newTime = new Date(d.getTime());
             newTime.setUTCHours(0, 0, 0, 0);
@@ -133,7 +135,7 @@ export function TimeBar({
           aria-label="Playback speed"
           data={["0.5x", "1x", "2x", "4x"]}
           value={speed}
-          onChange={(v) => v && setSpeed(v)}
+          onChange={(v) => v && setSpeed(v as Speed)}
           w={80}
         />
         <Text size="xs" ff="monospace" c="dimmed" style={{ minWidth: 130, textAlign: "right" }}>

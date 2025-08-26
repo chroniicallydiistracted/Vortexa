@@ -1,7 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useMantineTheme } from '@mantine/core';
+import { useMantineTheme } from "@mantine/core";
 import { useStore } from "../../util/store";
 import { zoomToHeight } from "../../util/zoomHeight";
+// Direct Cesium imports (avoid dynamic + structural any patterns)
+import {
+  Viewer,
+  EllipsoidTerrainProvider,
+  Cartesian3,
+  UrlTemplateImageryProvider,
+  PointPrimitiveCollection,
+  Color,
+  type ImageryLayer,
+} from "cesium";
+
+// Narrowing helpers for accessing private (underscore) arrays without using `as any`.
+interface CreditLike { _credit?: { html?: string } }
+interface TaggedPrimitive { _westfamTag?: string }
+type ImageryLayerInstance = InstanceType<typeof Viewer>["imageryLayers"]["_layers"][number] & CreditLike; // access underbar via indexed type
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -13,70 +28,59 @@ export function CesiumGlobe() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    try {
+      const viewer = new Viewer(containerRef.current!, {
+        animation: false,
+        timeline: false,
+        baseLayerPicker: false,
+        geocoder: false,
+        homeButton: false,
+        navigationHelpButton: false,
+        sceneModePicker: false,
+        terrainProvider: new EllipsoidTerrainProvider(),
+      });
+      const baseTemplate = import.meta.env.VITE_BASEMAP_TILE_URL || 
+        "/api/cartodb/positron/{z}/{x}/{y}.png";
       try {
-        const Cesium = await import("cesium");
-  // CESIUM_BASE_URL removed: no external /cesium asset requests observed, assets bundled.
-        const {
-          Viewer,
-          EllipsoidTerrainProvider,
-          Cartesian3,
-          UrlTemplateImageryProvider,
-          WebMapTileServiceImageryProvider,
-        } = Cesium as any;
-        const viewer = new Viewer(containerRef.current!, {
-          animation: false,
-          timeline: false,
-          baseLayerPicker: false,
-          geocoder: false,
-          homeButton: false,
-          navigationHelpButton: false,
-          sceneModePicker: false,
-          terrainProvider: new EllipsoidTerrainProvider(),
+        const provider = new UrlTemplateImageryProvider({
+          url: baseTemplate,
+          credit: "Tiles © CartoDB, Data © OpenStreetMap contributors",
+          minimumLevel: 0,
+          maximumLevel: 18,
         });
-        const baseTemplate =
-          (import.meta as any).env?.VITE_BASEMAP_TILE_URL ||
-          "/api/cartodb/positron/{z}/{x}/{y}.png";
-        try {
-          const provider = new UrlTemplateImageryProvider({
-            url: baseTemplate,
-            credit: "Tiles © CartoDB, Data © OpenStreetMap contributors",
-            minimumLevel: 0,
-            maximumLevel: 18,
-          });
-          const layer0 = viewer.imageryLayers.get(0);
-          if (layer0) viewer.imageryLayers.remove(layer0, true);
-          viewer.imageryLayers.addImageryProvider(provider, 0);
-        } catch {}
-        const height = zoomToHeight(view.zoom);
-        viewer.camera.setView({
-          destination: Cartesian3.fromDegrees(view.lon, view.lat, height),
+  const layer0 = viewer.imageryLayers.get(0); // first layer
+        if (layer0) viewer.imageryLayers.remove(layer0, true);
+        viewer.imageryLayers.addImageryProvider(provider, 0);
+      } catch {}
+      const height = zoomToHeight(view.zoom);
+      viewer.camera.setView({
+        destination: Cartesian3.fromDegrees(view.lon, view.lat, height),
+      });
+      // Basic camera sync (debounced)
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      viewer.camera.changed.addEventListener(() => {
+        if (timer) return;
+        timer = setTimeout(() => { timer = null; }, 400);
+        const c = viewer.camera.positionCartographic;
+        setView({
+          lat: (c.latitude * 180) / Math.PI,
+          lon: (c.longitude * 180) / Math.PI,
         });
-        // Basic camera sync (debounced)
-        let timer: any = null;
-        viewer.camera.changed.addEventListener(() => {
-          if (timer) return;
-          timer = setTimeout(() => {
-            timer = null;
-          }, 400);
-          const c = viewer.camera.positionCartographic;
-          setView({
-            lat: (c.latitude * 180) / Math.PI,
-            lon: (c.longitude * 180) / Math.PI,
-          });
-        });
-        if (!cancelled) setReady(true);
-      } catch (e) {
-        console.error("Cesium init failed; reverting to 2D", e);
-        setMode("2d");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+      });
+      if (!cancelled) setReady(true);
+      viewerRef.current = viewer;
+    } catch (e) {
+      console.error("Cesium init failed; reverting to 2D", e);
+      setMode("2d");
+    }
+    return () => { cancelled = true; };
   }, []);
 
   // Reactive GIBS layer (simple check each render; could optimize w/ ref)
+  const viewerRef = useRef<InstanceType<typeof Viewer> | null>(null);
+  // Keep direct references to primitives we add (avoid spelunking private fields)
+  // Using `any` here avoids the Cesium type namespace limitation in this build context; we only store/remove the instance.
+  const firmsRef = useRef<any>(null);
   const gibsOn = useStore((s) => s.gibsGeocolor3d);
   const gibsSelectedTime = useStore((s) => s.gibsSelectedTime);
   const gibsTimestamps = useStore((s) => s.gibsTimestamps);
@@ -85,17 +89,14 @@ export function CesiumGlobe() {
   useEffect(() => {
     (async () => {
       if (!ready) return;
-      const Cesium = await import("cesium");
-      const viewer =
-        (Cesium as any).Viewer?.instances?.[0] ||
-        (document.querySelector("canvas.cesium-widget") as any)?._cesiumWidget
-          ?.viewer; // fallback heuristic
-      if (!viewer) return;
+      const viewer = viewerRef.current;
+      if (!viewer) return; // not yet initialized
       const layers = viewer.imageryLayers;
-      const existing = layers._layers.find(
-        (l: any) =>
-          l._credit && /GOES-East GeoColor/i.test(l._credit?.html || ""),
-      );
+  const existing = (layers as unknown as { _layers: ImageryLayerInstance[] })._layers
+        .find((l) => {
+          const credit = (l as CreditLike)._credit;
+          return credit && /GOES-East GeoColor/i.test(credit.html || "");
+        });
       if (gibsOn) {
         // Determine time parameter (selected or latest available)
         const timeIso =
@@ -103,7 +104,7 @@ export function CesiumGlobe() {
           gibsTimestamps[gibsTimestamps.length - 1] ||
           new Date().toISOString().slice(0, 19) + "Z";
         const template =
-          (import.meta as any).env?.VITE_GIBS_WMTS_TILE_URL ||
+          import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
           "/api/gibs/geocolor/{z}/{x}/{y}.jpg?time={time}";
         if (!existing) {
           const url = template
@@ -111,7 +112,7 @@ export function CesiumGlobe() {
             .replace("{TileRow}", "{y}")
             .replace("{TileCol}", "{x}")
             .replace("{time}", encodeURIComponent(timeIso));
-          const provider = new (Cesium as any).UrlTemplateImageryProvider({
+          const provider = new UrlTemplateImageryProvider({
             url,
             credit: "GOES-East GeoColor (NASA GIBS)",
           });
@@ -124,7 +125,7 @@ export function CesiumGlobe() {
             .replace("{TileRow}", "{y}")
             .replace("{TileCol}", "{x}")
             .replace("{time}", encodeURIComponent(timeIso));
-          const provider = new (Cesium as any).UrlTemplateImageryProvider({
+          const provider = new UrlTemplateImageryProvider({
             url,
             credit: "GOES-East GeoColor (NASA GIBS)",
           });
@@ -140,41 +141,29 @@ export function CesiumGlobe() {
   useEffect(() => {
     (async () => {
       if (!ready) return;
-      const Cesium = await import("cesium");
-      const viewer =
-        (Cesium as any).Viewer?.instances?.[0] ||
-        (document.querySelector("canvas.cesium-widget") as any)?._cesiumWidget
-          ?.viewer;
+      const viewer = viewerRef.current;
       if (!viewer) return;
       // Remove existing collection if toggled off
       if (!showFirms) {
-        const existing = (viewer.scene.primitives as any)._primitives.find(
-          (p: any) => p._westfamTag === "firms",
-        );
-        if (existing) viewer.scene.primitives.remove(existing);
+        if (firmsRef.current) {
+          try { viewer.scene.primitives.remove(firmsRef.current); } catch {}
+          firmsRef.current = null;
+        }
         return;
       }
-      // If already present do nothing
-      const exists = (viewer.scene.primitives as any)._primitives.find(
-        (p: any) => p._westfamTag === "firms",
-      );
-      if (exists) return;
+      if (firmsRef.current) return; // already added
       try {
         const r = await fetch("/api/firms/VIIRS_NOAA20_NRT/1");
         if (!r.ok) return;
         const csv = await r.text();
         const { firmsCsvToGeoJSON } = await import("../../util/firms");
         const gj = firmsCsvToGeoJSON(csv);
-        const collection = new (Cesium as any).PointPrimitiveCollection();
-        (collection as any)._westfamTag = "firms";
-        const color = (Cesium as any).Color.ORANGERED.withAlpha(0.85);
+        const collection = new PointPrimitiveCollection();
+        firmsRef.current = collection; // store reference
+        const color = Color.ORANGERED.withAlpha(0.85);
         for (const f of gj.features) {
           const [lon, lat] = f.geometry.coordinates;
-          collection.add({
-            position: (Cesium as any).Cartesian3.fromDegrees(lon, lat),
-            color,
-            pixelSize: 6,
-          });
+          collection.add({ position: Cartesian3.fromDegrees(lon, lat, 0), color, pixelSize: 6 });
         }
         viewer.scene.primitives.add(collection);
       } catch {
@@ -187,16 +176,14 @@ export function CesiumGlobe() {
   useEffect(() => {
     (async () => {
       if (!ready) return;
-      const Cesium = await import("cesium");
-      const viewer =
-        (Cesium as any).Viewer?.instances?.[0] ||
-        (document.querySelector("canvas.cesium-widget") as any)?._cesiumWidget
-          ?.viewer;
+      const viewer = viewerRef.current;
       if (!viewer) return;
       const layers = viewer.imageryLayers;
-      const existing = layers._layers.find(
-        (l: any) => l._credit && /OWM Temperature/i.test(l._credit?.html || ""),
-      );
+  const existing = (layers as unknown as { _layers: ImageryLayerInstance[] })._layers
+        .find((l) => {
+          const credit = (l as CreditLike)._credit;
+          return credit && /OWM Temperature/i.test(credit.html || "");
+        });
       if (!showOwmTemp && existing) {
         layers.remove(existing, true);
         return;
@@ -204,7 +191,7 @@ export function CesiumGlobe() {
       if (showOwmTemp && !existing) {
         // Use 'temp_new' layer name; adjust if environment variable provided
         const template = "/api/owm/tiles/temp_new/{z}/{x}/{y}.png";
-        const provider = new (Cesium as any).UrlTemplateImageryProvider({
+        const provider = new UrlTemplateImageryProvider({
           url: template,
           credit: "OWM Temperature (OpenWeatherMap)",
         });
