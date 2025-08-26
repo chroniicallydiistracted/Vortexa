@@ -62,13 +62,13 @@ if (!QUIET) {
     NWS_USER_AGENT: process.env.NWS_USER_AGENT,
     ALERTS_TABLE: process.env.ALERTS_TABLE,
   });
-    console.log('[health-check] Optional keys:', {
-      AIRNOW_API_KEY: (process.env.AIRNOW_API_KEY || '').slice(0, 6) + '...',
-      OPENAQ_API_KEY: (process.env.OPENAQ_API_KEY || '').slice(0, 6) + '...',
-      CESIUM_ION_TOKEN: (process.env.CESIUM_ION_TOKEN || '').slice(0, 6) + '...',
-      EARTHDATA_AUTH_KEY: (process.env.EARTHDATA_AUTH_KEY || '').slice(0, 6) + '...',
-      AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION,
-    });
+  console.log('[health-check] Optional keys:', {
+    AIRNOW_API_KEY: (process.env.AIRNOW_API_KEY || '').slice(0, 6) + '...',
+    OPENAQ_API_KEY: (process.env.OPENAQ_API_KEY || '').slice(0, 6) + '...',
+    CESIUM_ION_TOKEN: (process.env.CESIUM_ION_TOKEN || '').slice(0, 6) + '...',
+    EARTHDATA_AUTH_KEY: (process.env.EARTHDATA_AUTH_KEY || '').slice(0, 6) + '...',
+    AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION,
+  });
   console.log('[health-check] Time budgets:', {
     MAX_LAYER_MS,
     MAX_TOTAL_MS,
@@ -226,7 +226,7 @@ async function cleanupManagedProxy() {
 
 // --- Dynamic time helpers --------------------------------------------------
 let rainviewerCache: { ts: number; timestamps: number[] } | null = null;
-let gibsTimeCache: { ts: number; value: string } | null = null;
+const gibsTimeCache = new Map<string, { ts: number; value: string }>();
 
 async function fetchWithTimeout(
   resource: string,
@@ -293,28 +293,35 @@ async function resolveRainviewer(url: string): Promise<string> {
   return url.replace('{time}', String(Math.floor(Date.now() / 1000)));
 }
 
-async function getGibsLatestTime(): Promise<string | null> {
+async function getGibsLatestTime(layerId: string): Promise<string | null> {
   const now = Date.now();
-  if (gibsTimeCache && now - gibsTimeCache.ts < 5 * 60_000) return gibsTimeCache.value; // 5 min cache
+  const cached = gibsTimeCache.get(layerId);
+  if (cached && now - cached.ts < 5 * 60_000) return cached.value; // 5 min cache
   const capUrl =
     'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities';
   try {
     const r = await fetchWithTimeout(capUrl, { timeout: GIBS_CAP_TIMEOUT_MS });
     if (!r.ok) throw new Error('caps status ' + r.status);
     const xml = await r.text();
-    const layerBlockMatch = xml.match(
-      /<Layer>[\s\S]*?<Identifier>GOES-East_Full_Disk_Band_13_ENHANCED<\/Identifier>[\s\S]*?<\/Layer>/,
+    const escaped = layerId.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+    const layerRegex = new RegExp(
+      `<Layer>[\\s\\S]*?<Identifier>${escaped}<\\/Identifier>[\\s\\S]*?<\\/Layer>`,
+      'i',
     );
+    const layerBlockMatch = xml.match(layerRegex);
     if (!layerBlockMatch) return null;
     const block = layerBlockMatch[0];
-    const dimMatch = block.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/);
+    const dimMatch =
+      block.match(/<Dimension[^>]*name="time"[^>]*>([\s\S]*?)<\/Dimension>/i) ||
+      block.match(
+        /<Dimension[\s\S]*?(?:name="time"|<Identifier>time<\/Identifier>)[\s\S]*?<Value>([\s\S]*?)<\/Value>/i,
+      );
     if (!dimMatch) return null;
-    const defaultAttr = dimMatch[0].match(/default="([^"]+)"/);
+    const defaultAttr = dimMatch[0].match(/default="([^"]+)"/i);
     let latest: string | null = defaultAttr ? defaultAttr[1] : null;
     if (!latest) {
       const body = dimMatch[1].trim();
       if (body.includes('/P')) {
-        // interval form start/end/period -> take end
         const parts = body.split('/');
         if (parts.length >= 2) latest = parts[1];
       } else if (body.includes(',')) {
@@ -329,37 +336,37 @@ async function getGibsLatestTime(): Promise<string | null> {
       }
     }
     if (latest) {
-      gibsTimeCache = { ts: now, value: latest };
+      gibsTimeCache.set(layerId, { ts: now, value: latest });
       return latest;
     }
   } catch {}
   return null;
 }
 
-async function resolveGibsGoEs(url: string): Promise<string> {
-  if (!/GOES-East_Full_Disk_Band_13_ENHANCED/.test(url)) return url;
-  const latest = await getGibsLatestTime();
+async function resolveGibsTime(url: string): Promise<string> {
+  const match = url.match(/best\/([^/]+)\/default\/[^/]+/);
+  if (!match) return url;
+  const layerId = decodeURIComponent(match[1]);
+  const latest = await getGibsLatestTime(layerId);
   if (latest) {
-    // Replace either placeholder or existing encoded segment
+    const safe = encodeURI(latest);
     if (url.includes('{time}')) {
-      return url.replace('{time}', latest).replace(/\/default\/[^/]+\//, `/default/${latest}/`);
+      return url.replace('{time}', safe).replace(/\/default\/[^/]+\//, `/default/${safe}/`);
     }
-    return url.replace(/\/default\/[^/]+\//, `/default/${latest}/`);
+    return url.replace(/\/default\/[^/]+\//, `/default/${safe}/`);
   }
-  // fallback to 'current' if capability fetch failed
   if (url.includes('{time}'))
     return url.replace('{time}', 'current').replace(/\/default\/[^/]+\//, '/default/current/');
-  return url; // leave as-is (likely already has a date)
+  return url;
 }
-
 async function resolveDynamicTime(layer: Layer, url: string): Promise<string> {
   // Rainviewer
   if (/tilecache\.rainviewer\.com/.test(url) && url.includes('{time}')) {
     return resolveRainviewer(url);
   }
-  // GIBS GOES Band 13
-  if (/GOES-East_Full_Disk_Band_13_ENHANCED/.test(url) && url.includes('{time}')) {
-    return resolveGibsGoEs(url);
+  // GIBS layers
+  if (/gibs\.earthdata\.nasa\.gov/.test(url) && /\/default\/[^/]+\//.test(url)) {
+    return resolveGibsTime(url);
   }
   return url;
 }

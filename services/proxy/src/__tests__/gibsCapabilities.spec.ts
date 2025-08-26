@@ -29,6 +29,7 @@ function installFetch(xml: string) {
   // clear caches
   __internals.capsCache.clear();
   __internals.tsCache.clear();
+  __internals.latestCache.clear();
 }
 
 describe('gibs capabilities helpers', () => {
