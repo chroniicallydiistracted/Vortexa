@@ -1,13 +1,11 @@
 import { expect, vi } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
 // vitest-axe provides a matcher factory; require dynamically to avoid TS type issues
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 let axeMatchers = {};
 try {
     // Attempt to load vitest-axe (optional in some environments)
     // It exports "toHaveNoViolations" in its default export object shape
     // Using require to bypass ESM named export typing mismatch
-    // @ts-ignore
     const vaxe = require('vitest-axe');
     axeMatchers = { toHaveNoViolations: vaxe.toHaveNoViolations };
 }

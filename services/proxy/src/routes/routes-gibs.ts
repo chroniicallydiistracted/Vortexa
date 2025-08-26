@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { shortLived60, immutable1h } from '../middleware/cache.js';
+import { shortLived60 } from '../middleware/cache.js';
 import { fetch } from 'undici';
 import {
   getTimestamps,

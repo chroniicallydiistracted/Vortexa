@@ -23,7 +23,7 @@ export interface CatalogEntry {
   notes?: string;
 }
 // Detect FIRMS layer by slug or attribution reference. CSV is exposed via our proxy: /api/firms/... returning text/csv
-import { firmsCsvToGeoJSON } from '../util/firms';
+import { firmsCsvToGeoJSON } from '../util/util-firms';
 type Catalog = CatalogEntry[];
 
 interface MapProps {

@@ -10,11 +10,11 @@ import morgan from 'morgan';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Histogram, Counter, Registry, collectDefaultMetrics, Gauge } from 'prom-client';
-import { firmsRouter } from './routes/firms.js';
+import { firmsRouter } from './routes/routes-firms.js';
 import { owmRouter } from './routes/owm.js';
 import { nwsRouter } from './routes/nws.js';
 import { cartoDbRouter } from './routes/cartodb.js';
-import { gibsRouter } from './routes/gibs.js';
+import { gibsRouter } from './routes/routes-gibs.js';
 
 export interface CreateAppOptions {
   allowHosts?: string[];

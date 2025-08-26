@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useStore } from '../../util/store';
+import { useStore } from '../../util/util-store';
 describe('layer selection logic', () => {
     beforeEach(() => {
         useStore.getState().replaceLayers([]);

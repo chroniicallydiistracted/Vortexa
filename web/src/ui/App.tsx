@@ -17,13 +17,13 @@ import { ModeSwitch } from '../map/ModeSwitch';
 import Globe3DLoader from '../features/globe/Globe3DLoader';
 import { getRuntimeFlags } from '../util/featureFlags';
 // Legacy MapView/Panel removed; using modern catalog-based components
-import CatalogPanel from '../components/Panel';
+import CatalogPanel from '../components/components-Panel';
 import Map, { CatalogEntry as MapCatalogEntry } from '../components/Map';
 // TimeBar (Mantine) replaces legacy Timeline component
 import { TimeBar } from '../components/TimeBar';
 import { parseHash, decodeLayers } from '../util/permalink';
-import { useStore } from '../util/store';
-import { is3DEnabled } from '../lib/env';
+import { useStore } from '../util/util-store';
+import { is3DEnabled } from '../lib/lib-env';
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';
 // URL mode initialization now handled inside store at module load.

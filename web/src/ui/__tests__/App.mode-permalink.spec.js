@@ -9,7 +9,7 @@ describe('App mode permalink + env gating', () => {
         vi.unstubAllEnvs();
         window.history.replaceState(null, '', '/');
         // Reset store state to ensure clean test environment
-        const { useStore } = await import('../../state/store');
+        const { useStore } = await import('../../state/state-store');
         useStore.setState({
             mode: '2d',
             layers: [],
@@ -43,7 +43,7 @@ describe('App mode permalink + env gating', () => {
         process.env.VITE_ENABLE_3D = '1';
         vi.stubEnv('VITE_ENABLE_3D', '1');
         window.history.replaceState(null, '', '/?mode=3d');
-        const { useStore } = await import('../../state/store');
+        const { useStore } = await import('../../state/state-store');
         const { default: App } = await import('../App');
         renderWithMantine(_jsx(App, {}));
         expect(useStore.getState().mode).toBe('3d');
@@ -52,7 +52,7 @@ describe('App mode permalink + env gating', () => {
         process.env.VITE_ENABLE_3D = '0';
         vi.stubEnv('VITE_ENABLE_3D', '0');
         window.history.replaceState(null, '', '/?mode=3d');
-        const { useStore } = await import('../../state/store');
+        const { useStore } = await import('../../state/state-store');
         const { default: App } = await import('../App');
         renderWithMantine(_jsx(App, {}));
         expect(useStore.getState().mode).toBe('2d');
@@ -61,7 +61,7 @@ describe('App mode permalink + env gating', () => {
         process.env.VITE_ENABLE_3D = '1';
         vi.stubEnv('VITE_ENABLE_3D', '1');
         window.history.replaceState(null, '', '/#mode=3d');
-        const { useStore } = await import('../../state/store');
+        const { useStore } = await import('../../state/state-store');
         const { default: App } = await import('../App');
         renderWithMantine(_jsx(App, {}));
         expect(useStore.getState().mode).toBe('3d');

@@ -8,6 +8,10 @@ dist/
 **/dist-zip/
 web/dist/
 
+# Prevent compiled JS artifacts in TS source directories
+web/src/**/*.js
+services/*/src/**/*.js
+
 # Env
 .env
 **/.env.local

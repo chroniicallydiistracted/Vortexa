@@ -7,13 +7,13 @@ import { ModeSwitch } from '../map/ModeSwitch';
 import Globe3DLoader from '../features/globe/Globe3DLoader';
 import { getRuntimeFlags } from '../util/featureFlags';
 // Legacy MapView/Panel removed; using modern catalog-based components
-import CatalogPanel from '../components/Panel';
+import CatalogPanel from '../components/components-Panel';
 import Map from '../components/Map';
 // TimeBar (Mantine) replaces legacy Timeline component
 import { TimeBar } from '../components/TimeBar';
 import { parseHash, decodeLayers } from '../util/permalink';
-import { useStore } from '../util/store';
-import { is3DEnabled } from '../lib/env';
+import { useStore } from '../util/util-store';
+import { is3DEnabled } from '../lib/lib-env';
 import { notifications } from '@mantine/notifications';
 import { useDebouncedCallback } from 'use-debounce';
 // URL mode initialization now handled inside store at module load.
@@ -39,7 +39,7 @@ export default function App() {
     const requested3d = requestedMode === '3d';
     // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
     const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
-    console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D, 'requested3d:', requested3d);
+    // debug: mode and 3d availability (removed verbose logging for production)
     // Update mode from location on mount to handle hash changes after store initialization
     useEffect(() => {
         updateModeFromLocation();
@@ -145,7 +145,6 @@ export default function App() {
     const [results, setResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     // One-time tile proxy fallback notification (persist across mounts)
-     
     // @ts-ignore - attach to module scope variable
     let _tileProxyWarned = globalThis.__TILE_PROXY_WARNED__ || false;
     const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
@@ -211,7 +210,7 @@ export default function App() {
     useEffect(() => {
         debouncedHashUpdate();
     }, [playbackCurrentTimeMs]);
-    return (_jsxs(AppShell, { header: { height: 0 }, navbar: { width: 360, breakpoint: 'sm', collapsed: { mobile: false } }, padding: 0, children: [_jsx(AppShell.Navbar, { p: "xs", children: _jsx(ScrollArea, { style: { height: '100%' }, children: _jsx(CatalogPanel, { onSelect: setActiveLayerSlug, activeLayerSlug: activeLayerSlug }) }) }), _jsxs(AppShell.Main, { style: { position: 'relative' }, children: [mode === '2d' && (_jsxs(_Fragment, { children: [console.log('[App] Rendering Map component in 2D mode'), _jsx(Map, { activeLayerSlug: activeLayerSlug, catalog: mappedCatalog, onMapReady: setMapInstance, currentTime: currentTime })] })), mode === '3d' && canUse3D && _jsx(Globe3DLoader, {}), _jsx(ModeSwitch, { mode: mode, setMode: setMode, canUse3D: canUse3D }), mode === '3d' && canUse3D && (_jsx(Paper, { withBorder: true, shadow: "sm", p: "xs", style: { position: 'absolute', top: 70, right: 8, zIndex: 20 }, children: _jsx(Checkbox, { size: "xs", label: "GIBS GeoColor", checked: gibsGeocolor3d, onChange: () => toggleGibsGeocolor3d() }) })), _jsx(Paper, { withBorder: true, shadow: "sm", p: "xs", style: { position: 'absolute', left: 8, top: 8, zIndex: 15 }, children: _jsxs(Group, { gap: 6, align: "center", children: [_jsx(Text, { size: "xs", c: "dimmed", children: "Catalog Demo" }), _jsx(MantineButton, { size: "xs", variant: "light", color: "storm", children: "Mantine" })] }) }), _jsxs(Paper, { withBorder: true, shadow: "sm", p: "xs", style: {
+    return (_jsxs(AppShell, { header: { height: 0 }, navbar: { width: 360, breakpoint: 'sm', collapsed: { mobile: false } }, padding: 0, children: [_jsx(AppShell.Navbar, { p: "xs", children: _jsx(ScrollArea, { style: { height: '100%' }, children: _jsx(CatalogPanel, { onSelect: setActiveLayerSlug, activeLayerSlug: activeLayerSlug }) }) }), _jsxs(AppShell.Main, { style: { position: 'relative' }, children: [mode === '2d' && (_jsx(_Fragment, { children: _jsx(Map, { activeLayerSlug: activeLayerSlug, catalog: mappedCatalog, onMapReady: setMapInstance, currentTime: currentTime }) })), mode === '3d' && canUse3D && _jsx(Globe3DLoader, {}), _jsx(ModeSwitch, { mode: mode, setMode: setMode, canUse3D: canUse3D }), mode === '3d' && canUse3D && (_jsx(Paper, { withBorder: true, shadow: "sm", p: "xs", style: { position: 'absolute', top: 70, right: 8, zIndex: 20 }, children: _jsx(Checkbox, { size: "xs", label: "GIBS GeoColor", checked: gibsGeocolor3d, onChange: () => toggleGibsGeocolor3d() }) })), _jsx(Paper, { withBorder: true, shadow: "sm", p: "xs", style: { position: 'absolute', left: 8, top: 8, zIndex: 15 }, children: _jsxs(Group, { gap: 6, align: "center", children: [_jsx(Text, { size: "xs", c: "dimmed", children: "Catalog Demo" }), _jsx(MantineButton, { size: "xs", variant: "light", color: "storm", children: "Mantine" })] }) }), _jsxs(Paper, { withBorder: true, shadow: "sm", p: "xs", style: {
                             position: 'absolute',
                             top: 8,
                             left: '50%',

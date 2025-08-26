@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { is3DEnabled } from '../lib/env';
+import { is3DEnabled } from '../lib/lib-env';
 
 function readRequestedModeFromLocation(): '2d' | '3d' {
   if (typeof window === 'undefined') return '2d';

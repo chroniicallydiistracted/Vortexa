@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { useStore } from '../../util/store';
+import { useStore } from '../../util/util-store';
 
 // Mode persistence is handled in App via URL params; here we only verify store mechanics.
 

@@ -4,7 +4,7 @@ import { useMantineTheme } from '@mantine/core';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 // Detect FIRMS layer by slug or attribution reference. CSV is exposed via our proxy: /api/firms/... returning text/csv
-import { firmsCsvToGeoJSON } from '../util/firms';
+import { firmsCsvToGeoJSON } from '../util/util-firms';
 export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime }) {
     const theme = useMantineTheme();
     const mapRef = useRef(null);

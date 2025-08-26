@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMantineTheme } from '@mantine/core';
-import { useStore } from '../../util/store';
+import { useStore } from '../../util/util-store';
 import { zoomToHeight } from '../../util/zoomHeight';
 // Direct Cesium imports (avoid dynamic + structural any patterns)
 import {
@@ -10,16 +10,14 @@ import {
   UrlTemplateImageryProvider,
   PointPrimitiveCollection,
   Color,
-  type ImageryLayer,
+
 } from 'cesium';
 
 // Narrowing helpers for accessing private (underscore) arrays without using `as any`.
 interface CreditLike {
   _credit?: { html?: string };
 }
-interface TaggedPrimitive {
-  _westfamTag?: string;
-}
+
 type ImageryLayerInstance = InstanceType<typeof Viewer>['imageryLayers']['_layers'][number] &
   CreditLike; // access underbar via indexed type
 
@@ -164,7 +162,7 @@ export function CesiumGlobe() {
         const r = await fetch('/api/firms/VIIRS_NOAA20_NRT/1');
         if (!r.ok) return;
         const csv = await r.text();
-        const { firmsCsvToGeoJSON } = await import('../../util/firms');
+        const { firmsCsvToGeoJSON } = await import('../../util/util-firms');
         const gj = firmsCsvToGeoJSON(csv);
         const collection = new PointPrimitiveCollection();
         firmsRef.current = collection; // store reference

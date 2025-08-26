@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { buildTileUrl, prefetchNextTile, fetchTimestamps } from './gibs';
+import { buildTileUrl, prefetchNextTile, fetchTimestamps } from './util-gibs';
 
 describe('gibs buildTileUrl', () => {
   it('appends time when provided', () => {

@@ -76,3 +76,58 @@
 [web] Exit status 143
 [web]  ELIFECYCLE  Command failed with exit code 143.
 [web] pnpm dev:web exited with code 143
+[proxy] 3:44:14 PM [tsx] unlink in ./src/routes/gibs.ts Rerunning...
+[proxy] c
+[proxy] node:internal/modules/run_main:123
+[proxy]     triggerUncaughtException(
+[proxy]     ^
+[proxy] Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/andre/Vortexa/services/proxy/src/routes/firms.js' imported from /home/andre/Vortexa/services/proxy/src/index.ts
+[proxy]     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+[proxy]     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+[proxy]     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+[proxy]     at nextResolve (node:internal/modules/esm/hooks:864:28)
+[proxy]     at resolveBase (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:3744)
+[proxy]     at async resolveDirectory (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:4237)
+[proxy]     at async resolve (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:5355)
+[proxy]     at async nextResolve (node:internal/modules/esm/hooks:864:22)
+[proxy]     at async Hooks.resolve (node:internal/modules/esm/hooks:306:24)
+[proxy]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+[proxy]   code: 'ERR_MODULE_NOT_FOUND',
+[proxy]   url: 'file:///home/andre/Vortexa/services/proxy/src/routes/firms.js'
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0
+[proxy] 3:45:05 PM [tsx] change in ./src/index.ts Rerunning...
+[proxy] c[2025-08-26 15:45:05.984 -0700] [32mINFO[39m (3906): [36mcache: disabled[39m
+[proxy] node:events:502
+[proxy]       throw er; // Unhandled 'error' event
+[proxy]       ^
+[proxy] 
+[proxy] Error: listen EADDRINUSE: address already in use :::4000
+[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+[proxy]     at listenInCluster (node:net:1965:12)
+[proxy]     at Server.listen (node:net:2067:7)
+[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
+[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[proxy] Emitted 'error' event on Server instance at:
+[proxy]     at emitErrorNT (node:net:1944:8)
+[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+[proxy]   code: 'EADDRINUSE',
+[proxy]   errno: -98,
+[proxy]   syscall: 'listen',
+[proxy]   address: '::',
+[proxy]   port: 4000
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0
+[proxy] 3:46:37 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
+[proxy] c[2025-08-26 15:46:38.190 -0700] [32mINFO[39m (5222): [36mcache: disabled[39m
+[proxy] [2025-08-26 15:46:38.201 -0700] [32mINFO[39m (5222): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 3:49:54 PM [tsx] change in ./src/routes/routes-gibs.ts Restarting...
+[proxy] c[2025-08-26 15:49:56.103 -0700] [32mINFO[39m (6533): [36mcache: disabled[39m
+[proxy] [2025-08-26 15:49:56.110 -0700] [32mINFO[39m (6533): [36mproxy up[39m
+[proxy]     port: 4000

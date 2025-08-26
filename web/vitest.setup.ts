@@ -7,7 +7,6 @@ try {
   // Attempt to load vitest-axe (optional in some environments)
   // It exports "toHaveNoViolations" in its default export object shape
   // Using require to bypass ESM named export typing mismatch
-  // @ts-expect-error - optional dependency, may not be present in all environments
   const vaxe = require('vitest-axe');
   axeMatchers = { toHaveNoViolations: vaxe.toHaveNoViolations };
 } catch {}

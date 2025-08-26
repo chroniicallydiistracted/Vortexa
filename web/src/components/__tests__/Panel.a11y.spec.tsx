@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderWithMantine } from '../../test-utils/renderWithMantine';
-import Panel from '../Panel';
+import Panel from '../components-Panel';
 
 // Basic smoke: ensure action buttons have aria-labels
 

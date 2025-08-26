@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useStore, Layer } from '../../util/store';
+import { useStore, Layer } from '../../util/util-store';
 
 describe('layer selection logic', () => {
   beforeEach(() => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { validateCatalog, type CatalogLayer } from '../lib/validateCatalog';
-import { useStore } from '../util/store';
+import { useStore } from '../util/util-store';
 import {
   Accordion,
   Group,
