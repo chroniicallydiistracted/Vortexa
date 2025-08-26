@@ -15,7 +15,7 @@ import {
   Tooltip,
   Divider,
 } from "@mantine/core";
-import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconInfoCircle, IconPlayerPlay, IconPlayerPause, IconChevronLeft, IconChevronRight, IconArrowsMaximize, IconArrowsMinimize } from "@tabler/icons-react";
 
 // Adjusted to new catalog structure: { layers: CatalogEntry[] }
 // Panel expects a richer catalog; adapt CatalogLayer to this internal shape.
@@ -99,8 +99,22 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
       {} as Record<string, CatalogEntry[]>,
     );
   }, [palette]);
-  // Categories list for Accordion default expansion
+  // Categories list (stable ordering)
   const allCats = useMemo(() => Object.keys(grouped).sort(), [grouped]);
+  // Controlled accordion open state (default: first 3 or all if <=3)
+  const [openedCats, setOpenedCats] = useState<string[]>(() => allCats.slice(0, 3));
+  // Keep openedCats in sync if categories change
+  useEffect(() => {
+    setOpenedCats((prev) => {
+      if (prev.length === 0) return prev; // respect fully collapsed state
+      // Remove categories that disappeared
+      const filtered = prev.filter((c) => allCats.includes(c));
+      if (filtered.length === prev.length) return prev; // unchanged
+      return filtered;
+    });
+  }, [allCats.join(",")]);
+  const expandAll = () => setOpenedCats(allCats);
+  const collapseAll = () => setOpenedCats([]);
   // Fetch GIBS timestamps when 3D + gibs active and none loaded yet
   useEffect(() => {
     if (mode !== "3d" || !gibsOn) return;
@@ -117,13 +131,47 @@ export default function Panel({ onSelect, activeLayerSlug }: PanelProps) {
   }, [mode, gibsOn, gibsTimestamps.length]);
   return (
     <Stack gap="sm" p={0} style={{ fontSize: 13 }}>
-      <Group gap="xs" wrap="nowrap">
-        <Text fw={600}>Layers</Text>
-        <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>Clear</Button>
+      <Group gap="xs" wrap="nowrap" justify="space-between">
+        <Group gap="xs" wrap="nowrap">
+          <Text fw={600}>Layers</Text>
+          <Button size="xs" variant="outline" color="storm" onClick={() => onSelect("")}>Clear</Button>
+        </Group>
+        {allCats.length > 0 && (
+          <Group gap={4} wrap="nowrap">
+            <Tooltip label="Expand all">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                aria-label="Expand all sections"
+                onClick={expandAll}
+                disabled={openedCats.length === allCats.length}
+              >
+                <IconArrowsMaximize size={16} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Collapse all">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                aria-label="Collapse all sections"
+                onClick={collapseAll}
+                disabled={openedCats.length === 0}
+              >
+                <IconArrowsMinimize size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+        )}
       </Group>
       {!palette && <Text size="xs" c="dimmed">Loading palette…</Text>}
       {palette && (
-        <Accordion multiple chevronPosition="left" variant="contained" defaultValue={allCats.slice(0,3)}>
+        <Accordion
+          multiple
+          chevronPosition="left"
+          variant="contained"
+          value={openedCats}
+          onChange={(val) => setOpenedCats(Array.isArray(val) ? val : [])}
+        >
           {allCats.map((cat) => {
             const list = grouped[cat];
             return (
