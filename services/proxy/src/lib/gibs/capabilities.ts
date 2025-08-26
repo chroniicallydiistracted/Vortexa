@@ -44,12 +44,13 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
     return [];
   }
   const layerBlock = layerBlockMatch[0];
-  
+
   // Look for all Value elements within the Time dimension using a compatible approach
-  const valueRegex = /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/gi;
+  const valueRegex =
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Value>([\s\S]*?)<\/Value>/gi;
   const times: string[] = [];
   let match;
-  
+
   while ((match = valueRegex.exec(layerBlock)) !== null) {
     const raw = match[1];
     // Split on commas or whitespace; keep date tokens
@@ -57,7 +58,7 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
       .split(/[\s,]+/)
       .map((s) => s.trim())
       .filter(Boolean);
-    
+
     // Process each token to extract timestamps
     for (const token of tokens) {
       if (token.includes('/')) {
@@ -67,7 +68,7 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
           // Add both start and end times
           const startTime = parts[0];
           const endTime = parts[1];
-          
+
           // Validate ISO8601 format
           if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(startTime)) {
             times.push(startTime);
@@ -84,7 +85,7 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
       }
     }
   }
-  
+
   // Remove duplicates and sort using a compatible approach
   const uniqueTimes: string[] = [];
   for (const time of times) {
@@ -93,7 +94,7 @@ export async function getTimestamps(layerId: string): Promise<string[]> {
     }
   }
   uniqueTimes.sort();
-  
+
   tsCache.set(layerId, uniqueTimes);
   return uniqueTimes;
 }
@@ -117,12 +118,12 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
     return null;
   }
   const layerBlock = layerBlockMatch[0];
-  
+
   // First check for Default attribute in the Time dimension
   const defaultMatch = layerBlock.match(
-    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Default>([^<]+)<\/Default>/i
+    /<Dimension[\s\S]*?<ows:Identifier>Time<\/ows:Identifier>[\s\S]*?<Default>([^<]+)<\/Default>/i,
   );
-  
+
   if (defaultMatch) {
     const defaultTime = defaultMatch[1].trim();
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(defaultTime)) {
@@ -130,14 +131,14 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
       return defaultTime;
     }
   }
-  
+
   // If no default, get all timestamps and use the latest
   const timestamps = await getTimestamps(layerId);
   if (timestamps.length === 0) {
     latestCache.set(layerId, { value: null, timestamp: Date.now() });
     return null;
   }
-  
+
   // Sort timestamps and get the latest
   const sorted = timestamps.sort();
   const latest = sorted[sorted.length - 1];
@@ -147,7 +148,11 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
 
 export function pickTms(
   layerId: string,
-): 'GoogleMapsCompatible_Level7' | 'GoogleMapsCompatible_Level8' | 'GoogleMapsCompatible_Level9' | 'GoogleMapsCompatible_Level13' {
+):
+  | 'GoogleMapsCompatible_Level7'
+  | 'GoogleMapsCompatible_Level8'
+  | 'GoogleMapsCompatible_Level9'
+  | 'GoogleMapsCompatible_Level13' {
   // Based on the XML, GOES layers use Level7, Graticule uses Level13
   if (/GOES|ABI/i.test(layerId)) return 'GoogleMapsCompatible_Level7';
   if (/Graticule/i.test(layerId)) return 'GoogleMapsCompatible_Level13';
@@ -169,7 +174,7 @@ export function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlO
   const tmsSet = tms || pickTms(layerId);
   const extension = (ext || 'png').toLowerCase();
   const safeTime = encodeURI(time);
-  
+
   // Use the correct WMTS URL structure from the XML specification
   // Format: /{layerId}/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.{ext}
   return `${DEFAULT_TILE_BASE}/${layerId}/default/${safeTime}/${tmsSet}/${z}/${y}/${x}.${extension}`;

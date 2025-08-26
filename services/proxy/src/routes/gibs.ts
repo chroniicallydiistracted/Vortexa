@@ -16,21 +16,25 @@ gibsRouter.get('/health', shortLived60, async (req, res) => {
     const layer = (req.query.layer as string) || 'GOES-East_ABI_GeoColor';
     const timestamps = await getTimestamps(layer);
     const latest = await getLatestTimestamp(layer);
-    
+
     res.json({
       status: 'healthy',
       layer,
       timestampCount: timestamps.length,
       latest,
       sampleTimestamps: timestamps.slice(0, 5),
-      capabilitiesUrl: process.env.GIBS_CAPS_URL || 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities'
+      capabilitiesUrl:
+        process.env.GIBS_CAPS_URL ||
+        'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities',
     });
   } catch (e: unknown) {
     const err = e as Error;
     res.status(500).json({
       status: 'unhealthy',
       error: err.message,
-      capabilitiesUrl: process.env.GIBS_CAPS_URL || 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities'
+      capabilitiesUrl:
+        process.env.GIBS_CAPS_URL ||
+        'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities',
     });
   }
 });
@@ -63,33 +67,35 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
       xN = Number(x);
     if (![zN, yN, xN].every(Number.isFinite))
       return res.status(400).json({ error: 'invalid tile coordinates' });
-    
+
     const explicitTime = (req.query.time as string | undefined)?.trim();
     let chosenTime: string | null;
-    
+
     if (explicitTime) {
       // Validate the provided time exists among timestamps for the layer
       const ts = await getTimestamps(layer);
       if (!ts.includes(explicitTime)) {
-        console.warn(`Invalid time requested for layer ${layer}: ${explicitTime}. Available times: ${ts.slice(0, 5).join(', ')}...`);
-        return res.status(400).json({ 
-          error: 'invalid time for layer', 
-          layer, 
+        console.warn(
+          `Invalid time requested for layer ${layer}: ${explicitTime}. Available times: ${ts.slice(0, 5).join(', ')}...`,
+        );
+        return res.status(400).json({
+          error: 'invalid time for layer',
+          layer,
           time: explicitTime,
           availableCount: ts.length,
-          latestAvailable: ts.length > 0 ? ts[ts.length - 1] : null
+          latestAvailable: ts.length > 0 ? ts[ts.length - 1] : null,
         });
       }
       chosenTime = explicitTime;
     } else {
       chosenTime = await getLatestTimestamp(layer);
     }
-    
+
     if (!chosenTime) {
       console.error(`No timestamps available for layer: ${layer}`);
       return res.status(404).json({ error: 'no timestamps available', layer });
     }
-    
+
     const tileUrl = buildTileUrl({
       layerId: layer,
       z: zN,
@@ -98,23 +104,23 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
       time: chosenTime,
       ext,
     });
-    
+
     console.log(`Requesting tile: ${tileUrl}`);
-    
+
     const injected = (global as { __TEST_FETCH__?: typeof fetch }).__TEST_FETCH__;
     const doFetch: typeof fetch = injected || fetch;
     const upstream = await doFetch(tileUrl);
-    
+
     if (!upstream.ok) {
       console.error(`Upstream error for ${tileUrl}: ${upstream.status} ${upstream.statusText}`);
-      return res.status(upstream.status).json({ 
-        error: 'upstream_error', 
+      return res.status(upstream.status).json({
+        error: 'upstream_error',
         status: upstream.status,
         statusText: upstream.statusText,
-        url: tileUrl
+        url: tileUrl,
       });
     }
-    
+
     const buf = Buffer.from(await upstream.arrayBuffer());
     res.set(
       'Content-Type',

@@ -47,8 +47,38 @@ fi
 
 echo "✅ Ports cleared successfully"
 
-# Start services with concurrently
+# Start services with concurrently in background
 echo "🚀 Starting services with concurrently..."
-exec npx concurrently -n proxy,web -c blue,green \
+nohup npx concurrently -n proxy,web -c blue,green \
     "pnpm dev:proxy" \
-    "pnpm dev:web"
+    "pnpm dev:web" > dev.log 2>&1 &
+
+# Get the background process PID
+CONCURRENTLY_PID=$!
+
+# Wait a moment for services to start
+echo "⏳ Starting services (PID: $CONCURRENTLY_PID)..."
+sleep 3
+
+# Check if services are responding
+echo "🔍 Checking service health..."
+
+# Check proxy
+if curl -s http://localhost:4000/api/flags >/dev/null 2>&1; then
+    echo "✅ Proxy service is running on http://localhost:4000"
+else
+    echo "⚠️  Proxy service may still be starting..."
+fi
+
+# Check web
+if curl -s http://localhost:5173 >/dev/null 2>&1; then
+    echo "✅ Web service is running on http://localhost:5173"
+else
+    echo "⚠️  Web service may still be starting..."
+fi
+
+echo ""
+echo "📊 Services started in background (PID: $CONCURRENTLY_PID)"
+echo "📝 Logs: tail -f dev.log"
+echo "🛑 Stop: kill $CONCURRENTLY_PID"
+echo ""

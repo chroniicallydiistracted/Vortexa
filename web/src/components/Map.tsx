@@ -37,16 +37,23 @@ export default function Map({ activeLayerSlug, catalog, onMapReady, currentTime 
   const theme = useMantineTheme();
   const mapRef = useRef<MLMap | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  
-  console.log('[Map] Map component rendered with props:', { activeLayerSlug, catalog: catalog ? 'loaded' : 'null', currentTime });
+
+  console.log('[Map] Map component rendered with props:', {
+    activeLayerSlug,
+    catalog: catalog ? 'loaded' : 'null',
+    currentTime,
+  });
   // init
   useEffect(() => {
     if (!containerRef.current) {
       console.log('[Map] Container ref not ready, skipping map initialization');
       return;
     }
-    
-    console.log('[Map] Initializing map with basemap template:', import.meta.env.VITE_BASEMAP_TILE_URL || '/api/cartodb/positron/{z}/{x}/{y}.png');
+
+    console.log(
+      '[Map] Initializing map with basemap template:',
+      import.meta.env.VITE_BASEMAP_TILE_URL || '/api/cartodb/positron/{z}/{x}/{y}.png',
+    );
     const baseTemplate =
       import.meta.env.VITE_BASEMAP_TILE_URL || '/api/cartodb/positron/{z}/{x}/{y}.png';
     const style: StyleSpecification = {

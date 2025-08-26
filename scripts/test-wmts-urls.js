@@ -17,7 +17,7 @@ const testCases = [
     y: 5,
     x: 10,
     time: '2025-08-26T14:50:00Z',
-    ext: 'png'
+    ext: 'png',
   },
   {
     layerId: 'GOES-West_ABI_GeoColor',
@@ -25,7 +25,7 @@ const testCases = [
     y: 7,
     x: 9,
     time: '2025-08-26T14:40:00Z',
-    ext: 'png'
+    ext: 'png',
   },
   {
     layerId: 'Graticule_15m',
@@ -33,28 +33,28 @@ const testCases = [
     y: 4,
     x: 12,
     time: '2025-08-26T14:50:00Z',
-    ext: 'png'
-  }
+    ext: 'png',
+  },
 ];
 
 console.log('TileMatrixSet Selection:');
-testCases.forEach(tc => {
+testCases.forEach((tc) => {
   const tms = pickTms(tc.layerId);
   console.log(`  ${tc.layerId}: ${tms}`);
 });
 
 console.log('\nURL Construction:');
-testCases.forEach(tc => {
+testCases.forEach((tc) => {
   const url = buildTileUrl(tc);
   console.log(`\n${tc.layerId}:`);
   console.log(`  Input: z=${tc.z}, y=${tc.y}, x=${tc.x}, time=${tc.time}`);
   console.log(`  Output: ${url}`);
-  
+
   // Validate URL structure
   const expectedPattern = new RegExp(
-    `https://gibs\\.earthdata\\.nasa\\.gov/wmts/epsg3857/best/${tc.layerId}/default/${tc.time.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/[^/]+/${tc.z}/${tc.y}/${tc.x}\\.${tc.ext}`
+    `https://gibs\\.earthdata\\.nasa\\.gov/wmts/epsg3857/best/${tc.layerId}/default/${tc.time.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/[^/]+/${tc.z}/${tc.y}/${tc.x}\\.${tc.ext}`,
   );
-  
+
   if (expectedPattern.test(url)) {
     console.log('  ✅ URL structure is correct');
   } else {
@@ -67,7 +67,9 @@ console.log('\nTesting connectivity...');
 // Test the health endpoint if running locally
 const testHealth = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/gibs/health?layer=GOES-East_ABI_GeoColor');
+    const response = await fetch(
+      'http://localhost:3000/api/gibs/health?layer=GOES-East_ABI_GeoColor',
+    );
     if (response.ok) {
       const data = await response.json();
       console.log('✅ Health check passed:');

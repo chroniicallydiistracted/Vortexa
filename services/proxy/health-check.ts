@@ -297,7 +297,7 @@ async function getGibsLatestTime(layerId: string): Promise<string | null> {
   const now = Date.now();
   const cached = gibsTimeCache.get(layerId);
   if (cached && now - cached.ts < 5 * 60_000) return cached.value; // 5 min cache
-  
+
   const capUrl =
     'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities';
   try {
@@ -305,7 +305,7 @@ async function getGibsLatestTime(layerId: string): Promise<string | null> {
     const r = await fetchWithTimeout(capUrl, { timeout: GIBS_CAP_TIMEOUT_MS });
     if (!r.ok) throw new Error('caps status ' + r.status);
     const xml = await r.text();
-    
+
     if (!QUIET) console.log(`[gibs] Parsing capabilities XML for ${layerId}...`);
     const escaped = layerId.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
     const layerRegex = new RegExp(
@@ -370,7 +370,7 @@ async function resolveGibsTime(url: string): Promise<string> {
     }
     return url.replace(/\/default\/[^/]+\//, `/default/${safe}/`);
   }
-  
+
   // Fallback: try multiple recent dates for better data availability
   const fallbackDates = [];
   for (let i = 1; i <= 7; i++) {
@@ -378,12 +378,14 @@ async function resolveGibsTime(url: string): Promise<string> {
     date.setDate(date.getDate() - i);
     fallbackDates.push(date.toISOString().slice(0, 10));
   }
-  
+
   // Use 3 days ago as primary fallback (good balance of recency and availability)
   const fallbackStr = fallbackDates[2];
-  
+
   if (url.includes('{time}')) {
-    return url.replace('{time}', fallbackStr).replace(/\/default\/[^/]+\//, `/default/${fallbackStr}/`);
+    return url
+      .replace('{time}', fallbackStr)
+      .replace(/\/default\/[^/]+\//, `/default/${fallbackStr}/`);
   }
   return url.replace(/\/default\/[^/]+\//, `/default/${fallbackStr}/`);
 }
@@ -410,7 +412,7 @@ async function buildTestUrl(layer: Layer): Promise<string | null> {
     .replace('{y}', root ? '0' : '1');
   // Resolve dynamic time first (GIBS, Rainviewer, etc.)
   base = await resolveDynamicTime(layer, base);
-  
+
   // Then handle any remaining {time} placeholders with current time
   if (base.includes('{time}')) {
     const now = new Date();
@@ -425,7 +427,7 @@ async function buildTestUrl(layer: Layer): Promise<string | null> {
     }
     base = base.replace('{time}', encodeURIComponent(timeStr));
   }
-  
+
   if (base.includes('YOUR_API_KEY')) {
     if (base.includes('OWM')) base = base.replace('YOUR_API_KEY', OWM_API_KEY || 'MISSING');
     else base = base.replace('YOUR_API_KEY', 'MISSING');

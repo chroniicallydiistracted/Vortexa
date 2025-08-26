@@ -40,7 +40,7 @@ export default function App() {
     toggleGibsGeocolor3d,
     playbackCurrentTimeMs,
   } = useStore();
-  
+
   console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D);
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
@@ -62,7 +62,7 @@ export default function App() {
   const requested3d = requestedMode === '3d';
   // Until runtime flags are fetched, assume enabled to avoid premature downgrades in SSR/tests
   const canUse3D = envEnable && (flagsReady ? flags.enable3d : true);
-  
+
   console.log('[App] Current mode:', mode, 'canUse3D:', canUse3D, 'requested3d:', requested3d);
 
   // Update mode from location on mount to handle hash changes after store initialization

@@ -1,0 +1,65 @@
+[proxy] 
+[proxy] > westfam-weather-foundation@0.2.0 dev:proxy /home/andre/Vortexa
+[proxy] > pnpm --filter tile-proxy dev
+[proxy] 
+[web] 
+[web] > westfam-weather-foundation@0.2.0 dev:web /home/andre/Vortexa
+[web] > pnpm --filter weather-web dev
+[web] 
+[web] 
+[web] > weather-web@0.2.0 dev /home/andre/Vortexa/web
+[web] > vite
+[web] 
+[proxy] 
+[proxy] > tile-proxy@0.2.0 dev /home/andre/Vortexa/services/proxy
+[proxy] > tsx watch src/index.ts
+[proxy] 
+[web] (!) the `splitVendorChunk` plugin doesn't have any effect when using the object form of `build.rollupOptions.output.manualChunks`. Consider using the function form instead.
+[web] 
+[web]   VITE v6.3.5  ready in 137 ms
+[web] 
+[web]   ➜  Local:   http://localhost:5173/
+[web]   ➜  Network: http://10.255.255.254:5173/
+[web]   ➜  Network: http://172.23.137.81:5173/
+[proxy] [2025-08-26 13:57:04.059 -0700] [32mINFO[39m (75584): [36mcache: disabled[39m
+[proxy] [2025-08-26 13:57:04.066 -0700] [32mINFO[39m (75584): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] GET /api/flags 200 18 - 1.598 ms
+[proxy] GET /api/radar/tiles/0/0/0.png 200 1966 - 1259.540 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] GET /api/gibs/tile/GOES-East_ABI_GeoColor/1/1/1.jpg 200 1121 - 567.670 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/1/1/1.jpg 200 18328 - 312.171 ms
+[proxy] No timestamps available for layer: GOES-East_ABI_Band13_Clean_IR
+[proxy] GET /api/gibs/tile/GOES-East_ABI_Band13_Clean_IR/1/1/1.jpg 404 75 - 682.599 ms
+[proxy] No timestamps available for layer: GOES-West_ABI_Band13_Clean_IR
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band13_Clean_IR/1/1/1.jpg 404 75 - 688.354 ms
+[proxy] No timestamps available for layer: GOES-East_ABI_Band2_Red_Visible
+[proxy] GET /api/gibs/tile/GOES-East_ABI_Band2_Red_Visible/1/1/1.jpg 404 77 - 683.048 ms
+[proxy] No timestamps available for layer: GOES-West_ABI_Band2_Red_Visible
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/1/1/1.jpg 404 77 - 685.763 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-East_ABI_Air_Mass/1/1/1.jpg 400 215 - 96.790 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Air_Mass/1/1/1.jpg 400 215 - 84.280 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] GET /api/gibs/tile/GOES-East_ABI_Dust/1/1/1.jpg 200 1203 - 352.641 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 404 Not Found
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Dust/1/1/1.jpg 404 209 - 116.160 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] GET /api/gibs/tile/GOES-East_ABI_FireTemp/1/1/1.jpg 200 783 - 311.496 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 404 Not Found
+[proxy] GET /api/gibs/tile/GOES-West_ABI_FireTemp/1/1/1.jpg 404 213 - 120.133 ms
+[proxy] GET /api/owm/tiles/precipitation_new/1/1/1.png 500 38 - 0.460 ms
+[proxy] GET /api/owm/tiles/temp_new/1/1/1.png 500 38 - 0.331 ms
+[proxy] GET /api/owm/tiles/wind_new/1/1/1.png 500 38 - 0.363 ms
+[proxy] GET /api/owm/tiles/clouds_new/1/1/1.png 500 38 - 0.289 ms
+[proxy] GET /api/owm/tiles/pressure_new/1/1/1.png 500 38 - 0.224 ms
+[proxy] GET /api/alerts 500 33 - 295.051 ms
+[proxy] GET /api/firms/VIIRS_NOAA20_NRT/1 502 82 - 0.667 ms
+[proxy] [2025-08-26 13:57:51.857 -0700] [31mERROR[39m (75584): [36malerts scan failed[39m
+[proxy]     error: "Requested resource not found"
