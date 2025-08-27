@@ -7,8 +7,9 @@ const sampleCaps = `<?xml version="1.0" encoding="UTF-8"?>
 <Capabilities>
   <Contents>
     <Layer>
+      <ows:Identifier>GOES-East_ABI_GeoColor</ows:Identifier>
       <ows:Title>GOES-East_ABI_GeoColor</ows:Title>
-      <Dimension name="time">2025-08-22T15:00:00Z,2025-08-22T16:00:00Z 2025-08-22T17:00:00Z</Dimension>
+  <Dimension name="time"><ows:Identifier>Time</ows:Identifier><Value>2025-08-22T15:00:00Z 2025-08-22T16:00:00Z 2025-08-22T17:00:00Z</Value></Dimension>
     </Layer>
   </Contents>
 </Capabilities>`;
@@ -23,7 +24,7 @@ describe('gibs timestamps endpoint', () => {
     delete (global as any).__TEST_FETCH__;
   });
   it('parses and returns sorted ISO timestamps array', async () => {
-    (global as any).__TEST_FETCH__.mockResolvedValue({
+    (global as any).__TEST_FETCH__.mockResolvedValueOnce({
       ok: true,
       status: 200,
       text: async () => sampleCaps,
@@ -44,7 +45,7 @@ describe('gibs timestamps endpoint', () => {
   });
   it('handles upstream failure gracefully', async () => {
     // Simulate capabilities fetch failure (non-ok status)
-    (global as any).__TEST_FETCH__.mockResolvedValue({
+    (global as any).__TEST_FETCH__.mockResolvedValueOnce({
       ok: false,
       status: 503,
       text: async () => '',
@@ -55,7 +56,7 @@ describe('gibs timestamps endpoint', () => {
     expect(r.status).toBe(502);
   });
   it('returns empty array when layer missing', async () => {
-    (global as any).__TEST_FETCH__.mockResolvedValue({
+    (global as any).__TEST_FETCH__.mockResolvedValueOnce({
       ok: true,
       status: 200,
       text: async () => '<Capabilities></Capabilities>',

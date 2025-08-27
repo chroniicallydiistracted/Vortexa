@@ -58,10 +58,94 @@ gibsRouter.get('/timestamps', shortLived60, async (req, res) => {
 });
 
 // Latest tile resolver: /api/gibs/tile/:layer/:z/:y/:x.:ext?
+// New WebMercator tile resolver: /api/gibs/tile/:layer/:time/:tms/:z/:y/:x.:ext?
+// Example: /api/gibs/tile/GOES-East_ABI_GeoColor/default/GoogleMapsCompatible_Level8/2/1/0.png
+gibsRouter.get(
+  '/tile/:layer/:time/:tms/:z/:y/:x.:ext?',
+  shortLived60,
+  async (req, res) => {
+    try {
+      const { layer, time, tms, z, y, x } = req.params;
+      const requestedExt = (req.params.ext || 'png').toLowerCase();
+      const upstreamExt = 'png';
+      const zN = Number(z),
+        yN = Number(y),
+        xN = Number(x);
+      if (![zN, yN, xN].every(Number.isFinite))
+        return res.status(400).json({ error: 'invalid tile coordinates' });
+
+      const explicitTime = (time || '').trim();
+      let chosenTime: string;
+
+      // Treat literal 'default' as the WMTS literal and avoid upstream timestamp polling
+      if (!explicitTime || explicitTime === 'default') {
+        chosenTime = 'default';
+      } else {
+        const ts = await getTimestamps(layer);
+        if (!ts.includes(explicitTime)) {
+          console.warn(
+            `Invalid time requested for layer ${layer}: ${explicitTime}. Available times: ${ts.slice(0, 5).join(', ')}...`,
+          );
+          return res.status(400).json({
+            error: 'invalid time for layer',
+            layer,
+            time: explicitTime,
+            availableCount: ts.length,
+            latestAvailable: ts.length > 0 ? ts[ts.length - 1] : null,
+          });
+        }
+        chosenTime = explicitTime;
+      }
+
+      // Use provided TileMatrixSet (tms) directly; fallback to pickTms if absent
+      const tmsSet = tms || (await pickTms(layer));
+
+      const tileUrl = await buildTileUrl({
+        layerId: layer,
+        z: zN,
+        y: yN,
+        x: xN,
+        time: chosenTime,
+        tms: tmsSet,
+        // always request PNG upstream
+        ext: upstreamExt,
+      });
+
+      console.log(`Requesting tile: ${tileUrl}`);
+
+      const injected = (global as { __TEST_FETCH__?: typeof fetch }).__TEST_FETCH__;
+      const doFetch: typeof fetch = injected || fetch;
+      const upstream = await doFetch(tileUrl);
+
+      if (!upstream.ok) {
+        console.error(`Upstream error for ${tileUrl}: ${upstream.status} ${upstream.statusText}`);
+        return res.status(upstream.status).json({
+          error: 'upstream_error',
+          status: upstream.status,
+          statusText: upstream.statusText,
+          url: tileUrl,
+        });
+      }
+
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
+      res.set('Cache-Control', 'public, max-age=60');
+      return res.send(buf);
+    } catch (e: unknown) {
+      const err = e as Error;
+      console.error(`Tile request error for ${req.params.layer}:`, err);
+      res.status(500).json({ error: 'tile_internal_error', detail: err.message });
+    }
+  },
+);
+
+// Latest tile resolver (legacy): /api/gibs/tile/:layer/:z/:y/:x.:ext?
 gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => {
   try {
     const { layer, z, y, x } = req.params;
-    const ext = (req.params.ext || 'png').toLowerCase();
+  const requestedExt = (req.params.ext || 'png').toLowerCase();
+  // Force upstream requests to PNG to ensure consistent tile handling
+  const upstreamExt = 'png';
     const zN = Number(z),
       yN = Number(y),
       xN = Number(x);
@@ -99,7 +183,8 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
       y: yN,
       x: xN,
       time: chosenTime,
-      ext,
+      // always request PNG upstream
+      ext: upstreamExt,
     });
 
     console.log(`Requesting tile: ${tileUrl}`);
@@ -119,10 +204,8 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
     }
 
     const buf = Buffer.from(await upstream.arrayBuffer());
-    res.set(
-      'Content-Type',
-      upstream.headers.get('content-type') || (ext === 'jpg' ? 'image/jpeg' : 'image/png'),
-    );
+  // Always prefer upstream's content-type when present, otherwise default to PNG
+  res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
     // shortLived60 already applied; explicit override kept for clarity
     res.set('Cache-Control', 'public, max-age=60');
     return res.send(buf);

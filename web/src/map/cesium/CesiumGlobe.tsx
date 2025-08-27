@@ -113,8 +113,8 @@ export function CesiumGlobe() {
           gibsTimestamps[gibsTimestamps.length - 1] ||
           new Date().toISOString().slice(0, 19) + 'Z';
         const template =
-          import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
-          '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg?time=default';
+              import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
+              '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default';
         if (!existing) {
           // For Cesium, we use a template that will be filled by the tile provider
           // The {z}, {y}, {x} placeholders are handled by Cesium internally

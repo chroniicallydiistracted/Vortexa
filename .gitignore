@@ -26,3 +26,6 @@ terraform.tfstate*
 
 # Local reference lists not for version control
 GIBS FAVORITE LAYER MASTERLIST.txt
+
+# Logs
+logs/

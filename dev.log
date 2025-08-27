@@ -6,300 +6,451 @@
 [web] > westfam-weather-foundation@0.2.0 dev:web /home/andre/Vortexa
 [web] > pnpm --filter weather-web dev
 [web] 
-[web] 
-[web] > weather-web@0.2.0 dev /home/andre/Vortexa/web
-[web] > vite
-[web] 
 [proxy] 
 [proxy] > tile-proxy@0.2.0 dev /home/andre/Vortexa/services/proxy
 [proxy] > tsx watch src/index.ts
 [proxy] 
-[web] (!) the `splitVendorChunk` plugin doesn't have any effect when using the object form of `build.rollupOptions.output.manualChunks`. Consider using the function form instead.
 [web] 
-[web]   VITE v6.3.5  ready in 137 ms
+[web] > weather-web@0.2.0 dev /home/andre/Vortexa/web
+[web] > vite
+[web] 
+[web] (!) the `splitVendorChunk` plugin doesn't have any effect when using the object form of `build.rollupOptions.output.manualChunks`. Consider using the function form instead.
+[web] 10:20:26 AM [vite] (client) Re-optimizing dependencies because lockfile has changed
+[web] 
+[web]   VITE v6.3.5  ready in 199 ms
 [web] 
 [web]   ➜  Local:   http://localhost:5173/
 [web]   ➜  Network: http://10.255.255.254:5173/
 [web]   ➜  Network: http://172.23.137.81:5173/
-[proxy] [2025-08-26 13:57:04.059 -0700] [32mINFO[39m (75584): [36mcache: disabled[39m
-[proxy] [2025-08-26 13:57:04.066 -0700] [32mINFO[39m (75584): [36mproxy up[39m
+[proxy] [2025-08-27 10:20:27.176 -0700] [32mINFO[39m (42054): [36mcache: disabled[39m
+[proxy] [2025-08-27 10:20:27.184 -0700] [32mINFO[39m (42054): [36mproxy up[39m
 [proxy]     port: 4000
-[proxy] GET /api/flags 200 18 - 1.598 ms
-[proxy] GET /api/radar/tiles/0/0/0.png 200 1966 - 1259.540 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] GET /api/gibs/tile/GOES-East_ABI_GeoColor/1/1/1.jpg 200 1121 - 567.670 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/1/1/1.jpg 200 18328 - 312.171 ms
-[proxy] No timestamps available for layer: GOES-East_ABI_Band13_Clean_IR
-[proxy] GET /api/gibs/tile/GOES-East_ABI_Band13_Clean_IR/1/1/1.jpg 404 75 - 682.599 ms
-[proxy] No timestamps available for layer: GOES-West_ABI_Band13_Clean_IR
-[proxy] GET /api/gibs/tile/GOES-West_ABI_Band13_Clean_IR/1/1/1.jpg 404 75 - 688.354 ms
-[proxy] No timestamps available for layer: GOES-East_ABI_Band2_Red_Visible
-[proxy] GET /api/gibs/tile/GOES-East_ABI_Band2_Red_Visible/1/1/1.jpg 404 77 - 683.048 ms
-[proxy] No timestamps available for layer: GOES-West_ABI_Band2_Red_Visible
-[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/1/1/1.jpg 404 77 - 685.763 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 400 Bad Request
-[proxy] GET /api/gibs/tile/GOES-East_ABI_Air_Mass/1/1/1.jpg 400 215 - 96.790 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Air_Mass/default/2025-08-15T18:00:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 400 Bad Request
-[proxy] GET /api/gibs/tile/GOES-West_ABI_Air_Mass/1/1/1.jpg 400 215 - 84.280 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] GET /api/gibs/tile/GOES-East_ABI_Dust/1/1/1.jpg 200 1203 - 352.641 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Dust/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 404 Not Found
-[proxy] GET /api/gibs/tile/GOES-West_ABI_Dust/1/1/1.jpg 404 209 - 116.160 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] GET /api/gibs/tile/GOES-East_ABI_FireTemp/1/1/1.jpg 200 783 - 311.496 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_FireTemp/default/2025-08-26T17:36:00Z/GoogleMapsCompatible_Level7/1/1/1.jpg: 404 Not Found
-[proxy] GET /api/gibs/tile/GOES-West_ABI_FireTemp/1/1/1.jpg 404 213 - 120.133 ms
-[proxy] GET /api/owm/tiles/precipitation_new/1/1/1.png 500 38 - 0.460 ms
-[proxy] GET /api/owm/tiles/temp_new/1/1/1.png 500 38 - 0.331 ms
-[proxy] GET /api/owm/tiles/wind_new/1/1/1.png 500 38 - 0.363 ms
-[proxy] GET /api/owm/tiles/clouds_new/1/1/1.png 500 38 - 0.289 ms
-[proxy] GET /api/owm/tiles/pressure_new/1/1/1.png 500 38 - 0.224 ms
-[proxy] GET /api/alerts 500 33 - 295.051 ms
-[proxy] GET /api/firms/VIIRS_NOAA20_NRT/1 502 82 - 0.667 ms
-[proxy] [2025-08-26 13:57:51.857 -0700] [31mERROR[39m (75584): [36malerts scan failed[39m
+[proxy] GET /api/flags 200 18 - 2.265 ms
+[proxy] GET /api/flags 200 18 - 0.626 ms
+[proxy] GET /api/cartodb/plight_all/4/2/6@2x.png 404 174 - 1.048 ms
+[proxy] GET /api/cartodb/plight_all/4/3/6@2x.png 404 174 - 0.587 ms
+[proxy] GET /api/cartodb/plight_all/4/3/5@2x.png 404 174 - 0.424 ms
+[proxy] GET /api/cartodb/plight_all/4/2/5@2x.png 404 174 - 0.270 ms
+[proxy] GET /api/cartodb/plight_all/4/3/7@2x.png 404 174 - 0.259 ms
+[proxy] GET /api/cartodb/plight_all/4/2/7@2x.png 404 174 - 0.460 ms
+[proxy] GET /api/cartodb/plight_all/4/4/6@2x.png 404 174 - 0.199 ms
+[proxy] GET /api/cartodb/plight_all/4/1/6@2x.png 404 174 - 0.816 ms
+[proxy] GET /api/cartodb/plight_all/4/4/5@2x.png 404 174 - 0.502 ms
+[proxy] GET /api/cartodb/plight_all/4/1/5@2x.png 404 174 - 0.565 ms
+[proxy] GET /api/cartodb/plight_all/4/4/7@2x.png 404 174 - 0.315 ms
+[proxy] GET /api/cartodb/plight_all/4/1/7@2x.png 404 174 - 0.241 ms
+[proxy] GET /api/cartodb/plight_all/4/5/6@2x.png 404 174 - 0.258 ms
+[proxy] GET /api/cartodb/plight_all/4/0/6@2x.png 404 174 - 0.161 ms
+[proxy] GET /api/cartodb/plight_all/4/5/5@2x.png 404 174 - 0.430 ms
+[proxy] GET /api/cartodb/plight_all/4/0/5@2x.png 404 174 - 0.193 ms
+[proxy] GET /api/cartodb/plight_all/4/5/7@2x.png 404 174 - 0.249 ms
+[proxy] GET /api/cartodb/plight_all/4/6/6@2x.png 404 174 - 0.303 ms
+[proxy] GET /api/cartodb/plight_all/4/0/7@2x.png 404 174 - 0.375 ms
+[proxy] GET /api/cartodb/plight_all/4/6/5@2x.png 404 174 - 0.342 ms
+[proxy] GET /api/cartodb/plight_all/4/6/7@2x.png 404 174 - 0.214 ms
+[proxy] GET /api/cartodb/plight_all/4/15/6@2x.png 404 175 - 0.194 ms
+[proxy] GET /api/cartodb/plight_all/4/15/5@2x.png 404 175 - 0.239 ms
+[proxy] GET /api/cartodb/plight_all/4/15/7@2x.png 404 175 - 0.353 ms
+[proxy] GET /api/cartodb/plight_all/3/1/3@2x.png 404 174 - 0.269 ms
+[proxy] GET /api/cartodb/plight_all/3/1/2@2x.png 404 174 - 0.351 ms
+[proxy] GET /api/cartodb/plight_all/3/2/3@2x.png 404 174 - 0.239 ms
+[proxy] GET /api/cartodb/plight_all/3/0/3@2x.png 404 174 - 0.185 ms
+[proxy] GET /api/cartodb/plight_all/3/2/2@2x.png 404 174 - 0.222 ms
+[proxy] GET /api/cartodb/plight_all/3/0/2@2x.png 404 174 - 0.254 ms
+[proxy] GET /api/cartodb/plight_all/3/3/3@2x.png 404 174 - 0.161 ms
+[proxy] GET /api/cartodb/plight_all/3/3/2@2x.png 404 174 - 0.362 ms
+[proxy] GET /api/cartodb/plight_all/3/7/2@2x.png 404 174 - 0.317 ms
+[proxy] GET /api/cartodb/plight_all/3/7/3@2x.png 404 174 - 0.209 ms
+[proxy] GET /api/cartodb/plight_all/2/0/1@2x.png 404 174 - 0.246 ms
+[proxy] GET /api/cartodb/plight_all/2/1/1@2x.png 404 174 - 0.191 ms
+[proxy] GET /api/cartodb/plight_all/2/3/1@2x.png 404 174 - 0.190 ms
+[proxy] GET /api/cartodb/plight_all/1/0/0@2x.png 404 174 - 0.185 ms
+[proxy] GET /api/cartodb/plight_all/1/1/0@2x.png 404 174 - 0.200 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.128 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.155 ms
+[proxy] GET /api/alerts 500 33 - 322.473 ms
+[proxy] [2025-08-27 10:20:48.777 -0700] [31mERROR[39m (42054): [36malerts scan failed[39m
 [proxy]     error: "Requested resource not found"
-[web] 2:01:24 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:01:24 PM [vite] (client) hmr update /src/ui/App.tsx, /src/components/Panel.tsx
-[web] 2:02:36 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:02:47 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:36:26 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:36:56 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:38:01 PM [vite] (client) hmr update /src/ui/App.tsx
-[web] 2:45:42 PM [vite] (client) hmr update /src/ui/App.tsx
+[proxy] GET /api/radar/tiles/4/2/6.png 200 4523 - 1243.691 ms
+[proxy] GET /api/radar/tiles/4/2/7.png 200 1096 - 1250.898 ms
+[proxy] GET /api/radar/tiles/4/3/7.png 200 1760 - 1255.539 ms
+[proxy] GET /api/radar/tiles/4/1/6.png 200 1239 - 201.867 ms
+[proxy] GET /api/radar/tiles/4/4/6.png 200 7381 - 226.193 ms
+[proxy] GET /api/radar/tiles/4/2/5.png 200 22599 - 1480.458 ms
+[proxy] GET /api/radar/tiles/4/3/6.png 200 27162 - 1502.241 ms
+[proxy] GET /api/radar/tiles/4/3/5.png 200 30431 - 1523.717 ms
+[proxy] GET /api/radar/tiles/4/4/5.png 200 25500 - 398.467 ms
+[proxy] GET /api/radar/tiles/4/1/5.png 200 1096 - 202.043 ms
+[proxy] GET /api/radar/tiles/4/1/7.png 200 1209 - 204.804 ms
+[proxy] GET /api/radar/tiles/4/5/6.png 200 1096 - 206.680 ms
+[proxy] GET /api/radar/tiles/4/4/7.png 200 10329 - 240.587 ms
+[proxy] GET /api/radar/tiles/4/0/6.png 200 1096 - 210.311 ms
+[proxy] GET /api/radar/tiles/4/0/5.png 200 1096 - 202.723 ms
+[proxy] GET /api/radar/tiles/4/5/5.png 200 6974 - 212.331 ms
+[proxy] GET /api/radar/tiles/4/5/7.png 200 4903 - 216.179 ms
+[proxy] GET /api/radar/tiles/4/0/7.png 200 1331 - 205.714 ms
+[proxy] GET /api/radar/tiles/4/6/5.png 200 1096 - 194.634 ms
+[proxy] GET /api/radar/tiles/4/6/6.png 200 1096 - 195.886 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/2.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/2.jpg?time=default 400 221 - 476.815 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/4.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/3.jpg?time=default 400 221 - 491.710 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/2.jpg?time=default 400 221 - 498.718 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/4.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/4.jpg?time=default 400 221 - 77.195 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/1.jpg?time=default 400 221 - 82.693 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/4.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/4.jpg?time=default 400 221 - 74.970 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/1.jpg?time=default 400 221 - 84.884 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/5.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/1.jpg?time=default 400 221 - 84.423 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/4.jpg?time=default 400 221 - 94.014 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/0.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/5.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/5.jpg?time=default 400 221 - 88.635 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/0.jpg?time=default 400 221 - 88.412 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/5.jpg?time=default 400 221 - 87.801 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/5.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/0.jpg?time=default 400 221 - 96.414 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/6.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/5.jpg?time=default 400 221 - 92.226 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/0.jpg?time=default 400 221 - 92.050 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/6.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/6.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/6.jpg?time=default 400 221 - 86.360 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/15.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/6.jpg?time=default 400 221 - 98.700 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/6.jpg?time=default 400 221 - 102.252 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/15.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/15.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/15.jpg?time=default 400 222 - 95.535 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/15.jpg?time=default 400 222 - 98.295 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/15.jpg?time=default 400 222 - 103.384 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/2.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/2.jpg?time=default 400 211 - 192.411 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/2.jpg?time=default 400 211 - 191.791 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/2.jpg?time=default 400 211 - 197.229 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/4.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/1.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/4.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/3.jpg?time=default 400 211 - 202.939 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/3.jpg?time=default 400 211 - 888.766 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/3.jpg?time=default 400 211 - 206.373 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/1.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/4.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/4.jpg?time=default 400 211 - 92.529 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/4.jpg?time=default 400 211 - 84.964 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/G[proxy] 10:51:22 AM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+[proxy] 10:56:57 AM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+[proxy] 11:54:07 AM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+[proxy] 1:27:01 PM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+BI_Band2_Red_Visible/4/7/1.jpg?time=default 400 211 - 87.987 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/4.jpg?time=default 400 211 - 100.178 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/5.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/0.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/5.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/0.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/5.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/1.jpg?time=default 400 211 - 109.718 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/0.jpg?time=default 400 211 - 90.353 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/5.jpg?time=default 400 211 - 89.982 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/5.jpg?time=default 400 211 - 93.537 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/5.jpg?time=default 400 211 - 94.061 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/0.jpg?time=default 400 211 - 99.809 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/6.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/0.jpg?time=default 400 211 - 90.434 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/6.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/6.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/15.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/15.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/15.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/6.jpg?time=default 400 211 - 80.197 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/6.jpg?time=default 400 211 - 95.472 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/6/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/6/15.jpg?time=default 400 212 - 93.657 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/5/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/5/15.jpg?time=default 400 212 - 93.177 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/6.jpg?time=default 400 211 - 96.645 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_Band2_Red_Visible/default/default/GoogleMapsCompatible_Level7/4/7/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/4/7/15.jpg?time=default 400 212 - 99.336 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/3.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/7/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/7/3.jpg?time=default 400 221 - 7124.502 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/3.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/5/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/5/3.jpg?time=default 400 221 - 7464.085 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/2.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_CorrectedReflectance_TrueColor/default/default/GoogleMapsCompatible_Level6/4/6/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/4/6/2.jpg?time=default 400 221 - 9165.778 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/3.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/2.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/3.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/3.jpg?time=default 400 202 - 109.814 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/4.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/2.jpg?time=default 400 202 - 115.050 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/2.jpg?time=default 400 202 - 188.899 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/3.jpg?time=default 400 202 - 186.830 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/4.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/2.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/2.jpg?time=default 400 202 - 202.960 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/4.jpg?time=default 400 202 - 94.672 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/4.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/1.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/1.jpg?time=default 400 202 - 99.311 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/5.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/4.jpg?time=default 400 202 - 94.758 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/1.jpg?time=default 400 202 - 93.654 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/4.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/4.jpg?time=default 400 202 - 87.776 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/3.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/3.jpg?time=default 400 202 - 302.321 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/0.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/5.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/0.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/5.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/5.jpg?time=default 400 202 - 94.843 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/1.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/1.jpg?time=default 400 202 - 144.726 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/6.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/5.jpg?time=default 400 202 - 85.195 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/0.jpg?time=default 400 202 - 92.176 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/6.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/6.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/5.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/5.jpg?time=default 400 202 - 95.496 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/0.jpg?time=default 400 202 - 97.867 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/15.jpg
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/15.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/0.jpg?time=default 400 202 - 106.677 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/15.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/6.jpg?time=default 400 202 - 80.877 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/6.jpg?time=default 400 202 - 105.819 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/6.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/6.jpg?time=default 400 202 - 102.480 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/5/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/5/15.jpg?time=default 400 203 - 97.148 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/6/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/6/15.jpg?time=default 400 203 - 98.456 ms
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-West_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/4/7/15.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-West_ABI_GeoColor/4/7/15.jpg?time=default 400 203 - 98.752 ms
+[proxy] GET /api/cartodb/plight_all/4/3/6@2x.png 404 174 - 0.539 ms
+[proxy] GET /api/cartodb/plight_all/4/2/6@2x.png 404 174 - 0.222 ms
+[proxy] GET /api/cartodb/plight_all/4/3/5@2x.png 404 174 - 0.151 ms
+[proxy] GET /api/flags 200 18 - 0.483 ms
+[proxy] GET /api/cartodb/plight_all/4/2/5@2x.png 404 174 - 0.155 ms
+[proxy] GET /api/cartodb/plight_all/4/3/7@2x.png 404 174 - 0.145 ms
+[proxy] GET /api/cartodb/plight_all/4/2/7@2x.png 404 174 - 0.299 ms
+[proxy] GET /api/cartodb/plight_all/4/4/6@2x.png 404 174 - 0.996 ms
+[proxy] GET /api/cartodb/plight_all/4/1/6@2x.png 404 174 - 0.179 ms
+[proxy] GET /api/cartodb/plight_all/4/4/5@2x.png 404 174 - 0.246 ms
+[proxy] GET /api/cartodb/plight_all/4/1/5@2x.png 404 174 - 0.290 ms
+[proxy] GET /api/cartodb/plight_all/4/4/7@2x.png 404 174 - 0.213 ms
+[proxy] GET /api/cartodb/plight_all/4/1/7@2x.png 404 174 - 0.189 ms
+[proxy] GET /api/cartodb/plight_all/4/5/6@2x.png 404 174 - 0.217 ms
+[proxy] GET /api/cartodb/plight_all/4/0/6@2x.png 404 174 - 0.481 ms
+[proxy] GET /api/cartodb/plight_all/4/5/5@2x.png 404 174 - 0.212 ms
+[proxy] GET /api/cartodb/plight_all/4/0/5@2x.png 404 174 - 0.287 ms
+[proxy] GET /api/alerts 500 33 - 81.626 ms
+[proxy] GET /api/cartodb/plight_all/4/5/7@2x.png 404 174 - 0.176 ms
+[proxy] GET /api/cartodb/plight_all/4/0/7@2x.png 404 174 - 0.959 ms
+[proxy] GET /api/cartodb/plight_all/4/6/6@2x.png 404 174 - 0.200 ms
+[proxy] GET /api/cartodb/plight_all/4/6/5@2x.png 404 174 - 0.170 ms
+[proxy] GET /api/cartodb/plight_all/4/6/7@2x.png 404 174 - 0.296 ms
+[proxy] GET /api/cartodb/plight_all/4/15/6@2x.png 404 175 - 0.137 ms
+[proxy] GET /api/cartodb/plight_all/4/15/5@2x.png 404 175 - 0.116 ms
+[proxy] GET /api/cartodb/plight_all/4/15/7@2x.png 404 175 - 0.119 ms
+[proxy] GET /api/cartodb/plight_all/3/1/3@2x.png 404 174 - 0.170 ms
+[proxy] GET /api/cartodb/plight_all/3/1/2@2x.png 404 174 - 0.157 ms
+[proxy] GET /api/cartodb/plight_all/3/2/3@2x.png 404 174 - 0.117 ms
+[proxy] GET /api/cartodb/plight_all/3/0/3@2x.png 404 174 - 0.205 ms
+[proxy] GET /api/cartodb/plight_all/3/2/2@2x.png 404 174 - 0.184 ms
+[proxy] GET /api/cartodb/plight_all/3/0/2@2x.png 404 174 - 0.250 ms
+[proxy] GET /api/cartodb/plight_all/3/3/3@2x.png 404 174 - 0.145 ms
+[proxy] GET /api/cartodb/plight_all/3/3/2@2x.png 404 174 - 0.159 ms
+[proxy] GET /api/cartodb/plight_all/3/7/3@2x.png 404 174 - 0.184 ms
+[proxy] GET /api/cartodb/plight_all/3/7/2@2x.png 404 174 - 0.163 ms
+[proxy] GET /api/cartodb/plight_all/2/0/1@2x.png 404 174 - 0.106 ms
+[proxy] GET /api/cartodb/plight_all/2/1/1@2x.png 404 174 - 0.178 ms
+[proxy] GET /api/cartodb/plight_all/2/3/1@2x.png 404 174 - 0.151 ms
+[proxy] GET /api/cartodb/plight_all/1/0/0@2x.png 404 174 - 0.129 ms
+[proxy] GET /api/cartodb/plight_all/1/1/0@2x.png 404 174 - 0.141 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.183 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.153 ms
+[proxy] [2025-08-27 10:21:41.147 -0700] [31mERROR[39m (42054): [36malerts scan failed[39m
+[proxy]     error: "Requested resource not found"
+[proxy] GET /api/flags 304 - - 0.368 ms
+[proxy] GET /api/cartodb/plight_all/4/3/6@2x.png 404 174 - 0.433 ms
+[proxy] GET /api/cartodb/plight_all/4/2/6@2x.png 404 174 - 0.131 ms
+[proxy] GET /api/cartodb/plight_all/4/3/5@2x.png 404 174 - 0.118 ms
+[proxy] GET /api/cartodb/plight_all/4/2/5@2x.png 404 174 - 0.146 ms
+[proxy] GET /api/cartodb/plight_all/4/3/7@2x.png 404 174 - 0.182 ms
+[proxy] GET /api/cartodb/plight_all/4/2/7@2x.png 404 174 - 0.196 ms
+[proxy] GET /api/cartodb/plight_all/4/1/6@2x.png 404 174 - 0.199 ms
+[proxy] GET /api/cartodb/plight_all/4/4/6@2x.png 404 174 - 0.160 ms
+[proxy] GET /api/cartodb/plight_all/4/4/5@2x.png 404 174 - 0.429 ms
+[proxy] GET /api/cartodb/plight_all/4/1/5@2x.png 404 174 - 0.434 ms
+[proxy] GET /api/cartodb/plight_all/4/4/7@2x.png 404 174 - 0.224 ms
+[proxy] GET /api/cartodb/plight_all/4/1/7@2x.png 404 174 - 0.257 ms
+[proxy] GET /api/cartodb/plight_all/4/5/6@2x.png 404 174 - 0.269 ms
+[proxy] GET /api/alerts 500 33 - 80.859 ms
+[proxy] GET /api/cartodb/plight_all/4/0/6@2x.png 404 174 - 0.280 ms
+[proxy] GET /api/cartodb/plight_all/4/5/5@2x.png 404 174 - 0.253 ms
+[proxy] GET /api/cartodb/plight_all/4/0/5@2x.png 404 174 - 0.284 ms
+[proxy] GET /api/cartodb/plight_all/4/5/7@2x.png 404 174 - 0.154 ms
+[proxy] GET /api/cartodb/plight_all/4/6/6@2x.png 404 174 - 0.149 ms
+[proxy] GET /api/cartodb/plight_all/4/0/7@2x.png 404 174 - 0.188 ms
+[proxy] GET /api/cartodb/plight_all/4/6/5@2x.png 404 174 - 0.178 ms
+[proxy] GET /api/cartodb/plight_all/4/6/7@2x.png 404 174 - 0.177 ms
+[proxy] GET /api/cartodb/plight_all/4/15/6@2x.png 404 175 - 0.169 ms
+[proxy] GET /api/cartodb/plight_all/4/15/5@2x.png 404 175 - 0.210 ms
+[proxy] GET /api/cartodb/plight_all/4/15/7@2x.png 404 175 - 0.204 ms
+[proxy] GET /api/cartodb/plight_all/3/1/3@2x.png 404 174 - 0.143 ms
+[proxy] GET /api/cartodb/plight_all/3/1/2@2x.png 404 174 - 0.154 ms
+[proxy] GET /api/cartodb/plight_all/3/0/3@2x.png 404 174 - 0.158 ms
+[proxy] [2025-08-27 10:22:10.531 -0700] [31mERROR[39m (42054): [36malerts scan failed[39m
+[proxy]     error: "Requested resource not found"
+[proxy] GET /api/cartodb/plight_all/3/2/2@2x.png 404 174 - 0.278 ms
+[proxy] GET /api/cartodb/plight_all/3/2/3@2x.png 404 174 - 0.266 ms
+[proxy] GET /api/cartodb/plight_all/3/0/2@2x.png 404 174 - 0.789 ms
+[proxy] GET /api/cartodb/plight_all/3/3/3@2x.png 404 174 - 0.178 ms
+[proxy] GET /api/cartodb/plight_all/3/3/2@2x.png 404 174 - 0.153 ms
+[proxy] GET /api/cartodb/plight_all/3/7/3@2x.png 404 174 - 0.145 ms
+[proxy] GET /api/cartodb/plight_all/3/7/2@2x.png 404 174 - 0.121 ms
+[proxy] GET /api/cartodb/plight_all/2/0/1@2x.png 404 174 - 0.247 ms
+[proxy] GET /api/cartodb/plight_all/2/1/1@2x.png 404 174 - 0.212 ms
+[proxy] GET /api/cartodb/plight_all/2/3/1@2x.png 404 174 - 0.177 ms
+[proxy] GET /api/cartodb/plight_all/1/0/0@2x.png 404 174 - 0.135 ms
+[proxy] GET /api/cartodb/plight_all/1/1/0@2x.png 404 174 - 0.146 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.134 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.152 ms
+[proxy] GET /api/flags 304 - - 0.283 ms
+[proxy] GET /api/cartodb/plight_all/4/3/6@2x.png 404 174 - 0.182 ms
+[proxy] GET /api/cartodb/plight_all/4/2/6@2x.png 404 174 - 0.139 ms
+[proxy] GET /api/cartodb/plight_all/4/3/5@2x.png 404 174 - 0.300 ms
+[proxy] GET /api/cartodb/plight_all/4/2/5@2x.png 404 174 - 0.285 ms
+[proxy] GET /api/cartodb/plight_all/4/3/7@2x.png 404 174 - 0.169 ms
+[proxy] GET /api/cartodb/plight_all/4/2/7@2x.png 404 174 - 0.191 ms
+[proxy] GET /api/cartodb/plight_all/4/4/6@2x.png 404 174 - 0.311 ms
+[proxy] GET /api/cartodb/plight_all/4/1/6@2x.png 404 174 - 0.458 ms
+[proxy] GET /api/cartodb/plight_all/4/4/5@2x.png 404 174 - 0.208 ms
+[proxy] GET /api/cartodb/plight_all/4/1/5@2x.png 404 174 - 0.169 ms
+[proxy] GET /api/cartodb/plight_all/4/4/7@2x.png 404 174 - 0.182 ms
+[proxy] GET /api/alerts 500 33 - 73.266 ms
+[proxy] GET /api/cartodb/plight_all/4/1/7@2x.png 404 174 - 0.336 ms
+[proxy] GET /api/cartodb/plight_all/4/5/6@2x.png 404 174 - 0.338 ms
+[proxy] GET /api/cartodb/plight_all/4/0/6@2x.png 404 174 - 0.183 ms
+[proxy] GET /api/cartodb/plight_all/4/5/5@2x.png 404 174 - 0.237 ms
+[proxy] GET /api/cartodb/plight_all/4/0/5@2x.png 404 174 - 0.187 ms
+[proxy] GET /api/cartodb/plight_all/4/5/7@2x.png 404 174 - 1.088 ms
+[proxy] GET /api/cartodb/plight_all/4/0/7@2x.png 404 174 - 0.344 ms
+[proxy] GET /api/cartodb/plight_all/4/6/6@2x.png 404 174 - 0.267 ms
+[proxy] GET /api/cartodb/plight_all/4/6/5@2x.png 404 174 - 0.267 ms
+[proxy] GET /api/cartodb/plight_all/4/6/7@2x.png 404 174 - 0.202 ms
+[proxy] GET /api/cartodb/plight_all/4/15/6@2x.png 404 175 - 0.772 ms
+[proxy] GET /api/cartodb/plight_all/4/15/5@2x.png 404 175 - 0.328 ms
+[proxy] GET /api/cartodb/plight_all/4/15/7@2x.png 404 175 - 0.506 ms
+[proxy] GET /api/cartodb/plight_all/3/1/3@2x.png 404 174 - 0.205 ms
+[proxy] GET /api/cartodb/plight_all/3/1/2@2x.png 404 174 - 0.288 ms
+[proxy] GET /api/cartodb/plight_all/3/2/3@2x.png 404 174 - 0.330 ms
+[proxy] GET /api/cartodb/plight_all/3/0/3@2x.png 404 174 - 0.260 ms
+[proxy] GET /api/cartodb/plight_all/3/2/2@2x.png 404 174 - 0.348 ms
+[proxy] GET /api/cartodb/plight_all/3/0/2@2x.png 404 174 - 0.156 ms
+[proxy] GET /api/cartodb/plight_all/3/3/3@2x.png 404 174 - 0.268 ms
+[proxy] GET /api/cartodb/plight_all/3/3/2@2x.png 404 174 - 0.170 ms
+[proxy] GET /api/cartodb/plight_all/3/7/3@2x.png 404 174 - 0.289 ms
+[proxy] GET /api/cartodb/plight_all/3/7/2@2x.png 404 174 - 0.224 ms
+[proxy] GET /api/cartodb/plight_all/2/0/1@2x.png 404 174 - 0.223 ms
+[proxy] GET /api/cartodb/plight_all/2/1/1@2x.png 404 174 - 0.172 ms
+[proxy] GET /api/cartodb/plight_all/2/3/1@2x.png 404 174 - 0.180 ms
+[proxy] GET /api/cartodb/plight_all/1/0/0@2x.png 404 174 - 0.128 ms
+[proxy] GET /api/cartodb/plight_all/1/1/0@2x.png 404 174 - 0.143 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.127 ms
+[proxy] GET /api/cartodb/plight_all/0/0/0@2x.png 404 174 - 0.193 ms
+[proxy] [2025-08-27 10:23:08.425 -0700] [31mERROR[39m (42054): [36malerts scan failed[39m
+[proxy]     error: "Requested resource not found"
+[web] Killed
 [web] /home/andre/Vortexa/web:
 [web]  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  weather-web@0.2.0 dev: `vite`
-[web] Exit status 143
-[web]  ELIFECYCLE  Command failed with exit code 143.
-[web] pnpm dev:web exited with code 143
-[proxy] 3:44:14 PM [tsx] unlink in ./src/routes/gibs.ts Rerunning...
-[proxy] c
-[proxy] node:internal/modules/run_main:123
-[proxy]     triggerUncaughtException(
-[proxy]     ^
-[proxy] Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/andre/Vortexa/services/proxy/src/routes/firms.js' imported from /home/andre/Vortexa/services/proxy/src/index.ts
-[proxy]     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
-[proxy]     at moduleResolve (node:internal/modules/esm/resolve:952:10)
-[proxy]     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
-[proxy]     at nextResolve (node:internal/modules/esm/hooks:864:28)
-[proxy]     at resolveBase (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:3744)
-[proxy]     at async resolveDirectory (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:4237)
-[proxy]     at async resolve (file:///home/andre/Vortexa/node_modules/.pnpm/tsx@4.20.5/node_modules/tsx/dist/esm/index.mjs?1756248254788:2:5355)
-[proxy]     at async nextResolve (node:internal/modules/esm/hooks:864:22)
-[proxy]     at async Hooks.resolve (node:internal/modules/esm/hooks:306:24)
-[proxy]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
-[proxy]   code: 'ERR_MODULE_NOT_FOUND',
-[proxy]   url: 'file:///home/andre/Vortexa/services/proxy/src/routes/firms.js'
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 3:45:05 PM [tsx] change in ./src/index.ts Rerunning...
-[proxy] c[2025-08-26 15:45:05.984 -0700] [32mINFO[39m (3906): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 3:46:37 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
-[proxy] c[2025-08-26 15:46:38.190 -0700] [32mINFO[39m (5222): [36mcache: disabled[39m
-[proxy] [2025-08-26 15:46:38.201 -0700] [32mINFO[39m (5222): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 3:49:54 PM [tsx] change in ./src/routes/routes-gibs.ts Restarting...
-[proxy] c[2025-08-26 15:49:56.103 -0700] [32mINFO[39m (6533): [36mcache: disabled[39m
-[proxy] [2025-08-26 15:49:56.110 -0700] [32mINFO[39m (6533): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:13:43 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:13:45.018 -0700] [32mINFO[39m (29795): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:13:45.026 -0700] [32mINFO[39m (29795): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:14:02 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:14:03.890 -0700] [32mINFO[39m (29923): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:14:03.898 -0700] [32mINFO[39m (29923): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:14:14 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:14:15.674 -0700] [32mINFO[39m (29973): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:14:15.682 -0700] [32mINFO[39m (29973): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:14:24 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:14:25.480 -0700] [32mINFO[39m (30023): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:14:25.487 -0700] [32mINFO[39m (30023): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:14:30 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:14:31.230 -0700] [32mINFO[39m (30061): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:14:31.237 -0700] [32mINFO[39m (30061): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:14:36 PM [tsx] change in ./src/routes/routes-gibs.ts Restarting...
-[proxy] c[2025-08-26 17:14:38.106 -0700] [32mINFO[39m (30137): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 5:22:14 PM [tsx] change in ./src/lib/gibs/capabilities.ts Rerunning...
-[proxy] c[2025-08-26 17:22:15.704 -0700] [32mINFO[39m (32161): [36mcache: disabled[39m
-[proxy] [2025-08-26 17:22:15.712 -0700] [32mINFO[39m (32161): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 5:32:45 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
-[proxy] c[2025-08-26 17:32:47.315 -0700] [32mINFO[39m (35045): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 5:45:30 PM [tsx] change in ./src/lib/gibs/capabilities.ts Rerunning...
-[proxy] c[2025-08-26 17:45:31.359 -0700] [32mINFO[39m (38880): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 6:46:34 PM [tsx] change in ./src/lib/gibs/capabilities.ts Rerunning...
-[proxy] c[2025-08-26 18:46:35.375 -0700] [32mINFO[39m (55667): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 6:54:43 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
-[proxy] c[2025-08-26 18:54:44.305 -0700] [32mINFO[39m (57550): [36mcache: disabled[39m
-[proxy] [2025-08-26 18:54:44.311 -0700] [32mINFO[39m (57550): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 6:55:04 PM [tsx] change in ./src/index.ts Restarting...
-[proxy] c[2025-08-26 18:55:06.155 -0700] [32mINFO[39m (57679): [36mcache: disabled[39m
-[proxy] [2025-08-26 18:55:06.163 -0700] [32mINFO[39m (57679): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] 6:55:23 PM [tsx] change in ./src/index.ts Restarting...
-[proxy] c[2025-08-26 18:55:23.899 -0700] [32mINFO[39m (57765): [36mcache: disabled[39m
-[proxy] node:events:502
-[proxy]       throw er; // Unhandled 'error' event
-[proxy]       ^
-[proxy] 
-[proxy] Error: listen EADDRINUSE: address already in use :::4000
-[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
-[proxy]     at listenInCluster (node:net:1965:12)
-[proxy]     at Server.listen (node:net:2067:7)
-[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
-[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:816:7)
-[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[proxy] Emitted 'error' event on Server instance at:
-[proxy]     at emitErrorNT (node:net:1944:8)
-[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-[proxy]   code: 'EADDRINUSE',
-[proxy]   errno: -98,
-[proxy]   syscall: 'listen',
-[proxy]   address: '::',
-[proxy]   port: 4000
-[proxy] }
-[proxy] 
-[proxy] Node.js v20.19.0
-[proxy] 7:05:10 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
-[proxy] c[2025-08-26 19:05:11.387 -0700] [32mINFO[39m (59666): [36mcache: disabled[39m
-[proxy] [2025-08-26 19:05:11.396 -0700] [32mINFO[39m (59666): [36mproxy up[39m
-[proxy]     port: 4000
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg: 400 Bad Request
-[proxy] HEAD /api/gibs/tile/GOES-East_ABI_GeoColor/2/1/0.jpg?time=default 400 202 - 7951.995 ms
-[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg
-[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg: 400 Bad Request
-[proxy] GET /api/gibs/tile/GOES-East_ABI_GeoColor/2/1/0.jpg?time=default 400 202 - 468.433 ms
+[web] Exit status 137
+[web]  ELIFECYCLE  Command failed with exit code 137.
+[web] pnpm dev:web exited with code 137
+[proxy] 10:51:22 AM [tsx] change in ./src/routes/routes-gibs.ts Restarting...
+[proxy] 10:51:27 AM [tsx] Process didn't exit in 5s. Force killing...
+[proxy] 10:56:57 AM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+[proxy] 11:54:07 AM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...
+[proxy] 1:27:01 PM [tsx] change in ./src/routes/routes-gibs.ts Process hasn't exited. Killing process...

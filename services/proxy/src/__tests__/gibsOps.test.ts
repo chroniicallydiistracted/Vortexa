@@ -11,7 +11,7 @@ describe('gibs ops polish (rate limiting + metrics)', () => {
     (global as any).__TEST_FETCH__ = vi
       .fn()
       // capabilities XML (once per tile call until cached)
-      .mockResolvedValue({
+      .mockResolvedValueOnce({
         ok: true,
         status: 200,
         text: async () =>
