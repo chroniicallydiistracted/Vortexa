@@ -10,6 +10,7 @@ const DEFAULT_TILE_BASE =
 // Simple TTL cache wrappers
 const capsCache = new LRUCache<string, string>({ max: 32, ttl: 60_000 }); // raw XML per key (currently single key)
 const tsCache = new LRUCache<string, string[]>({ max: 256, ttl: 60_000 }); // timestamps per layer
+const tmsCache = new LRUCache<string, string>({ max: 256, ttl: 60_000 }); // TileMatrixSet per layer
 // Use Map for latest timestamp cache to avoid LRU cache type constraints
 const latestCache = new Map<string, { value: string | null; timestamp: number }>();
 const LATEST_CACHE_TTL = 60_000; // 60 seconds
@@ -146,14 +147,57 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
   return latest;
 }
 
-export function pickTms(
-  layerId: string,
-):
-  | 'GoogleMapsCompatible_Level7'
-  | 'GoogleMapsCompatible_Level8'
-  | 'GoogleMapsCompatible_Level9'
-  | 'GoogleMapsCompatible_Level13' {
-  // Based on the XML, GOES layers use Level7, Graticule uses Level13
+// Extract TileMatrixSet from GetCapabilities XML for a specific layer
+export async function getTileMatrixSet(layerId: string): Promise<string | null> {
+  if (tmsCache.has(layerId)) return tmsCache.get(layerId)!;
+  
+  const xml = await getCapabilitiesXML();
+  const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  
+  // Look for Layer blocks by Identifier
+  const layerRegex = new RegExp(
+    `<Layer>[\\s\\S]*?<ows:Identifier>\\s*${escaped}\\s*<\\/ows:Identifier>[\\s\\S]*?<\\/Layer>`,
+    'i',
+  );
+  const layerBlockMatch = xml.match(layerRegex);
+  if (!layerBlockMatch) {
+    tmsCache.set(layerId, '');
+    return null;
+  }
+  const layerBlock = layerBlockMatch[0];
+
+  // Look for TileMatrixSetLink within the layer block
+  const tmsRegex = /<TileMatrixSetLink>[\s\S]*?<TileMatrixSet>([^<]+)<\/TileMatrixSet>[\s\S]*?<\/TileMatrixSetLink>/i;
+  const tmsMatch = layerBlock.match(tmsRegex);
+  
+  if (tmsMatch) {
+    const tileMatrixSet = tmsMatch[1].trim();
+    tmsCache.set(layerId, tileMatrixSet);
+    return tileMatrixSet;
+  }
+
+  // Fallback: look for any TileMatrixSet reference in the layer block
+  const simpleTmsRegex = /<TileMatrixSet>([^<]+)<\/TileMatrixSet>/i;
+  const simpleTmsMatch = layerBlock.match(simpleTmsRegex);
+  
+  if (simpleTmsMatch) {
+    const tileMatrixSet = simpleTmsMatch[1].trim();
+    tmsCache.set(layerId, tileMatrixSet);
+    return tileMatrixSet;
+  }
+
+  tmsCache.set(layerId, '');
+  return null;
+}
+
+export async function pickTms(layerId: string): Promise<string> {
+  // First try to get the actual TileMatrixSet from the XML
+  const actualTms = await getTileMatrixSet(layerId);
+  if (actualTms) {
+    return actualTms;
+  }
+  
+  // Fallback to the old hardcoded logic if XML parsing fails
   if (/GOES|ABI/i.test(layerId)) return 'GoogleMapsCompatible_Level7';
   if (/Graticule/i.test(layerId)) return 'GoogleMapsCompatible_Level13';
   // Default fallback
@@ -170,8 +214,8 @@ export interface BuildTileUrlOpts {
   ext?: string;
 }
 
-export function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlOpts): string {
-  const tmsSet = tms || pickTms(layerId);
+export async function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlOpts): Promise<string> {
+  const tmsSet = tms || await pickTms(layerId);
   const extension = (ext || 'png').toLowerCase();
   const safeTime = encodeURI(time);
 
@@ -181,4 +225,4 @@ export function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlO
 }
 
 // For tests
-export const __internals = { capsCache, tsCache, latestCache };
+export const __internals = { capsCache, tsCache, tmsCache, latestCache };

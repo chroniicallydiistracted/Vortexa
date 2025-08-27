@@ -96,7 +96,7 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
       return res.status(404).json({ error: 'no timestamps available', layer });
     }
 
-    const tileUrl = buildTileUrl({
+    const tileUrl = await buildTileUrl({
       layerId: layer,
       z: zN,
       y: yN,

@@ -131,3 +131,79 @@
 [proxy] c[2025-08-26 15:49:56.103 -0700] [32mINFO[39m (6533): [36mcache: disabled[39m
 [proxy] [2025-08-26 15:49:56.110 -0700] [32mINFO[39m (6533): [36mproxy up[39m
 [proxy]     port: 4000
+[proxy] 5:13:43 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:13:45.018 -0700] [32mINFO[39m (29795): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:13:45.026 -0700] [32mINFO[39m (29795): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:14:02 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:14:03.890 -0700] [32mINFO[39m (29923): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:14:03.898 -0700] [32mINFO[39m (29923): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:14:14 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:14:15.674 -0700] [32mINFO[39m (29973): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:14:15.682 -0700] [32mINFO[39m (29973): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:14:24 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:14:25.480 -0700] [32mINFO[39m (30023): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:14:25.487 -0700] [32mINFO[39m (30023): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:14:30 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:14:31.230 -0700] [32mINFO[39m (30061): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:14:31.237 -0700] [32mINFO[39m (30061): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:14:36 PM [tsx] change in ./src/routes/routes-gibs.ts Restarting...
+[proxy] c[2025-08-26 17:14:38.106 -0700] [32mINFO[39m (30137): [36mcache: disabled[39m
+[proxy] node:events:502
+[proxy]       throw er; // Unhandled 'error' event
+[proxy]       ^
+[proxy] 
+[proxy] Error: listen EADDRINUSE: address already in use :::4000
+[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+[proxy]     at listenInCluster (node:net:1965:12)
+[proxy]     at Server.listen (node:net:2067:7)
+[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
+[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[proxy] Emitted 'error' event on Server instance at:
+[proxy]     at emitErrorNT (node:net:1944:8)
+[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+[proxy]   code: 'EADDRINUSE',
+[proxy]   errno: -98,
+[proxy]   syscall: 'listen',
+[proxy]   address: '::',
+[proxy]   port: 4000
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0
+[proxy] 5:22:14 PM [tsx] change in ./src/lib/gibs/capabilities.ts Rerunning...
+[proxy] c[2025-08-26 17:22:15.704 -0700] [32mINFO[39m (32161): [36mcache: disabled[39m
+[proxy] [2025-08-26 17:22:15.712 -0700] [32mINFO[39m (32161): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 5:32:45 PM [tsx] change in ./src/lib/gibs/capabilities.ts Restarting...
+[proxy] c[2025-08-26 17:32:47.315 -0700] [32mINFO[39m (35045): [36mcache: disabled[39m
+[proxy] node:events:502
+[proxy]       throw er; // Unhandled 'error' event
+[proxy]       ^
+[proxy] 
+[proxy] Error: listen EADDRINUSE: address already in use :::4000
+[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+[proxy]     at listenInCluster (node:net:1965:12)
+[proxy]     at Server.listen (node:net:2067:7)
+[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
+[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[proxy] Emitted 'error' event on Server instance at:
+[proxy]     at emitErrorNT (node:net:1944:8)
+[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+[proxy]   code: 'EADDRINUSE',
+[proxy]   errno: -98,
+[proxy]   syscall: 'listen',
+[proxy]   address: '::',
+[proxy]   port: 4000
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0

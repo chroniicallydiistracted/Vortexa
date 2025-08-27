@@ -77,7 +77,7 @@
       "slug": "GOES-East_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band13_Clean_IR/{z}/{y}/{x}.jpg"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
@@ -85,7 +85,7 @@
       "slug": "GOES-West_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band13_Clean_IR/{z}/{y}/{x}.jpg"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.jpg"
     },
     {
       "category": "Satellite",
