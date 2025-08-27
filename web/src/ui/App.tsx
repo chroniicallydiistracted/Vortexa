@@ -40,7 +40,7 @@ export default function App() {
     toggleGibsGeocolor3d,
     playbackCurrentTimeMs,
   } = useStore();
-  
+
   const [flags, setFlags] = useState<{ enable3d: boolean }>({
     enable3d: false,
   });
@@ -185,7 +185,7 @@ export default function App() {
   const [results, setResults] = useState<GeoResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   // One-time tile proxy fallback notification (persist across mounts)
-   
+
   // @ts-ignore - attach to module scope variable
   let _tileProxyWarned: boolean = (globalThis as any).__TILE_PROXY_WARNED__ || false;
   const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';

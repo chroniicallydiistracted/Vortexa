@@ -150,10 +150,10 @@ export async function getLatestTimestamp(layerId: string): Promise<string | null
 // Extract TileMatrixSet from GetCapabilities XML for a specific layer
 export async function getTileMatrixSet(layerId: string): Promise<string | null> {
   if (tmsCache.has(layerId)) return tmsCache.get(layerId)!;
-  
+
   const xml = await getCapabilitiesXML();
   const escaped = layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  
+
   // Look for Layer blocks by Identifier
   const layerRegex = new RegExp(
     `<Layer>[\\s\\S]*?<ows:Identifier>\\s*${escaped}\\s*<\\/ows:Identifier>[\\s\\S]*?<\\/Layer>`,
@@ -167,9 +167,10 @@ export async function getTileMatrixSet(layerId: string): Promise<string | null> 
   const layerBlock = layerBlockMatch[0];
 
   // Look for TileMatrixSetLink within the layer block
-  const tmsRegex = /<TileMatrixSetLink>[\s\S]*?<TileMatrixSet>([^<]+)<\/TileMatrixSet>[\s\S]*?<\/TileMatrixSetLink>/i;
+  const tmsRegex =
+    /<TileMatrixSetLink>[\s\S]*?<TileMatrixSet>([^<]+)<\/TileMatrixSet>[\s\S]*?<\/TileMatrixSetLink>/i;
   const tmsMatch = layerBlock.match(tmsRegex);
-  
+
   if (tmsMatch) {
     const tileMatrixSet = tmsMatch[1].trim();
     tmsCache.set(layerId, tileMatrixSet);
@@ -179,7 +180,7 @@ export async function getTileMatrixSet(layerId: string): Promise<string | null> 
   // Fallback: look for any TileMatrixSet reference in the layer block
   const simpleTmsRegex = /<TileMatrixSet>([^<]+)<\/TileMatrixSet>/i;
   const simpleTmsMatch = layerBlock.match(simpleTmsRegex);
-  
+
   if (simpleTmsMatch) {
     const tileMatrixSet = simpleTmsMatch[1].trim();
     tmsCache.set(layerId, tileMatrixSet);
@@ -196,7 +197,7 @@ export async function pickTms(layerId: string): Promise<string> {
   if (actualTms) {
     return actualTms;
   }
-  
+
   // Fallback to the old hardcoded logic if XML parsing fails
   if (/GOES|ABI/i.test(layerId)) return 'GoogleMapsCompatible_Level7';
   if (/Graticule/i.test(layerId)) return 'GoogleMapsCompatible_Level13';
@@ -214,8 +215,16 @@ export interface BuildTileUrlOpts {
   ext?: string;
 }
 
-export async function buildTileUrl({ layerId, z, y, x, time, tms, ext }: BuildTileUrlOpts): Promise<string> {
-  const tmsSet = tms || await pickTms(layerId);
+export async function buildTileUrl({
+  layerId,
+  z,
+  y,
+  x,
+  time,
+  tms,
+  ext,
+}: BuildTileUrlOpts): Promise<string> {
+  const tmsSet = tms || (await pickTms(layerId));
   const extension = (ext || 'png').toLowerCase();
   const safeTime = encodeURI(time);
 

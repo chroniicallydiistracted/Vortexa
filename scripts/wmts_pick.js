@@ -22,7 +22,7 @@ async function main() {
     const json = parser.parse(xml);
 
     // Layers live under Capabilities -> Contents -> Layer (array)
-    const layers = (json?.Capabilities?.Contents?.Layer ?? []);
+    const layers = json?.Capabilities?.Contents?.Layer ?? [];
     const layerArray = Array.isArray(layers) ? layers : [layers];
 
     function summarize(layer) {
@@ -30,12 +30,20 @@ async function main() {
       const identifier = layer?.Identifier ?? '';
       const links = Array.isArray(layer?.TileMatrixSetLink)
         ? layer.TileMatrixSetLink
-        : (layer?.TileMatrixSetLink ? [layer.TileMatrixSetLink] : []);
+        : layer?.TileMatrixSetLink
+          ? [layer.TileMatrixSetLink]
+          : [];
       const tms = links.map((l) => l?.TileMatrixSet).filter(Boolean);
-      const levels = [...new Set(tms.map(s => {
-        const m = /GoogleMapsCompatible_Level(\d+)/.exec(s);
-        return m ? Number(m[1]) : null;
-      }).filter((x) => x !== null))].sort((a, b) => a - b);
+      const levels = [
+        ...new Set(
+          tms
+            .map((s) => {
+              const m = /GoogleMapsCompatible_Level(\d+)/.exec(s);
+              return m ? Number(m[1]) : null;
+            })
+            .filter((x) => x !== null),
+        ),
+      ].sort((a, b) => a - b);
       return { title, identifier, tileMatrixSets: tms, levels };
     }
 
@@ -43,19 +51,19 @@ async function main() {
 
     if (!wantedTitle) {
       console.log('\n=== ALL LAYERS ===');
-      summaries.forEach(L => {
+      summaries.forEach((L) => {
         const lev = L.levels.length ? L.levels.join(', ') : 'n/a';
         const tms = L.tileMatrixSets.length ? L.tileMatrixSets.join(', ') : 'n/a';
         console.log(`${L.title} | ${L.identifier} | TMS=${tms} | GMaps levels=${lev}`);
       });
-      
+
       console.log(`\nTotal layers found: ${summaries.length}`);
-      
+
       // Show GOES layers specifically
-      const goesLayers = summaries.filter(L => /GOES/i.test(L.identifier));
+      const goesLayers = summaries.filter((L) => /GOES/i.test(L.identifier));
       if (goesLayers.length > 0) {
         console.log('\n=== GOES LAYERS ===');
-        goesLayers.forEach(L => {
+        goesLayers.forEach((L) => {
           const lev = L.levels.length ? L.levels.join(', ') : 'n/a';
           const tms = L.tileMatrixSets.length ? L.tileMatrixSets.join(', ') : 'n/a';
           console.log(`${L.title} | ${L.identifier} | TMS=${tms} | GMaps levels=${lev}`);
@@ -63,38 +71,40 @@ async function main() {
       }
     } else {
       // Look for exact match first, then partial match
-      let match = summaries.find(L => L.title === wantedTitle || L.identifier === wantedTitle);
+      let match = summaries.find((L) => L.title === wantedTitle || L.identifier === wantedTitle);
       if (!match) {
         // Try partial match
-        const partialMatches = summaries.filter(L => 
-          L.title.includes(wantedTitle) || L.identifier.includes(wantedTitle)
+        const partialMatches = summaries.filter(
+          (L) => L.title.includes(wantedTitle) || L.identifier.includes(wantedTitle),
         );
         if (partialMatches.length === 1) {
           match = partialMatches[0];
         } else if (partialMatches.length > 1) {
           console.log(`Multiple matches for "${wantedTitle}":`);
-          partialMatches.forEach(L => {
+          partialMatches.forEach((L) => {
             console.log(`  - ${L.title} (${L.identifier})`);
           });
           return;
         }
       }
-      
+
       if (!match) {
         console.error(`No layer with ows:Title or ows:Identifier matching "${wantedTitle}"`);
         process.exit(1);
       }
-      
+
       console.log(`\n=== LAYER INFO ===`);
       console.log(`Title: ${match.title}`);
       console.log(`Identifier: ${match.identifier}`);
       console.log(`TileMatrixSet(s): ${match.tileMatrixSets.join(', ') || 'n/a'}`);
       console.log(`GoogleMapsCompatible Level(s): ${match.levels.join(', ') || 'n/a'}`);
-      
+
       if (match.levels.length > 0) {
         console.log(`\n=== URL TEMPLATES ===`);
-        match.levels.forEach(level => {
-          console.log(`Level ${level}: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${match.identifier}/default/{time}/GoogleMapsCompatible_Level${level}/{z}/{y}/{x}.png`);
+        match.levels.forEach((level) => {
+          console.log(
+            `Level ${level}: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${match.identifier}/default/{time}/GoogleMapsCompatible_Level${level}/{z}/{y}/{x}.png`,
+          );
         });
       }
     }

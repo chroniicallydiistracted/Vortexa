@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
 // vitest-axe provides a matcher factory; require dynamically to avoid TS type issues
- 
+
 let axeMatchers: any = {};
 try {
   // Attempt to load vitest-axe (optional in some environments)

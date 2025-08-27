@@ -10,7 +10,6 @@ import {
   UrlTemplateImageryProvider,
   PointPrimitiveCollection,
   Color,
-
 } from 'cesium';
 
 // Narrowing helpers for accessing private (underscore) arrays without using `as any`.
