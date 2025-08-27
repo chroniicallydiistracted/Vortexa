@@ -34,7 +34,7 @@
     "codemod:aliases": "node scripts/codemod-alias-imports.mjs",
     "typecheck": "pnpm -w exec tsc -b web services/proxy services/alerts services/shared --pretty false",
     "test:wmts": "node scripts/wmts_pick.js > logs/wmts_pick.log",
-    "gibs:info": "tsx scripts/gibs_layer_info.ts"
+    "gibs:info": "node scripts/gibs_layer_info.js"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",

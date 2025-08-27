@@ -28,4 +28,4 @@ terraform.tfstate*
 GIBS FAVORITE LAYER MASTERLIST.txt
 
 # Logs
-logs/
+/logs/
