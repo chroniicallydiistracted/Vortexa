@@ -35,7 +35,7 @@ function toArray<T>(x: T | T[] | undefined): T[] {
 
 function extractPlaceholders(template: string): string[] {
   const out = new Set<string>();
-  const re = /\{([^}]+)\}/g;
+  const re = /\{([^}])\}/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(template))) out.add(m[1]);
   return [...out];
@@ -50,7 +50,7 @@ function replaceStatic(template: string, subs: Record<string, string>) {
 
 function chooseTms(tmsNames: string[]): { chosen?: string; level?: number } {
   for (const name of tmsNames) {
-    const m = /GoogleMapsCompatible_Level(\d+)/.exec(name);
+    const m = /GoogleMapsCompatible_Level(\d)/.exec(name);
     if (m) return { chosen: name, level: Number(m[1]) };
   }
   return { chosen: tmsNames[0] }; // fallback: first available
@@ -90,7 +90,7 @@ function chooseTms(tmsNames: string[]): { chosen?: string; level?: number } {
       .slice(0, 10)
       .map((L) => `${L?.Title ?? ''} | ${L?.Identifier ?? ''}`)
       .join('\n');
-    console.error('Here are a few layer titles/ids:\n' + suggestions);
+    console.error('Here are a few layer titles/ids:\n', suggestions);
     process.exit(1);
   }
 
@@ -152,37 +152,40 @@ function chooseTms(tmsNames: string[]): { chosen?: string; level?: number } {
     console.log(
       `Recommended : ${chosenTms}${level !== undefined ? `  (GoogleMapsCompatible Level ${level})` : ''}`,
     );
-  console.log('Placeholders: ' + placeholders.join(', '));
+  console.log('Placeholders: ', placeholders.join(', '));
   console.log(
-    'Static subs : ' +
-      Object.entries(staticSubs)
-        .map(([k, v]) => `${k}=${v}`)
-        .join(', '),
+    'Static subs : ',
+    Object.entries(staticSubs)
+      .map(([k, v]) => `${k}=${v}`)
+      .join(', '),
   );
-  console.log('Dynamic     : ' + (dynamic.join(', ') || '—'));
+  console.log('Dynamic     : ', dynamic.join(', ') || '—');
   console.log('Resolved base (static applied):');
-  console.log('  ' + resolvedBase);
+  console.log('  ', resolvedBase);
   console.log('Example tile (0/0/0):');
-  console.log('  ' + exampleUrl);
+  console.log('  ', exampleUrl);
 
   // Also emit JSON for programmatic use
-  const out = {
-    title,
-    identifier,
-    resourceURL: {
-      template: preferredRU.template,
-      format: preferredRU.format ?? null,
-    },
-    placeholders,
-    static: staticSubs,
-    dynamic,
-    tileMatrixSets: tmsNames,
-    recommendedTileMatrixSet: chosenTms ?? null,
-    googleMapsLevel: level ?? null,
-    resolvedBase,
-    exampleUrl,
-  };
-  console.log('\nJSON:\n' + JSON.stringify(out, null, 2));
+  // JSON output is now opt-in
+  if (wantJson) {
+    const out = {
+      title,
+      identifier,
+      resourceURL: {
+        template: preferredRU.template,
+        format: preferredRU.format ?? null,
+      },
+      placeholders,
+      static: staticSubs,
+      dynamic,
+      tileMatrixSets: tmsNames,
+      recommendedTileMatrixSet: chosenTms ?? null,
+      googleMapsLevel: level ?? null,
+      resolvedBase,
+      exampleUrl,
+    };
+    console.log('\nJSON:\n' + JSON.stringify(out, null, 2));
+  }
 })().catch((e) => {
   console.error(e);
   process.exit(1);

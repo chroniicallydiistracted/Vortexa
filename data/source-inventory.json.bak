@@ -38,7 +38,7 @@
       "update_cadence": "5–15 min (many layers)",
       "license": "public",
       "attribution": "NASA GIBS",
-      "notes": "Plug-and-play map tiles | base: /tiles/wmts.cgi"
+      "notes": "Plug-and-play map tiles | base: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi"
     },
     {
       "provider": "USGS",

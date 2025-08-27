@@ -233,3 +233,73 @@
 [proxy] }
 [proxy] 
 [proxy] Node.js v20.19.0
+[proxy] 6:46:34 PM [tsx] change in ./src/lib/gibs/capabilities.ts Rerunning...
+[proxy] c[2025-08-26 18:46:35.375 -0700] [32mINFO[39m (55667): [36mcache: disabled[39m
+[proxy] node:events:502
+[proxy]       throw er; // Unhandled 'error' event
+[proxy]       ^
+[proxy] 
+[proxy] Error: listen EADDRINUSE: address already in use :::4000
+[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+[proxy]     at listenInCluster (node:net:1965:12)
+[proxy]     at Server.listen (node:net:2067:7)
+[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:788:7)
+[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[proxy] Emitted 'error' event on Server instance at:
+[proxy]     at emitErrorNT (node:net:1944:8)
+[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+[proxy]   code: 'EADDRINUSE',
+[proxy]   errno: -98,
+[proxy]   syscall: 'listen',
+[proxy]   address: '::',
+[proxy]   port: 4000
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0
+[proxy] 6:54:43 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
+[proxy] c[2025-08-26 18:54:44.305 -0700] [32mINFO[39m (57550): [36mcache: disabled[39m
+[proxy] [2025-08-26 18:54:44.311 -0700] [32mINFO[39m (57550): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 6:55:04 PM [tsx] change in ./src/index.ts Restarting...
+[proxy] c[2025-08-26 18:55:06.155 -0700] [32mINFO[39m (57679): [36mcache: disabled[39m
+[proxy] [2025-08-26 18:55:06.163 -0700] [32mINFO[39m (57679): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] 6:55:23 PM [tsx] change in ./src/index.ts Restarting...
+[proxy] c[2025-08-26 18:55:23.899 -0700] [32mINFO[39m (57765): [36mcache: disabled[39m
+[proxy] node:events:502
+[proxy]       throw er; // Unhandled 'error' event
+[proxy]       ^
+[proxy] 
+[proxy] Error: listen EADDRINUSE: address already in use :::4000
+[proxy]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+[proxy]     at listenInCluster (node:net:1965:12)
+[proxy]     at Server.listen (node:net:2067:7)
+[proxy]     at Function.listen (/home/andre/Vortexa/node_modules/.pnpm/express@4.21.2/node_modules/express/lib/application.js:635:24)
+[proxy]     at <anonymous> (/home/andre/Vortexa/services/proxy/src/index.ts:816:7)
+[proxy]     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+[proxy]     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+[proxy]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[proxy] Emitted 'error' event on Server instance at:
+[proxy]     at emitErrorNT (node:net:1944:8)
+[proxy]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+[proxy]   code: 'EADDRINUSE',
+[proxy]   errno: -98,
+[proxy]   syscall: 'listen',
+[proxy]   address: '::',
+[proxy]   port: 4000
+[proxy] }
+[proxy] 
+[proxy] Node.js v20.19.0
+[proxy] 7:05:10 PM [tsx] change in ./src/routes/routes-gibs.ts Rerunning...
+[proxy] c[2025-08-26 19:05:11.387 -0700] [32mINFO[39m (59666): [36mcache: disabled[39m
+[proxy] [2025-08-26 19:05:11.396 -0700] [32mINFO[39m (59666): [36mproxy up[39m
+[proxy]     port: 4000
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg: 400 Bad Request
+[proxy] HEAD /api/gibs/tile/GOES-East_ABI_GeoColor/2/1/0.jpg?time=default 400 202 - 7951.995 ms
+[proxy] Requesting tile: https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg
+[proxy] Upstream error for https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/default/GoogleMapsCompatible_Level6/2/1/0.jpg: 400 Bad Request
+[proxy] GET /api/gibs/tile/GOES-East_ABI_GeoColor/2/1/0.jpg?time=default 400 202 - 468.433 ms

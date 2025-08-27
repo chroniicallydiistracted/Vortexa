@@ -235,3 +235,29 @@ export async function buildTileUrl({
 
 // For tests
 export const __internals = { capsCache, tsCache, tmsCache, latestCache };
+
+// ----------------------------------------------------------------------------
+// Helper: build a client-facing proxy tile URL so clients request tiles from
+// the local proxy (no direct GIBS calls from the browser). The proxy route
+// exposed by routes-gibs handles fetching the upstream tile server-side.
+// ----------------------------------------------------------------------------
+export function buildProxyTileUrlForClient({
+  layerId,
+  z,
+  y,
+  x,
+  time,
+  ext,
+}: {
+  layerId: string;
+  z: number;
+  y: number;
+  x: number;
+  time: string;
+  ext?: string;
+}): string {
+  const extension = (ext || 'png').toLowerCase();
+  return `/api/gibs/tile/${encodeURIComponent(layerId)}/${z}/${y}/${x}.${extension}?time=${encodeURIComponent(
+    time,
+  )}`;
+}

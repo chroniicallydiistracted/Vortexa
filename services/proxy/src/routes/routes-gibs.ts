@@ -69,10 +69,14 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
       return res.status(400).json({ error: 'invalid tile coordinates' });
 
     const explicitTime = (req.query.time as string | undefined)?.trim();
-    let chosenTime: string | null;
+    // Use the WMTS literal 'default' when requested or when omitted to pull latest data
+    // Avoid pinging upstream time lists for the common 'default' case.
+    let chosenTime: string;
 
-    if (explicitTime) {
-      // Validate the provided time exists among timestamps for the layer
+    if (!explicitTime || explicitTime === 'default') {
+      chosenTime = 'default';
+    } else {
+      // If an explicit non-default time is provided, validate it exists in the layer timestamps
       const ts = await getTimestamps(layer);
       if (!ts.includes(explicitTime)) {
         console.warn(
@@ -87,13 +91,6 @@ gibsRouter.get('/tile/:layer/:z/:y/:x.:ext?', shortLived60, async (req, res) => 
         });
       }
       chosenTime = explicitTime;
-    } else {
-      chosenTime = await getLatestTimestamp(layer);
-    }
-
-    if (!chosenTime) {
-      console.error(`No timestamps available for layer: ${layer}`);
-      return res.status(404).json({ error: 'no timestamps available', layer });
     }
 
     const tileUrl = await buildTileUrl({

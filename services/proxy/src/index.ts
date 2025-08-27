@@ -446,10 +446,18 @@ export function createApp(opts: CreateAppOptions = {}) {
   }
   app.get('/api/gibs/goes-b13/:z/:y/:x.png', async (req, res) => {
     try {
-      const ts = await getGoesB13Timestamp();
-      if (!ts) return res.status(503).json({ error: 'timestamp_unavailable' });
       const { z, y, x } = req.params; // GIBS order /{z}/{y}/{x}
-      const tileUrl = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_Full_Disk_Band_13_ENHANCED/default/${encodeURIComponent(ts)}/GoogleMapsCompatible_Level8/${z}/${y}/${x}.png`;
+      // Use buildTileUrl to let capabilities pick the TileMatrixSet and use 'default' time
+      const { buildTileUrl } = await import('./lib/gibs/capabilities.js');
+      const tileUrl = await buildTileUrl({
+        layerId: 'GOES-East_Full_Disk_Band_13_ENHANCED',
+        z: Number(z),
+        y: Number(y),
+        x: Number(x),
+        time: 'default',
+        ext: 'png',
+      });
+
       const gibsStart = Date.now();
       const upstream = await fetch(tileUrl);
       const gibsDur = Date.now() - gibsStart;
@@ -765,18 +773,38 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.get('/tiles/wmts', async (req: express.Request, res: express.Response) => {
     const { base, layer, x, y, z, format, time } = req.query as Record<string, string | undefined>;
     if (!base || !layer) return res.status(400).json({ error: 'missing base/layer' });
-    const b = String(base).replace(/\/$/, '');
-    let root = b;
-    root = root
-      .replace(/\/wmts\/epsg3857\/best\/wmts\.cgi$/i, '/wmts')
-      .replace(/\/wmts\/epsg3857\/best$/i, '/wmts')
-      .replace(/\/wmts\/wmts\.cgi$/i, '/wmts');
-    if (!/\/wmts$/i.test(root)) root = `${root}/wmts`;
+    // Normalize and prefer using the proxy's capabilities to pick TileMatrixSet when possible.
     const ext = String(format || 'png').toLowerCase();
-    const timePart = time ? `?time=${encodeURIComponent(String(time))}` : '';
-    const tileUrl = `${root}/epsg3857/best/${encodeURIComponent(layer)}/default/current/GoogleMapsCompatible/${z}/${y}/${x}.${ext}${timePart}`;
-    wmtsRedirects.inc();
-    return res.redirect(307, `/proxy?url=${encodeURIComponent(tileUrl)}`);
+    const explicitTime = (time || '').trim() || 'default';
+
+    try {
+      // Defer to the capabilities helper to choose a TileMatrixSet for this layer.
+      // Importing pickTms dynamically to avoid circular import at module top-level.
+      const { pickTms } = await import('./lib/gibs/capabilities.js');
+      const tms = await pickTms(String(layer));
+
+      // Construct path following WMTS REST pattern:
+      // /wmts/epsg3857/best/{Layer}/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.{ext}
+      const b = String(base).replace(/\/$/, '');
+      let root = b
+        .replace(/\/wmts\/epsg3857\/best\/wmts\.cgi$/i, '/wmts')
+        .replace(/\/wmts\/epsg3857\/best$/i, '/wmts')
+        .replace(/\/wmts\/wmts\.cgi$/i, '/wmts');
+      if (!/\/wmts$/i.test(root)) root = `${root}/wmts`;
+
+      const tileUrl = `${root}/epsg3857/best/${encodeURIComponent(String(layer))}/default/${encodeURIComponent(
+        explicitTime,
+      )}/${encodeURIComponent(tms)}/${encodeURIComponent(String(z))}/${encodeURIComponent(
+        String(y),
+      )}/${encodeURIComponent(String(x))}.${encodeURIComponent(ext)}`;
+
+      wmtsRedirects.inc();
+      return res.redirect(307, `/proxy?url=${encodeURIComponent(tileUrl)}`);
+    } catch (e: unknown) {
+      const err = e as Error;
+      logger.warn({ msg: 'tiles/wmts fallback', error: err?.message });
+      return res.status(500).json({ error: 'wmts_redirect_failed', detail: err?.message });
+    }
   });
 
   return app;
