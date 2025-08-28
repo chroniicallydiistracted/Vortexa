@@ -8,7 +8,7 @@ let updated = 0;
 for (const layer of catalog.layers || []) {
   const slug = layer.slug || layer.id;
   if (slug && slug.startsWith('GOES-')) {
-  layer.tile_url_template = `/api/gibs/tile/${slug}/{z}/{y}/{x}.png`;
+    layer.tile_url_template = `/api/gibs/tile/${slug}/{z}/{y}/{x}.png`;
     delete layer.time_format;
     if (layer.format && !/^png$/i.test(layer.format)) {
       layer.format = 'png';

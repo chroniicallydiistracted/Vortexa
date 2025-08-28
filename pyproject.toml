@@ -1,0 +1,21 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+exclude = '''
+/(\.venv|node_modules|dist|build|web/dist)/
+'''
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["node_modules", "dist", "build", "web/dist"]
+lint.select = ["E", "F", "I", "B", "UP"]
+lint.ignore = []
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = "(node_modules|dist|build|web/dist)"
+disable_error_code = ["import-untyped"]

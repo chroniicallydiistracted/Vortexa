@@ -32,7 +32,7 @@ describe('playback rollover & DST', () => {
   it('DST spring forward (America/Denver) maintains wall-clock hour selection', () => {
     // 2025 DST starts Mar 9 2025 in US at 2am local -> skip 02:00
     // We'll mimic picking 01:00 then adding one hour index; resulting UTC offset changes
-    const denverOffsetBefore = -7; // MST vs MDT shift; for reproducibility we compute manually
+    const _denverOffsetBefore = -7; // MST vs MDT shift; for reproducibility we compute manually
     const baseUtc = Date.UTC(2025, 2, 9, 0, 0, 0); // 2025-03-09T00Z
     useStore.getState().setPlaybackBaseStart(baseUtc);
     useStore.getState().setPlaybackHoursSpan(48);

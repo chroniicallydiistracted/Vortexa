@@ -16,7 +16,7 @@
       "id": "nasa_gibs_wmts",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Terra_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Terra_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -25,7 +25,7 @@
       "slug": "MODIS_Aqua_CorrectedReflectance_TrueColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Aqua_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -34,7 +34,7 @@
       "slug": "VIIRS_SNPP_CorrectedReflectance_TrueColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -43,7 +43,7 @@
       "slug": "VIIRS_NOAA20_CorrectedReflectance_TrueColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/VIIRS_NOAA20_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/VIIRS_NOAA20_CorrectedReflectance_TrueColor/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -52,7 +52,7 @@
       "slug": "VIIRS_SNPP_DayNightBand_At_Sensor_Radiance",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_DayNightBand_At_Sensor_Radiance/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_DayNightBand_At_Sensor_Radiance/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -61,7 +61,7 @@
       "slug": "GOES-East_ABI_GeoColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -69,7 +69,7 @@
       "slug": "GOES-West_ABI_GeoColor",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_GeoColor/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_GeoColor/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -77,7 +77,7 @@
       "slug": "GOES-East_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -85,7 +85,7 @@
       "slug": "GOES-West_ABI_Band13_Clean_IR",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band13_Clean_Infrared/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -93,7 +93,7 @@
       "slug": "GOES-East_ABI_Band2_Red_Visible",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band2_Red_Visible/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Band2_Red_Visible/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -101,7 +101,7 @@
       "slug": "GOES-West_ABI_Band2_Red_Visible",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Band2_Red_Visible/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -109,7 +109,7 @@
       "slug": "GOES-East_ABI_Air_Mass",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Air_Mass/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Air_Mass/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -117,7 +117,7 @@
       "slug": "GOES-West_ABI_Air_Mass",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Air_Mass/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Air_Mass/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -125,7 +125,7 @@
       "slug": "GOES-East_ABI_Dust",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Dust/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_Dust/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -133,7 +133,7 @@
       "slug": "GOES-West_ABI_Dust",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Dust/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_Dust/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -141,7 +141,7 @@
       "slug": "GOES-East_ABI_FireTemp",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-East_ABI_FireTemp/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-East_ABI_FireTemp/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -149,7 +149,7 @@
       "slug": "GOES-West_ABI_FireTemp",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GOES-West_ABI_FireTemp/{z}/{y}/{x}.png?time=default"
+      "tile_url_template": "/api/gibs/tile/GOES-West_ABI_FireTemp/{z}/{y}/{x}.png?time=default"
     },
     {
       "category": "Satellite",
@@ -157,7 +157,7 @@
       "slug": "VIIRS_SNPP_Thermal_Anomalies_375m_All",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_Thermal_Anomalies_375m_All/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/VIIRS_SNPP_Thermal_Anomalies_375m_All/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -166,7 +166,7 @@
       "slug": "VIIRS_NOAA20_Thermal_Anomalies_375m_All",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/VIIRS_NOAA20_Thermal_Anomalies_375m_All/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/VIIRS_NOAA20_Thermal_Anomalies_375m_All/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -175,7 +175,7 @@
       "slug": "MODIS_Terra_Thermal_Anomalies_All",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Terra_Thermal_Anomalies_All/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Terra_Thermal_Anomalies_All/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -184,7 +184,7 @@
       "slug": "MODIS_Aqua_Thermal_Anomalies_All",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Thermal_Anomalies_All/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Thermal_Anomalies_All/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -193,7 +193,7 @@
       "slug": "IMERG_Precipitation_Rate_30min",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/IMERG_Precipitation_Rate_30min/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/IMERG_Precipitation_Rate_30min/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -202,7 +202,7 @@
       "slug": "GHRSST_L4_MUR_Sea_Surface_Temperature",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GHRSST_L4_MUR_Sea_Surface_Temperature/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/GHRSST_L4_MUR_Sea_Surface_Temperature/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -211,7 +211,7 @@
       "slug": "AMSR2_Sea_Ice_Concentration",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/AMSR2_Sea_Ice_Concentration/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/AMSR2_Sea_Ice_Concentration/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -220,7 +220,7 @@
       "slug": "MODIS_Terra_Snow_Cover",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Terra_Snow_Cover/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Terra_Snow_Cover/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -229,7 +229,7 @@
       "slug": "MODIS_Aqua_Snow_Cover",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Snow_Cover/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Snow_Cover/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -238,7 +238,7 @@
       "slug": "SMAP_Soil_Moisture",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/SMAP_Soil_Moisture/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/SMAP_Soil_Moisture/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -247,7 +247,7 @@
       "slug": "MODIS_Terra_Aerosol_Optical_Depth",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Terra_Aerosol_Optical_Depth/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Terra_Aerosol_Optical_Depth/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -256,7 +256,7 @@
       "slug": "MODIS_Aqua_Aerosol_Optical_Depth",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Aerosol_Optical_Depth/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MODIS_Aqua_Aerosol_Optical_Depth/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -265,7 +265,7 @@
       "slug": "OMI_Aerosol_Index",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/OMI_Aerosol_Index/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/OMI_Aerosol_Index/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -274,7 +274,7 @@
       "slug": "OMI_NO2_Tropospheric_Column",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/OMI_NO2_Tropospheric_Column/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/OMI_NO2_Tropospheric_Column/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -283,7 +283,7 @@
       "slug": "MOPITT_CO_Total_Column",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MOPITT_CO_Total_Column/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MOPITT_CO_Total_Column/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -292,7 +292,7 @@
       "slug": "AIRS_L2_Methane_400hPa_Day",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/AIRS_L2_Methane_400hPa_Day/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/AIRS_L2_Methane_400hPa_Day/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -301,7 +301,7 @@
       "slug": "AIRS_L2_Carbon_Monoxide_500hPa_Day",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/AIRS_L2_Carbon_Monoxide_500hPa_Day/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/AIRS_L2_Carbon_Monoxide_500hPa_Day/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -310,7 +310,7 @@
       "slug": "AIRS_L2_RelativeHumidity_500hPa_Day",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/AIRS_L2_RelativeHumidity_500hPa_Day/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/AIRS_L2_RelativeHumidity_500hPa_Day/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -319,7 +319,7 @@
       "slug": "MERRA2_2m_Air_Temperature_Monthly",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MERRA2_2m_Air_Temperature_Monthly/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MERRA2_2m_Air_Temperature_Monthly/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -328,7 +328,7 @@
       "slug": "MERRA2_Total_Precipitable_Water_Vapor_Monthly",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/MERRA2_Total_Precipitable_Water_Vapor_Monthly/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/MERRA2_Total_Precipitable_Water_Vapor_Monthly/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -337,7 +337,7 @@
       "slug": "GRACE_Tellus_Liquid_Water_Equivalent_Thickness",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/GRACE_Tellus_Liquid_Water_Equivalent_Thickness/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/GRACE_Tellus_Liquid_Water_Equivalent_Thickness/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -346,7 +346,7 @@
       "slug": "BlueMarble_NextGeneration",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/BlueMarble_NextGeneration/{z}/{y}/{x}.jpeg?time=default",
+      "tile_url_template": "/api/gibs/tile/BlueMarble_NextGeneration/{z}/{y}/{x}.jpeg?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {
@@ -355,7 +355,7 @@
       "slug": "ASTER_GDEM_Greyscale_Shaded_Relief",
       "source_type": "raster",
       "attribution": "NASA GIBS",
-  "tile_url_template": "/api/gibs/tile/ASTER_GDEM_Greyscale_Shaded_Relief/{z}/{y}/{x}.png?time=default",
+      "tile_url_template": "/api/gibs/tile/ASTER_GDEM_Greyscale_Shaded_Relief/{z}/{y}/{x}.png?time=default",
       "time_format": "YYYY-MM-DD"
     },
     {

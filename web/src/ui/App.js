@@ -145,8 +145,7 @@ export default function App() {
     const [results, setResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     // One-time tile proxy fallback notification (persist across mounts)
-    // @ts-ignore - attach to module scope variable
-    let _tileProxyWarned = globalThis.__TILE_PROXY_WARNED__ || false;
+    let _tileProxyWarned = globalThis.__TILE_PROXY_WARNED__ ?? false;
     const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
     useEffect(() => {
         if (!_tileProxyWarned && (!import.meta.env.VITE_TILE_BASE || tileBase.includes('localhost'))) {

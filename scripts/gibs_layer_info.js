@@ -17,7 +17,7 @@ const logFilePath = path.join(logDir, 'gibs_layer_info.log');
 
 // Ensure the log directory exists
 if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 // Create a write stream to the log file
@@ -26,11 +26,11 @@ const logStream = fs.createWriteStream(logFilePath, { flags: 'w' });
 // Redirect console.log to the log file only
 const originalConsoleLog = console.log; // Keep a reference to the original console.log if needed elsewhere
 console.log = (...args) => {
-    logStream.write(args.join(' ') + '\n'); // Only write to log file
+  logStream.write(args.join(' ') + '\n'); // Only write to log file
 };
 
 // Helpers
-const toArray = x => (Array.isArray(x) ? x : x ? [x] : []);
+const toArray = (x) => (Array.isArray(x) ? x : x ? [x] : []);
 function textOf(v) {
   if (typeof v === 'string') return v;
   if (v && typeof v === 'object' && '#text' in v) {
@@ -42,42 +42,42 @@ function textOf(v) {
 function pickLayerInfo(layer) {
   return {
     identifier: textOf(layer?.Identifier),
-    title: textOf(layer?.Title)
+    title: textOf(layer?.Title),
   };
 }
 
 // Fetch + parse
 async function fetchAndLogLayers() {
-    try {
-        const res = await fetch(WMTS_URL);
-        if (!res.ok) {
-            console.error(`Fetch failed: ${res.status} ${res.statusText}`);
-            process.exit(1);
-        }
-        const xml = await res.text();
-
-        const parser = new XMLParser({
-            ignoreAttributes: false,
-            removeNSPrefix: true,
-            attributeNamePrefix: '',
-        });
-        const cap = parser.parse(xml);
-
-        const layers = toArray(cap?.Capabilities?.Contents?.Layer);
-
-        console.log(`--- GIBS Layer Information (${new Date().toISOString()}) ---`);
-        for (const L of layers) {
-            const info = pickLayerInfo(L);
-            console.log(`${info.identifier} --- ${info.title}`);
-        }
-        console.log(`--- End of GIBS Layer Information ---`);
-    } catch (error) {
-        // Ensure errors still go to the console
-        originalConsoleLog(`An error occurred: ${error.message}`);
-        process.exit(1);
-    } finally {
-        logStream.end(); // Close the log file stream
+  try {
+    const res = await fetch(WMTS_URL);
+    if (!res.ok) {
+      console.error(`Fetch failed: ${res.status} ${res.statusText}`);
+      process.exit(1);
     }
+    const xml = await res.text();
+
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      removeNSPrefix: true,
+      attributeNamePrefix: '',
+    });
+    const cap = parser.parse(xml);
+
+    const layers = toArray(cap?.Capabilities?.Contents?.Layer);
+
+    console.log(`--- GIBS Layer Information (${new Date().toISOString()}) ---`);
+    for (const L of layers) {
+      const info = pickLayerInfo(L);
+      console.log(`${info.identifier} --- ${info.title}`);
+    }
+    console.log(`--- End of GIBS Layer Information ---`);
+  } catch (error) {
+    // Ensure errors still go to the console
+    originalConsoleLog(`An error occurred: ${error.message}`);
+    process.exit(1);
+  } finally {
+    logStream.end(); // Close the log file stream
+  }
 }
 
 fetchAndLogLayers();

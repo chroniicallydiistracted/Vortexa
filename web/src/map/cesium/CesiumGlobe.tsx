@@ -10,15 +10,13 @@ import {
   UrlTemplateImageryProvider,
   PointPrimitiveCollection,
   Color,
+  ImageryLayer,
 } from 'cesium';
 
 // Narrowing helpers for accessing private (underscore) arrays without using `as any`.
 interface CreditLike {
   _credit?: { html?: string };
 }
-
-type ImageryLayerInstance = InstanceType<typeof Viewer>['imageryLayers']['_layers'][number] &
-  CreditLike; // access underbar via indexed type
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -87,8 +85,7 @@ export function CesiumGlobe() {
   // Reactive GIBS layer (simple check each render; could optimize w/ ref)
   const viewerRef = useRef<InstanceType<typeof Viewer> | null>(null);
   // Keep direct references to primitives we add (avoid spelunking private fields)
-  // Using `any` here avoids the Cesium type namespace limitation in this build context; we only store/remove the instance.
-  const firmsRef = useRef<any>(null);
+  const firmsRef = useRef<PointPrimitiveCollection | null>(null);
   const gibsOn = useStore((s) => s.gibsGeocolor3d);
   const gibsSelectedTime = useStore((s) => s.gibsSelectedTime);
   const gibsTimestamps = useStore((s) => s.gibsTimestamps);
@@ -100,21 +97,21 @@ export function CesiumGlobe() {
       const viewer = viewerRef.current;
       if (!viewer) return; // not yet initialized
       const layers = viewer.imageryLayers;
-      const existing = (layers as unknown as { _layers: ImageryLayerInstance[] })._layers.find(
-        (l) => {
-          const credit = (l as CreditLike)._credit;
-          return credit && /GOES-East GeoColor/i.test(credit.html || '');
-        },
-      );
+      const existing = (
+        layers as unknown as { _layers: Array<ImageryLayer & CreditLike> }
+      )._layers.find((l) => {
+        const credit = (l as CreditLike)._credit;
+        return credit && /GOES-East GeoColor/i.test(credit.html || '');
+      });
       if (gibsOn) {
         // Determine time parameter (selected or latest available)
-        const timeIso =
+        const _timeIso =
           gibsSelectedTime ||
           gibsTimestamps[gibsTimestamps.length - 1] ||
           new Date().toISOString().slice(0, 19) + 'Z';
         const template =
-              import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
-              '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default';
+          import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
+          '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default';
         if (!existing) {
           // For Cesium, we use a template that will be filled by the tile provider
           // The {z}, {y}, {x} placeholders are handled by Cesium internally
@@ -184,12 +181,12 @@ export function CesiumGlobe() {
       const viewer = viewerRef.current;
       if (!viewer) return;
       const layers = viewer.imageryLayers;
-      const existing = (layers as unknown as { _layers: ImageryLayerInstance[] })._layers.find(
-        (l) => {
-          const credit = (l as CreditLike)._credit;
-          return credit && /OWM Temperature/i.test(credit.html || '');
-        },
-      );
+      const existing = (
+        layers as unknown as { _layers: Array<ImageryLayer & CreditLike> }
+      )._layers.find((l) => {
+        const credit = (l as CreditLike)._credit;
+        return credit && /OWM Temperature/i.test(credit.html || '');
+      });
       if (!showOwmTemp && existing) {
         layers.remove(existing, true);
         return;

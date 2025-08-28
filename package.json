@@ -15,6 +15,8 @@
   "scripts": {
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
     "dev:proxy": "pnpm --filter tile-proxy dev",
     "dev:web": "pnpm --filter weather-web dev",
     "dev:alerts": "pnpm --filter @westfam/alerts build --watch",
@@ -34,7 +36,11 @@
     "codemod:aliases": "node scripts/codemod-alias-imports.mjs",
     "typecheck": "pnpm -w exec tsc -b web services/proxy services/alerts services/shared --pretty false",
     "test:wmts": "node scripts/wmts_pick.js > logs/wmts_pick.log",
-    "gibs:info": "node scripts/gibs_layer_info.js"
+    "gibs:info": "node scripts/gibs_layer_info.js",
+    "py:format": "python3 -m black services/ingest",
+    "py:format:check": "python3 -m black --check services/ingest",
+    "py:lint": "python3 -m ruff check services/ingest",
+    "py:type": "python3 -m mypy services/ingest"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",

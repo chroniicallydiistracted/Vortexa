@@ -3,16 +3,16 @@
 
 export function is3DEnabled(): boolean {
   const fromProcess =
-    typeof process !== 'undefined' && (process as any).env
-      ? (process as any).env.VITE_ENABLE_3D
+    typeof process !== 'undefined' && typeof process.env !== 'undefined'
+      ? process.env.VITE_ENABLE_3D
       : undefined;
-  let fromVite: string | undefined;
-  try {
-    // @ts-ignore - Vite injects import.meta.env
-    fromVite = (import.meta as any)?.env?.VITE_ENABLE_3D;
-  } catch {
-    fromVite = undefined;
-  }
+  const fromVite = (() => {
+    try {
+      return import.meta.env.VITE_ENABLE_3D as string | undefined;
+    } catch {
+      return undefined;
+    }
+  })();
   const v = fromProcess ?? fromVite;
   return v === '1';
 }

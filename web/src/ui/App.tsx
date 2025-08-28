@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppShell,
   ScrollArea,
@@ -186,12 +186,11 @@ export default function App() {
   const [searchLoading, setSearchLoading] = useState(false);
   // One-time tile proxy fallback notification (persist across mounts)
 
-  // @ts-ignore - attach to module scope variable
-  let _tileProxyWarned: boolean = (globalThis as any).__TILE_PROXY_WARNED__ || false;
+  let _tileProxyWarned: boolean = globalThis.__TILE_PROXY_WARNED__ ?? false;
   const tileBase = import.meta.env.VITE_TILE_BASE || 'http://localhost:4000/tiles';
   useEffect(() => {
     if (!_tileProxyWarned && (!import.meta.env.VITE_TILE_BASE || tileBase.includes('localhost'))) {
-      (globalThis as any).__TILE_PROXY_WARNED__ = true;
+      globalThis.__TILE_PROXY_WARNED__ = true;
       _tileProxyWarned = true;
       notifications.show({
         color: 'yellow',

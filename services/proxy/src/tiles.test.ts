@@ -27,8 +27,10 @@ describe('/tiles/wmts normalization', () => {
       expect(r.status).toBe(307);
       expect(r.headers.location).toContain('/proxy?url=');
       const decoded = decodeURIComponent(r.headers.location.split('url=')[1]);
-  // Accept either the 'current' literal or an explicit time/date and any GoogleMapsCompatible level
-  expect(decoded).toMatch(/\/wmts\/epsg3857\/best\/LAYER\/default\/(?:current|[0-9T:\-Z]+)\/GoogleMapsCompatible/);
+      // Accept either the 'current' literal or an explicit time/date and any GoogleMapsCompatible level
+      expect(decoded).toMatch(
+        /\/wmts\/epsg3857\/best\/LAYER\/default\/(?:current|[0-9T:\-Z]+)\/GoogleMapsCompatible/,
+      );
     }
   });
 });

@@ -45,9 +45,7 @@ class RO {
   unobserve() {}
   disconnect() {}
 }
-declare global {
-  interface Window {}
-}
+// remove empty Window redeclaration; not needed here
 if (!('ResizeObserver' in globalThis)) {
   (globalThis as any).ResizeObserver = RO;
 }

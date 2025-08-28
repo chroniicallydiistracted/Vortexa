@@ -17,7 +17,22 @@ try {
   console.error('ERROR parsing catalog.json', { path: p, error: (e as Error).message });
   process.exit(1);
 }
-const layers: Layer[] = Array.isArray(raw) ? (raw as Layer[]) : (raw as any).layers || (raw as any);
+function isLayerArray(v: unknown): v is Layer[] {
+  return Array.isArray(v) && v.every((x) => typeof x === 'object' && x !== null);
+}
+function hasLayersField(v: unknown): v is { layers: unknown } {
+  return typeof v === 'object' && v !== null && 'layers' in v;
+}
+
+let layers: Layer[];
+if (isLayerArray(raw)) {
+  layers = raw;
+} else if (hasLayersField(raw) && isLayerArray((raw as { layers: unknown }).layers)) {
+  layers = (raw as { layers: Layer[] }).layers;
+} else {
+  console.error('ERROR: catalog.json is not an array or { layers: [] } shape');
+  process.exit(1);
+}
 
 let errors = 0;
 const byTemplate = new Map<string, string[]>();
@@ -44,7 +59,7 @@ for (const L of layers) {
     byTemplate.get(key)!.push(id);
   }
 }
-for (const [tmpl, ids] of byTemplate) {
+for (const [_template, ids] of byTemplate) {
   if (ids.length > 1) console.warn(`WARN  duplicate template used by: ${ids.join(', ')}`);
 }
 if (errors) {

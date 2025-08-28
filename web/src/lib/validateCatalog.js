@@ -40,14 +40,17 @@ export function validateCatalog(data) {
     else
         rawLayers = data;
     // Normalize common alternate keys so the Zod schema can validate consistently.
-    const normalized = (Array.isArray(rawLayers) ? rawLayers : []).map((l) => ({
-        ...l,
-        // prefer explicit fields, but fall back to common alternate names
-        type: l.type || l.source_type || l.sourceType || undefined,
-        template: l.template || l.tile_url_template || l.tile_url || l.tileUrl || undefined,
-        url: l.url || l.api_endpoint || l.apiEndpoint || undefined,
-        name: l.name || l.suggested_label || l.suggestedLabel || undefined,
-    }));
+    const normalized = (Array.isArray(rawLayers) ? rawLayers : []).map((l) => {
+        const r = l;
+        return {
+            ...r,
+            // prefer explicit fields, but fall back to common alternate names
+            type: (r.type || r.source_type || r.sourceType),
+            template: (r.template || r.tile_url_template || r.tile_url || r.tileUrl),
+            url: (r.url || r.api_endpoint || r.apiEndpoint),
+            name: (r.name || r.suggested_label || r.suggestedLabel),
+        };
+    });
     const layers = CatalogSchema.parse(normalized);
     const seen = new Set();
     for (const l of layers) {
