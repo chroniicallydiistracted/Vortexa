@@ -5,7 +5,7 @@ const tsParser = require('@typescript-eslint/parser');
 module.exports = [
   {
     files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['**/dist/**', '**/node_modules/**', 'sam-installer/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', 'sam-installer/**', '**/*.d.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -24,9 +24,28 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.test.ts', '**/__tests__/**/*.ts', '**/*.spec.ts'],
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/__tests__/**/*.ts',
+      '**/__tests__/**/*.tsx',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: [
+      'web/vitest.setup.*',
+      'web/src/test-utils/**/*.{ts,tsx}',
+      'services/proxy/health-check.ts',
+      'scripts/**/*.{ts,tsx}',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 ];

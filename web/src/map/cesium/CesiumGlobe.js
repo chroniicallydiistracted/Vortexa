@@ -74,7 +74,6 @@ export function CesiumGlobe() {
     // Reactive GIBS layer (simple check each render; could optimize w/ ref)
     const viewerRef = useRef(null);
     // Keep direct references to primitives we add (avoid spelunking private fields)
-    // Using `any` here avoids the Cesium type namespace limitation in this build context; we only store/remove the instance.
     const firmsRef = useRef(null);
     const gibsOn = useStore((s) => s.gibsGeocolor3d);
     const gibsSelectedTime = useStore((s) => s.gibsSelectedTime);
@@ -95,11 +94,11 @@ export function CesiumGlobe() {
             });
             if (gibsOn) {
                 // Determine time parameter (selected or latest available)
-                const timeIso = gibsSelectedTime ||
+                const _timeIso = gibsSelectedTime ||
                     gibsTimestamps[gibsTimestamps.length - 1] ||
                     new Date().toISOString().slice(0, 19) + 'Z';
                 const template = import.meta.env.VITE_GIBS_WMTS_TILE_URL ||
-                    '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.jpg?time=default';
+                    '/api/gibs/tile/GOES-East_ABI_GeoColor/{z}/{y}/{x}.png?time=default';
                 if (!existing) {
                     // For Cesium, we use a template that will be filled by the tile provider
                     // The {z}, {y}, {x} placeholders are handled by Cesium internally

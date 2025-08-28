@@ -9,6 +9,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { fetch } from 'undici';
+import type { HeadersInit } from 'undici';
 import { spawn, execSync } from 'node:child_process';
 import net from 'node:net';
 
@@ -229,7 +230,7 @@ const gibsTimeCache = new Map<string, { ts: number; value: string }>();
 
 async function fetchWithTimeout(
   resource: string,
-  opts: { timeout?: number; headers?: any; method?: string } = {},
+  opts: { timeout?: number; headers?: HeadersInit; method?: string } = {},
 ) {
   const { timeout = 5000, ...rest } = opts;
   const controller = new AbortController();
@@ -250,9 +251,11 @@ async function getRainviewerTimestamps(): Promise<number[]> {
       timeout: 4000,
     });
     if (r.ok) {
-      const data: any = await r.json();
-      const past: number[] = data?.radar?.past?.map((p: any) => p.time) || [];
-      const nowcast: number[] = data?.radar?.nowcast?.map((p: any) => p.time) || [];
+      const data = (await r.json()) as {
+        radar?: { past?: { time: number }[]; nowcast?: { time: number }[] };
+      };
+      const past: number[] = (data.radar?.past || []).map((p) => p.time);
+      const nowcast: number[] = (data.radar?.nowcast || []).map((p) => p.time);
       const timestamps = [...past, ...nowcast];
       rainviewerCache = { ts: now, timestamps };
       return timestamps;
@@ -516,12 +519,13 @@ async function main() {
           } as Result;
         })(),
       ]);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const err = e as Error;
       res = {
         slug: layer.slug,
         status: null,
         ok: false,
-        message: e?.message || 'ERROR',
+        message: err?.message || 'ERROR',
       };
     }
     if (layer.slug === 'cloud-top-temperature-height' && res.status === 400) {

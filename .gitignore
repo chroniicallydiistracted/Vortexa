@@ -29,3 +29,6 @@ GIBS FAVORITE LAYER MASTERLIST.txt
 
 # Logs
 /logs/
+
+# Local Python virtualenv
+.venv/

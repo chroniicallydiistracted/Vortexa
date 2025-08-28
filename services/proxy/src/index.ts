@@ -688,13 +688,26 @@ export function createApp(opts: CreateAppOptions = {}) {
         try {
           const get = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: cacheKey }));
           res.set('Content-Type', get.ContentType || 'application/octet-stream');
-          // Body is a stream (Readable). Type cast to allow piping.
-          (get.Body as any).pipe(res);
+          // Body is a stream (Readable) in Node.js; pipe when available.
+          const body = get.Body;
+          if (body && typeof (body as unknown as { pipe?: unknown }).pipe === 'function') {
+            (body as unknown as NodeJS.ReadableStream).pipe(res);
+          } else if (
+            body &&
+            typeof (body as unknown as { arrayBuffer?: unknown }).arrayBuffer === 'function'
+          ) {
+            const ab = await (body as unknown as Blob).arrayBuffer();
+            res.send(Buffer.from(ab));
+          } else {
+            logger.warn({ msg: 's3 body not stream/blob; sending 502', cacheKey });
+            return res.status(502).json({ error: 'invalid_cache_object' });
+          }
           proxyCacheHits.inc({ host });
           updateHitRatio();
           return;
         } catch (e) {
-          const code = (e as any)?.$metadata?.httpStatusCode;
+          const code = (e as { $metadata?: { httpStatusCode?: number } })?.$metadata
+            ?.httpStatusCode;
           if (code !== 404) {
             logger.warn({
               msg: 's3 get failed (treat as miss)',
@@ -778,10 +791,10 @@ export function createApp(opts: CreateAppOptions = {}) {
     const explicitTime = (time || '').trim() || 'default';
 
     try {
-      // Defer to the capabilities helper to choose a TileMatrixSet for this layer.
-      // Importing pickTms dynamically to avoid circular import at module top-level.
-      const { pickTms } = await import('./lib/gibs/capabilities.js');
-      const tms = await pickTms(String(layer));
+      // Choose TMS via a fast heuristic to avoid network in this redirect path.
+      const tms = /GOES|ABI/i.test(String(layer))
+        ? 'GoogleMapsCompatible_Level7'
+        : 'GoogleMapsCompatible_Level8';
 
       // Construct path following WMTS REST pattern:
       // /wmts/epsg3857/best/{Layer}/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.{ext}

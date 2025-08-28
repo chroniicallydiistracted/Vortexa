@@ -10,3 +10,11 @@ interface ImportMeta {
 
 // Cesium module stub (types included with package, but ensure TS finds it)
 declare module 'cesium';
+
+// Test-only global flag used to avoid repeated notifications
+declare global {
+  // eslint-disable-next-line no-var
+  var __TILE_PROXY_WARNED__: boolean | undefined;
+}
+
+export {};

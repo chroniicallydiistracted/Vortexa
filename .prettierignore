@@ -2,3 +2,6 @@
 sam-installer/
 # Optionally ignore lockfile to avoid large diffs purely from formatting
 pnpm-lock.yaml
+.mypy_cache/
+.ruff_cache/
+.venv/

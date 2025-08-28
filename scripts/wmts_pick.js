@@ -14,13 +14,13 @@ const WMTS_URL =
   'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities';
 
 const argv = process.argv.slice(2);
-const flags = new Set(argv.filter(a => a.startsWith('--')));
-const argTerms = argv.filter(a => !a.startsWith('--'));
+const flags = new Set(argv.filter((a) => a.startsWith('--')));
+const argTerms = argv.filter((a) => !a.startsWith('--'));
 const query = argTerms.join(' ').trim();
 const anyMode = flags.has('--any');
 const jsonOut = flags.has('--json');
 const showTimes = flags.has('--show-times');
-const regexFlag = argv.find(a => a.startsWith('--regex='));
+const regexFlag = argv.find((a) => a.startsWith('--regex='));
 const rx = regexFlag
   ? (() => {
       const raw = regexFlag.split('=').slice(1).join('=');
@@ -31,8 +31,8 @@ const rx = regexFlag
   : null;
 
 // Helpers
-const toArray = x => (Array.isArray(x) ? x : x ? [x] : []);
-const num = v => (v == null ? undefined : Number(v));
+const toArray = (x) => (Array.isArray(x) ? x : x ? [x] : []);
+const num = (v) => (v == null ? undefined : Number(v));
 function textOf(v) {
   if (typeof v === 'string') return v;
   if (v && typeof v === 'object' && '#text' in v) {
@@ -46,16 +46,16 @@ function pickTitleId(layer) {
 }
 function keywordMatch(hay, terms, any) {
   hay = hay.toLowerCase();
-  const needles = terms.map(s => s.toLowerCase());
-  return any ? needles.some(t => hay.includes(t)) : needles.every(t => hay.includes(t));
+  const needles = terms.map((s) => s.toLowerCase());
+  return any ? needles.some((t) => hay.includes(t)) : needles.every((t) => hay.includes(t));
 }
 function extractResourceURLs(layer) {
   const rus = toArray(layer?.ResourceURL);
-  const tiles = rus.filter(r => r?.resourceType === 'tile');
-  const domains = rus.filter(r => r?.resourceType?.toLowerCase() === 'domains');
+  const tiles = rus.filter((r) => r?.resourceType === 'tile');
+  const domains = rus.filter((r) => r?.resourceType?.toLowerCase() === 'domains');
   return {
-    tile: tiles.map(r => ({ template: r.template, format: r.format })),
-    domains: domains.map(r => ({ template: r.template, format: r.format })),
+    tile: tiles.map((r) => ({ template: r.template, format: r.format })),
+    domains: domains.map((r) => ({ template: r.template, format: r.format })),
   };
 }
 
@@ -69,8 +69,8 @@ const xml = await res.text();
 
 const parser = new XMLParser({
   ignoreAttributes: false,
-  removeNSPrefix: true,   // ows:Title -> Title
-  attributeNamePrefix: '',// attributes become plain keys
+  removeNSPrefix: true, // ows:Title -> Title
+  attributeNamePrefix: '', // attributes become plain keys
 });
 const cap = parser.parse(xml);
 
@@ -80,10 +80,10 @@ const tmsDefs = toArray(cap?.Capabilities?.Contents?.TileMatrixSet);
 
 // Build map of global TileMatrixSet definitions
 const tmsMap = new Map(
-  tmsDefs.map(def => {
+  tmsDefs.map((def) => {
     const name = textOf(def?.Identifier);
-    const tmsMatrices = toArray(def?.TileMatrix).map(tm => ({
-      identifier: textOf(tm?.Identifier),            // usually "0", "1", ...
+    const tmsMatrices = toArray(def?.TileMatrix).map((tm) => ({
+      identifier: textOf(tm?.Identifier), // usually "0", "1", ...
       scaleDenominator: num(tm?.ScaleDenominator),
       topLeftCorner: String(tm?.TopLeftCorner ?? ''),
       tileWidth: num(tm?.TileWidth),
@@ -92,9 +92,7 @@ const tmsMap = new Map(
       matrixHeight: num(tm?.MatrixHeight),
     }));
     // min/max zoom inferred from identifiers if numeric
-    const zooms = tmsMatrices
-      .map(m => Number(m.identifier))
-      .filter(n => Number.isFinite(n));
+    const zooms = tmsMatrices.map((m) => Number(m.identifier)).filter((n) => Number.isFinite(n));
     const minZoom = zooms.length ? Math.min(...zooms) : undefined;
     const maxZoom = zooms.length ? Math.max(...zooms) : undefined;
     return [
@@ -107,7 +105,7 @@ const tmsMap = new Map(
         maxZoom,
       },
     ];
-  })
+  }),
 );
 
 // Find matches
@@ -116,7 +114,7 @@ if (!query && !rx) {
   // List all layers if no query
   matches = layers.slice();
 } else {
-  matches = layers.filter(L => {
+  matches = layers.filter((L) => {
     const { title, identifier } = pickTitleId(L);
     const hay = `${title} ${identifier}`;
     return rx ? rx.test(hay) : keywordMatch(hay, query.split(/\s+/).filter(Boolean), anyMode);
@@ -130,7 +128,7 @@ if (matches.length === 0) {
 
 function summarizeLayer(layer) {
   const { title, identifier } = pickTitleId(layer);
-  const styles = toArray(layer?.Style).map(s => ({
+  const styles = toArray(layer?.Style).map((s) => ({
     title: textOf(s?.Title),
     identifier: textOf(s?.Identifier),
     isDefault: String(s?.isDefault) === 'true',
@@ -153,7 +151,7 @@ function summarizeLayer(layer) {
     : null;
 
   // Time dimension (if present)
-  const dimTime = toArray(layer?.Dimension).find(d => textOf(d?.Identifier) === 'Time');
+  const dimTime = toArray(layer?.Dimension).find((d) => textOf(d?.Identifier) === 'Time');
   const timeInfo = dimTime
     ? {
         uom: textOf(dimTime?.UOM),
@@ -168,9 +166,9 @@ function summarizeLayer(layer) {
   const rus = extractResourceURLs(layer);
 
   // TMS links + limits
-  const links = toArray(layer?.TileMatrixSetLink).map(link => {
+  const links = toArray(layer?.TileMatrixSetLink).map((link) => {
     const tmsName = textOf(link?.TileMatrixSet);
-    const limits = toArray(link?.TileMatrixSetLimits?.TileMatrixLimits).map(l => ({
+    const limits = toArray(link?.TileMatrixSetLimits?.TileMatrixLimits).map((l) => ({
       tileMatrix: textOf(l?.TileMatrix),
       minRow: num(l?.MinTileRow),
       maxRow: num(l?.MaxTileRow),
@@ -198,13 +196,11 @@ function summarizeLayer(layer) {
       mergedByZoom.set(l.tileMatrix, { ...l, source: 'limits' });
     }
     const perZoom = [...mergedByZoom.values()].sort(
-      (a, b) => Number(a.tileMatrix) - Number(b.tileMatrix)
+      (a, b) => Number(a.tileMatrix) - Number(b.tileMatrix),
     );
 
     // min/max zoom from defs or observed limits
-    const zNumbers = perZoom
-      .map(z => Number(z.tileMatrix))
-      .filter(n => Number.isFinite(n));
+    const zNumbers = perZoom.map((z) => Number(z.tileMatrix)).filter((n) => Number.isFinite(n));
     const minZoom = zNumbers.length ? Math.min(...zNumbers) : def?.minZoom;
     const maxZoom = zNumbers.length ? Math.max(...zNumbers) : def?.maxZoom;
 
@@ -247,9 +243,9 @@ if (!jsonOut) {
     console.log(`Title        : ${S.title}`);
     console.log(`Identifier   : ${S.identifier}`);
     if (S.styles?.length) {
-      const def = S.styles.find(s => s.isDefault)?.identifier || 'default';
+      const def = S.styles.find((s) => s.isDefault)?.identifier || 'default';
       console.log(
-        `Styles       : ${S.styles.map(s => `${s.identifier}${s.isDefault ? ' (default)' : ''}`).join(', ')}`
+        `Styles       : ${S.styles.map((s) => `${s.identifier}${s.isDefault ? ' (default)' : ''}`).join(', ')}`,
       );
       console.log(`Style (used) : ${def}`);
     }
@@ -257,7 +253,9 @@ if (!jsonOut) {
     if (S.wgs84BoundingBox)
       console.log(`WGS84 BBox   : ${S.wgs84BoundingBox.lower}  →  ${S.wgs84BoundingBox.upper}`);
     if (S.mercatorBoundingBox)
-      console.log(`EPSG:3857 BBox: ${S.mercatorBoundingBox.lower}  →  ${S.mercatorBoundingBox.upper}`);
+      console.log(
+        `EPSG:3857 BBox: ${S.mercatorBoundingBox.lower}  →  ${S.mercatorBoundingBox.upper}`,
+      );
 
     if (S.time) {
       console.log(`Time UOM     : ${S.time.uom}`);
@@ -289,9 +287,13 @@ if (!jsonOut) {
       for (const link of S.tileMatrixSetLinks) {
         console.log(
           `  - ${link.tileMatrixSet}` +
-            (link.googleMapsLevel != null ? ` (GoogleMapsCompatible Level ${link.googleMapsLevel})` : '') +
+            (link.googleMapsLevel != null
+              ? ` (GoogleMapsCompatible Level ${link.googleMapsLevel})`
+              : '') +
             (link.supportedCRS ? ` | CRS=${link.supportedCRS}` : '') +
-            (link.minZoom != null && link.maxZoom != null ? ` | zooms=${link.minZoom}…${link.maxZoom}` : '')
+            (link.minZoom != null && link.maxZoom != null
+              ? ` | zooms=${link.minZoom}…${link.maxZoom}`
+              : ''),
         );
         if (link.perZoom?.length) {
           console.log('    Per-zoom limits (TileMatrix → rows, cols):');
@@ -306,7 +308,9 @@ if (!jsonOut) {
   }
 
   if (matches.length > 1) {
-    console.log(`\nMatched ${matches.length} layers. Use quoted name or --regex to narrow, or add --json to export.`);
+    console.log(
+      `\nMatched ${matches.length} layers. Use quoted name or --regex to narrow, or add --json to export.`,
+    );
   }
 } else {
   // JSON mode: emit array of summaries
